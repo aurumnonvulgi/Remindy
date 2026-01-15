@@ -54,6 +54,10 @@ export default function Home() {
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [createMenuOpen, setCreateMenuOpen] = useState(false);
+  const [createListOpen, setCreateListOpen] = useState(false);
+  const [createListName, setCreateListName] = useState("");
+  const [createNotice, setCreateNotice] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "open" | "completed"
   >("all");
@@ -468,6 +472,58 @@ export default function Home() {
     }
 
     await supabase.auth.signOut();
+  };
+
+  const handleCreateAction = (
+    action: "task" | "day" | "reminder" | "list"
+  ) => {
+    if (action === "list") {
+      setCreateMenuOpen(false);
+      setCreateListOpen(true);
+      setCreateNotice("");
+      return;
+    }
+
+    setCreateMenuOpen(false);
+    setCreateNotice("Creation flow coming next. Tell me which to build first.");
+  };
+
+  const handleCreateList = async () => {
+    if (!supabase || !session) {
+      return;
+    }
+
+    const name = createListName.trim();
+    if (!name) {
+      setCreateNotice("Enter a list name.");
+      return;
+    }
+
+    setCreateNotice("Creating list...");
+    const { data, error } = await supabase
+      .from("lists")
+      .insert({
+        owner_id: session.user.id,
+        name,
+        color: null,
+        icon: null,
+      })
+      .select("id,name,color,icon,created_at")
+      .single();
+
+    if (error) {
+      setCreateNotice(error.message);
+      return;
+    }
+
+    if (data) {
+      setLists((prev) => [...prev, data]);
+      setActiveListId(data.id);
+    }
+
+    setCreateListName("");
+    setCreateListOpen(false);
+    setCreateNotice("List created.");
   };
 
   const focusTitleInput = () => {
@@ -988,6 +1044,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#f6f7fb] pb-28 text-[#1f2328]">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6">
+        {createNotice ? (
+          <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-[#1f2937] shadow-sm">
+            {createNotice}
+          </div>
+        ) : null}
         <header className="flex flex-col gap-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -999,7 +1060,10 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 rounded-xl bg-[#1f2937] px-4 py-2 text-sm font-semibold text-white shadow-sm">
+              <button
+                onClick={() => setCreateMenuOpen(true)}
+                className="flex items-center gap-2 rounded-xl bg-[#1f2937] px-4 py-2 text-sm font-semibold text-white shadow-sm"
+              >
                 <span className="text-lg leading-none">+</span>
                 Create
               </button>
@@ -1474,6 +1538,80 @@ export default function Home() {
                 className="flex-1 rounded-xl border border-[#eceff4] px-4 py-2 text-sm font-semibold text-[#6b7280]"
               >
                 Replace Existing
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {createMenuOpen ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[var(--shadow)]">
+            <h2 className="text-lg font-semibold">Create</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              What would you like to add?
+            </p>
+            <div className="mt-4 grid gap-3">
+              <button
+                onClick={() => handleCreateAction("task")}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-left text-sm font-semibold"
+              >
+                Create task
+              </button>
+              <button
+                onClick={() => handleCreateAction("day")}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-left text-sm font-semibold"
+              >
+                Create day
+              </button>
+              <button
+                onClick={() => handleCreateAction("reminder")}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-left text-sm font-semibold"
+              >
+                Create reminder
+              </button>
+              <button
+                onClick={() => handleCreateAction("list")}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-left text-sm font-semibold"
+              >
+                Create list
+              </button>
+            </div>
+            <button
+              onClick={() => setCreateMenuOpen(false)}
+              className="mt-4 w-full rounded-2xl bg-[#f3f4f6] px-4 py-2 text-sm font-semibold text-[#1f2937]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {createListOpen ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[var(--shadow)]">
+            <h2 className="text-lg font-semibold">New list</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              Give your list a name.
+            </p>
+            <input
+              value={createListName}
+              onChange={(event) => setCreateListName(event.target.value)}
+              placeholder="List name"
+              className="mt-4 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <button
+                onClick={() => setCreateListOpen(false)}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateList}
+                className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
+              >
+                Create list
               </button>
             </div>
           </div>
