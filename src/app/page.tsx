@@ -715,6 +715,7 @@ export default function Home() {
         setAudioClips((prev) => [...prev, blob]);
         stream.getTracks().forEach((track) => track.stop());
         setVoiceRecording(false);
+        setActiveTaskSection("reminder");
       };
 
       mediaRecorderRef.current = recorder;
@@ -790,6 +791,7 @@ export default function Home() {
     setDoodlePreview(dataUrl);
     setDoodleDirty(true);
     setDoodleOpen(false);
+    setActiveTaskSection("reminder");
     if (invalidField === "doodle") {
       setInvalidField(null);
     }
@@ -1735,6 +1737,7 @@ export default function Home() {
                   onChange={(event) => {
                     setCreateTaskListId(event.target.value);
                     setActiveListId(event.target.value);
+                    setActiveTaskSection("title");
                     if (invalidField === "list") {
                       setInvalidField(null);
                     }
@@ -1766,7 +1769,7 @@ export default function Home() {
                   activeTaskSection === "title"
                     ? "border-[#1f2937] bg-[#f8f9fb]"
                     : "border-black/10 bg-white"
-                }`}
+                } ${activeTaskSection === "title" && !noteTitle.trim() ? "animate-pulse" : ""}`}
                 onClick={() => setActiveTaskSection("title")}
               >
                 <div className="space-y-2">
@@ -1785,7 +1788,11 @@ export default function Home() {
                     ref={titleInputRef}
                     value={noteTitle}
                     onChange={(event) => {
-                      setNoteTitle(event.target.value);
+                      const value = event.target.value;
+                      setNoteTitle(value);
+                      if (value.trim()) {
+                        setActiveTaskSection("type");
+                      }
                       if (invalidField === "title") {
                         setInvalidField(null);
                       }
@@ -1823,7 +1830,7 @@ export default function Home() {
                   activeTaskSection === "type"
                     ? "border-[#1f2937] bg-[#f8f9fb]"
                     : "border-black/10 bg-white"
-                }`}
+                } ${activeTaskSection === "type" ? "animate-pulse" : ""}`}
                 onClick={() => setActiveTaskSection("type")}
               >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1840,6 +1847,7 @@ export default function Home() {
                       key={option.value}
                       onClick={() => {
                         setNoteType(option.value as Item["type"]);
+                        setActiveTaskSection("details");
                         if (invalidField) {
                           setInvalidField(null);
                         }
@@ -1862,7 +1870,7 @@ export default function Home() {
                     activeTaskSection === "details"
                       ? "border-[#1f2937] bg-[#f8f9fb]"
                       : "border-black/10 bg-white"
-                  }`}
+                  } ${activeTaskSection === "details" && !noteBody.trim() ? "animate-pulse" : ""}`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1872,7 +1880,11 @@ export default function Home() {
                     ref={noteBodyRef}
                     value={noteBody}
                     onChange={(event) => {
-                      setNoteBody(event.target.value);
+                      const value = event.target.value;
+                      setNoteBody(value);
+                      if (value.trim()) {
+                        setActiveTaskSection("reminder");
+                      }
                       if (invalidField === "notes") {
                         setInvalidField(null);
                       }
@@ -1895,7 +1907,7 @@ export default function Home() {
                     activeTaskSection === "details"
                       ? "border-[#1f2937] bg-[#f8f9fb]"
                       : "border-black/10 bg-white"
-                  }`}
+                  } ${activeTaskSection === "details" && audioClips.length === 0 ? "animate-pulse" : ""}`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1935,7 +1947,7 @@ export default function Home() {
                     activeTaskSection === "details"
                       ? "border-[#1f2937] bg-[#f8f9fb]"
                       : "border-black/10 bg-white"
-                  }`}
+                  } ${activeTaskSection === "details" && !mediaFile ? "animate-pulse" : ""}`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1947,6 +1959,9 @@ export default function Home() {
                     accept="image/*,video/*"
                     onChange={(event) => {
                       handleMediaChange(event);
+                      if (event.target.files?.[0]) {
+                        setActiveTaskSection("reminder");
+                      }
                       if (invalidField === "media") {
                         setInvalidField(null);
                       }
@@ -1983,7 +1998,7 @@ export default function Home() {
                     activeTaskSection === "details"
                       ? "border-[#1f2937] bg-[#f8f9fb]"
                       : "border-black/10 bg-white"
-                  }`}
+                  } ${activeTaskSection === "details" && !doodleDirty ? "animate-pulse" : ""}`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -2055,6 +2070,12 @@ export default function Home() {
                   activeTaskSection === "reminder"
                     ? "border-[#1f2937] bg-[#f8f9fb]"
                     : "border-black/10 bg-white"
+                } ${
+                  activeTaskSection === "reminder" &&
+                  reminderEnabled &&
+                  !reminderTime
+                    ? "animate-pulse"
+                    : ""
                 }`}
                 onClick={() => setActiveTaskSection("reminder")}
               >
@@ -2112,7 +2133,11 @@ export default function Home() {
                         type="time"
                         value={reminderTime}
                         onChange={(event) => {
-                          setReminderTime(event.target.value);
+                          const value = event.target.value;
+                          setReminderTime(value);
+                          if (value) {
+                            setActiveTaskSection("location");
+                          }
                           if (invalidField === "reminderTime") {
                             setInvalidField(null);
                           }
@@ -2134,6 +2159,12 @@ export default function Home() {
                   activeTaskSection === "location"
                     ? "border-[#1f2937] bg-[#f8f9fb]"
                     : "border-black/10 bg-white"
+                } ${
+                  activeTaskSection === "location" &&
+                  locationMode === "address" &&
+                  !locationValue.trim()
+                    ? "animate-pulse"
+                    : ""
                 }`}
                 onClick={() => setActiveTaskSection("location")}
               >
@@ -2162,7 +2193,11 @@ export default function Home() {
                   ref={locationInputRef}
                   value={locationValue}
                   onChange={(event) => {
-                    setLocationValue(event.target.value);
+                    const value = event.target.value;
+                    setLocationValue(value);
+                    if (value.trim()) {
+                      setActiveTaskSection("review");
+                    }
                     if (invalidField === "location") {
                       setInvalidField(null);
                     }
