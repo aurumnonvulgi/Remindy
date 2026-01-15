@@ -1,0 +1,16 @@
+{
+  "name": "AddOne",
+  "short_name": "AddOne",
+  "description": "A mobile-first task and list app centered on one fast add action.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#f04d2d",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
