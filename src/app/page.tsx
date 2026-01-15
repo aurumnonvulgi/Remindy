@@ -395,7 +395,7 @@ export default function Home() {
   }, [audioClipUrls]);
 
   useEffect(() => {
-    if (noteType !== "doodle") {
+    if (noteType !== "doodle" || !doodleOpen) {
       return;
     }
 
@@ -429,7 +429,7 @@ export default function Home() {
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-  }, [noteType, doodlePreview]);
+  }, [noteType, doodleOpen, doodlePreview]);
 
   useEffect(() => {
     if (!supabase || !session) {
@@ -650,6 +650,14 @@ export default function Home() {
     recognition.start();
   };
 
+  const handleToggleDictation = () => {
+    if (speechActive || recognitionRef.current) {
+      handleStopDictation();
+      return;
+    }
+    handleStartDictation();
+  };
+
   const handleStopDictation = () => {
     if (dictationStopTimeoutRef.current) {
       window.clearTimeout(dictationStopTimeoutRef.current);
@@ -700,6 +708,14 @@ export default function Home() {
 
   const handleVoiceRecordStop = () => {
     mediaRecorderRef.current?.stop();
+  };
+
+  const handleVoiceRecordToggle = () => {
+    if (voiceRecording) {
+      handleVoiceRecordStop();
+      return;
+    }
+    handleVoiceRecordStart();
   };
 
   const handleRecordChoice = (action: "add" | "replace") => {
@@ -1626,11 +1642,15 @@ export default function Home() {
 
             <div className="mt-5 grid gap-5">
               <div
-                className={`rounded-2xl border px-4 py-4 ${
+                className={`rounded-2xl border px-4 py-4 transition ${
                   activeTaskSection === "list"
                     ? "border-[#1f2937] bg-[#f8f9fb]"
                     : "border-black/10 bg-white"
-                } ${!createTaskListId ? "animate-pulse" : ""}`}
+                } ${
+                  !createTaskListId
+                    ? "animate-pulse border-[#f4c07b] bg-[#fff4d6] shadow-[0_0_0_4px_rgba(244,192,123,0.15)]"
+                    : ""
+                }`}
                 onClick={() => setActiveTaskSection("list")}
               >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1690,9 +1710,7 @@ export default function Home() {
                     className="flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                   />
                   <button
-                    onPointerDown={handleStartDictation}
-                    onPointerUp={handleStopDictation}
-                    onPointerLeave={handleStopDictation}
+                    onClick={handleToggleDictation}
                     className={`flex h-12 w-12 items-center justify-center rounded-full border ${
                       speechActive
                         ? "border-[#dc2626] bg-[#fee2e2] text-[#dc2626]"
@@ -1702,9 +1720,7 @@ export default function Home() {
                     🎙️
                   </button>
                 </div>
-                <p className="text-xs text-[#8b8f98]">
-                  Press &amp; Hold to Dictate
-                </p>
+                <p className="text-xs text-[#8b8f98]">Tap to Dictate</p>
                 {micPermission === "denied" ? (
                   <p className="text-xs text-[#dc2626]">
                     Microphone access is blocked in this browser.
@@ -1782,16 +1798,14 @@ export default function Home() {
                     Voice memo
                   </p>
                   <button
-                    onPointerDown={handleVoiceRecordStart}
-                    onPointerUp={handleVoiceRecordStop}
-                    onPointerLeave={handleVoiceRecordStop}
+                    onClick={handleVoiceRecordToggle}
                     className={`mt-2 w-full rounded-2xl px-4 py-3 text-sm font-semibold ${
                       voiceRecording
                         ? "bg-[#dc2626] text-white"
                         : "border border-black/10 bg-white text-[#1f2937]"
                     }`}
                   >
-                    {voiceRecording ? "Recording..." : "Press & hold to record"}
+                    {voiceRecording ? "Tap to stop recording" : "Tap to record"}
                   </button>
                   {audioClipUrls.length > 0 ? (
                     <div className="mt-3 space-y-2">
@@ -1966,13 +1980,18 @@ export default function Home() {
                       <option value="every_other_day">Every other day</option>
                       <option value="weekly">Weekly</option>
                     </select>
-                    <input
-                      type="time"
-                      value={reminderTime}
-                      onChange={(event) => setReminderTime(event.target.value)}
-                      onFocus={() => setActiveTaskSection("reminder")}
-                      className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
-                    />
+                    <div className="sm:col-span-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                        Time
+                      </p>
+                      <input
+                        type="time"
+                        value={reminderTime}
+                        onChange={(event) => setReminderTime(event.target.value)}
+                        onFocus={() => setActiveTaskSection("reminder")}
+                        className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                      />
+                    </div>
                   </div>
                 ) : null}
               </div>
