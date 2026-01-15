@@ -105,6 +105,17 @@ export default function Home() {
   const [micPermission, setMicPermission] = useState<
     "granted" | "denied" | "prompt" | "unsupported"
   >("prompt");
+  const [invalidField, setInvalidField] = useState<
+    | null
+    | "list"
+    | "title"
+    | "notes"
+    | "voice"
+    | "media"
+    | "doodle"
+    | "reminderTime"
+    | "location"
+  >(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const dictationStopTimeoutRef = useRef<number | null>(null);
   const dictationBaseRef = useRef<string>("");
@@ -112,6 +123,12 @@ export default function Home() {
   const mediaChunksRef = useRef<Blob[]>([]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const listSelectRef = useRef<HTMLSelectElement | null>(null);
+  const noteBodyRef = useRef<HTMLTextAreaElement | null>(null);
+  const mediaInputRef = useRef<HTMLInputElement | null>(null);
+  const reminderTimeRef = useRef<HTMLInputElement | null>(null);
+  const locationInputRef = useRef<HTMLInputElement | null>(null);
+  const voiceButtonRef = useRef<HTMLButtonElement | null>(null);
   const mediaPreviewUrl = useMemo(() => {
     if (!mediaFile) {
       return null;
@@ -212,6 +229,16 @@ export default function Home() {
       // Ignore invalid draft.
     }
   }, []);
+
+  useEffect(() => {
+    if (!invalidField) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setInvalidField(null);
+    }, 1600);
+    return () => window.clearTimeout(timer);
+  }, [invalidField]);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -693,6 +720,9 @@ export default function Home() {
       mediaRecorderRef.current = recorder;
       recorder.start();
       setVoiceRecording(true);
+      if (invalidField === "voice") {
+        setInvalidField(null);
+      }
     } catch (error) {
       setNoteStatus("Microphone access was denied.");
     }
@@ -760,6 +790,9 @@ export default function Home() {
     setDoodlePreview(dataUrl);
     setDoodleDirty(true);
     setDoodleOpen(false);
+    if (invalidField === "doodle") {
+      setInvalidField(null);
+    }
   };
 
   const handleDoodlePointer = (
@@ -817,26 +850,65 @@ export default function Home() {
 
     if (!createTaskListId) {
       setNoteStatus("Create or select a list first.");
+      setActiveTaskSection("list");
+      setInvalidField("list");
+      listSelectRef.current?.focus();
       return false;
     }
 
     if (!noteTitle.trim()) {
       setNoteStatus("Add a title to continue.");
+      setActiveTaskSection("title");
+      setInvalidField("title");
+      titleInputRef.current?.focus();
+      return false;
+    }
+
+    if (noteType === "text" && !noteBody.trim()) {
+      setNoteStatus("Add a note or switch to another task type.");
+      setActiveTaskSection("details");
+      setInvalidField("notes");
+      noteBodyRef.current?.focus();
       return false;
     }
 
     if (noteType === "audio" && audioClips.length === 0) {
       setNoteStatus("Record a voice memo first.");
+      setActiveTaskSection("details");
+      setInvalidField("voice");
+      voiceButtonRef.current?.focus();
       return false;
     }
 
     if (noteType === "image" && !mediaFile) {
       setNoteStatus("Upload a photo or video.");
+      setActiveTaskSection("details");
+      setInvalidField("media");
+      mediaInputRef.current?.focus();
       return false;
     }
 
     if (noteType === "doodle" && !doodleDirty) {
       setNoteStatus("Add a doodle first.");
+      setActiveTaskSection("details");
+      setInvalidField("doodle");
+      setDoodleOpen(true);
+      return false;
+    }
+
+    if (reminderEnabled && !reminderTime) {
+      setNoteStatus("Pick a reminder time.");
+      setActiveTaskSection("reminder");
+      setInvalidField("reminderTime");
+      reminderTimeRef.current?.focus();
+      return false;
+    }
+
+    if (locationValue.trim() === "" && locationMode === "address") {
+      setNoteStatus("Add an address or use GPS.");
+      setActiveTaskSection("location");
+      setInvalidField("location");
+      locationInputRef.current?.focus();
       return false;
     }
 
@@ -1657,13 +1729,21 @@ export default function Home() {
                   List
                 </p>
                 <select
+                  ref={listSelectRef}
                   value={createTaskListId}
                   onFocus={() => setActiveTaskSection("list")}
                   onChange={(event) => {
                     setCreateTaskListId(event.target.value);
                     setActiveListId(event.target.value);
+                    if (invalidField === "list") {
+                      setInvalidField(null);
+                    }
                   }}
-                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  className={`mt-2 w-full rounded-2xl border bg-white px-4 py-3 text-sm ${
+                    invalidField === "list"
+                      ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                      : "border-black/10"
+                  }`}
                 >
                   <option value="" disabled>
                     Select a list
@@ -1704,10 +1784,19 @@ export default function Home() {
                   <input
                     ref={titleInputRef}
                     value={noteTitle}
-                    onChange={(event) => setNoteTitle(event.target.value)}
+                    onChange={(event) => {
+                      setNoteTitle(event.target.value);
+                      if (invalidField === "title") {
+                        setInvalidField(null);
+                      }
+                    }}
                     onFocus={() => setActiveTaskSection("title")}
                     placeholder="What needs to be done?"
-                    className="flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                    className={`flex-1 rounded-2xl border bg-white px-4 py-3 text-sm ${
+                      invalidField === "title"
+                        ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                        : "border-black/10"
+                    }`}
                   />
                   <button
                     onClick={handleToggleDictation}
@@ -1749,7 +1838,12 @@ export default function Home() {
                   ].map((option) => (
                     <button
                       key={option.value}
-                      onClick={() => setNoteType(option.value as Item["type"])}
+                      onClick={() => {
+                        setNoteType(option.value as Item["type"]);
+                        if (invalidField) {
+                          setInvalidField(null);
+                        }
+                      }}
                       className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${
                         noteType === option.value
                           ? "border-[#1f2937] bg-[#1f2937] text-white"
@@ -1775,12 +1869,22 @@ export default function Home() {
                     Notes
                   </p>
                   <textarea
+                    ref={noteBodyRef}
                     value={noteBody}
-                    onChange={(event) => setNoteBody(event.target.value)}
+                    onChange={(event) => {
+                      setNoteBody(event.target.value);
+                      if (invalidField === "notes") {
+                        setInvalidField(null);
+                      }
+                    }}
                     onFocus={() => setActiveTaskSection("details")}
                     placeholder="Add details or steps"
                     rows={4}
-                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                    className={`mt-2 w-full rounded-2xl border bg-white px-4 py-3 text-sm ${
+                      invalidField === "notes"
+                        ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                        : "border-black/10"
+                    }`}
                   />
                 </div>
               ) : null}
@@ -1798,11 +1902,16 @@ export default function Home() {
                     Voice memo
                   </p>
                   <button
+                    ref={voiceButtonRef}
                     onClick={handleVoiceRecordToggle}
                     className={`mt-2 w-full rounded-2xl px-4 py-3 text-sm font-semibold ${
                       voiceRecording
                         ? "bg-[#dc2626] text-white"
-                        : "border border-black/10 bg-white text-[#1f2937]"
+                        : `border bg-white text-[#1f2937] ${
+                            invalidField === "voice"
+                              ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                              : "border-black/10"
+                          }`
                     }`}
                   >
                     {voiceRecording ? "Tap to stop recording" : "Tap to record"}
@@ -1833,10 +1942,20 @@ export default function Home() {
                     Photo or video
                   </p>
                   <input
+                    ref={mediaInputRef}
                     type="file"
                     accept="image/*,video/*"
-                    onChange={handleMediaChange}
-                    className="mt-2 w-full rounded-2xl border border-dashed border-black/20 bg-white px-4 py-3 text-sm"
+                    onChange={(event) => {
+                      handleMediaChange(event);
+                      if (invalidField === "media") {
+                        setInvalidField(null);
+                      }
+                    }}
+                    className={`mt-2 w-full rounded-2xl border border-dashed bg-white px-4 py-3 text-sm ${
+                      invalidField === "media"
+                        ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                        : "border-black/20"
+                    }`}
                   />
                   {mediaPreviewUrl ? (
                     <div className="mt-3 overflow-hidden rounded-2xl border border-black/10 bg-[#f8f9fb]">
@@ -1872,7 +1991,11 @@ export default function Home() {
                   </p>
                   <button
                     onClick={() => setDoodleOpen(true)}
-                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold"
+                    className={`mt-2 w-full rounded-2xl border bg-white px-4 py-3 text-sm font-semibold ${
+                      invalidField === "doodle"
+                        ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                        : "border-black/10"
+                    }`}
                   >
                     Open doodle pad
                   </button>
@@ -1985,11 +2108,21 @@ export default function Home() {
                         Time
                       </p>
                       <input
+                        ref={reminderTimeRef}
                         type="time"
                         value={reminderTime}
-                        onChange={(event) => setReminderTime(event.target.value)}
+                        onChange={(event) => {
+                          setReminderTime(event.target.value);
+                          if (invalidField === "reminderTime") {
+                            setInvalidField(null);
+                          }
+                        }}
                         onFocus={() => setActiveTaskSection("reminder")}
-                        className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                        className={`mt-2 w-full rounded-2xl border bg-white px-4 py-3 text-sm ${
+                          invalidField === "reminderTime"
+                            ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                            : "border-black/10"
+                        }`}
                       />
                     </div>
                   </div>
@@ -2026,15 +2159,25 @@ export default function Home() {
                   </button>
                 </div>
                 <input
+                  ref={locationInputRef}
                   value={locationValue}
-                  onChange={(event) => setLocationValue(event.target.value)}
+                  onChange={(event) => {
+                    setLocationValue(event.target.value);
+                    if (invalidField === "location") {
+                      setInvalidField(null);
+                    }
+                  }}
                   onFocus={() => setActiveTaskSection("location")}
                   placeholder={
                     locationMode === "gps"
                       ? "GPS coordinates"
                       : "Enter an address"
                   }
-                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  className={`mt-2 w-full rounded-2xl border bg-white px-4 py-3 text-sm ${
+                    invalidField === "location"
+                      ? "border-[#dc2626] ring-2 ring-[#fecaca]"
+                      : "border-black/10"
+                  }`}
                 />
               </div>
 
