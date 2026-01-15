@@ -410,7 +410,12 @@ export default function Home() {
   }, [session, supabase]);
 
   const handlePasswordSignIn = async () => {
-    if (!supabase || !email || !password) {
+    if (!supabase) {
+      return;
+    }
+
+    if (!email || !password) {
+      setStatusMessage("Enter your email and password.");
       return;
     }
 
@@ -429,7 +434,12 @@ export default function Home() {
   };
 
   const handlePasswordSignUp = async () => {
-    if (!supabase || !email || !password) {
+    if (!supabase) {
+      return;
+    }
+
+    if (!email || !password) {
+      setStatusMessage("Enter your email and password.");
       return;
     }
 
@@ -437,6 +447,9 @@ export default function Home() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      },
     });
 
     if (error) {
