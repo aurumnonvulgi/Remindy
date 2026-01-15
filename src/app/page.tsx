@@ -1577,21 +1577,29 @@ export default function Home() {
               Recording already saved
             </h3>
             <p className="mt-2 text-sm text-[#6b7280]">
-              Do you want to keep the existing recording and add a new one, or
-              replace it?
+              Choose what to do with the existing recording.
             </p>
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <button
                 onClick={() => handleRecordChoice("add")}
-                className="flex-1 rounded-xl bg-[#1f2937] px-4 py-2 text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#1f2937] px-4 py-2 text-sm font-semibold text-white"
               >
+                <span aria-hidden="true">＋</span>
                 Add New
               </button>
               <button
                 onClick={() => handleRecordChoice("replace")}
-                className="flex-1 rounded-xl border border-[#eceff4] px-4 py-2 text-sm font-semibold text-[#6b7280]"
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#f4c7c7] bg-[#fff5f5] px-4 py-2 text-sm font-semibold text-[#b91c1c]"
               >
-                Replace Existing
+                <span aria-hidden="true">♻︎</span>
+                Replace
+              </button>
+              <button
+                onClick={() => setShowRecordPrompt(false)}
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#d4e9d8] bg-[#effaf2] px-4 py-2 text-sm font-semibold text-[#166534]"
+              >
+                <span aria-hidden="true">💾</span>
+                Keep
               </button>
             </div>
           </div>
