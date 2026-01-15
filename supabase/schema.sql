@@ -19,6 +19,13 @@ create table if not exists public.list_members (
   unique (list_id, user_id)
 );
 
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text unique,
+  full_name text,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.items (
   id uuid primary key default gen_random_uuid(),
   list_id uuid not null references public.lists(id) on delete cascade,
@@ -71,6 +78,7 @@ alter table public.lists enable row level security;
 alter table public.list_members enable row level security;
 alter table public.items enable row level security;
 alter table public.item_media enable row level security;
+alter table public.profiles enable row level security;
 
 drop policy if exists "lists_select_member" on public.lists;
 drop policy if exists "lists_insert_owner" on public.lists;
@@ -198,6 +206,8 @@ using (
 drop policy if exists "item_media_select_member" on public.item_media;
 drop policy if exists "item_media_insert_editor" on public.item_media;
 drop policy if exists "item_media_delete_editor" on public.item_media;
+drop policy if exists "profiles_select_authenticated" on public.profiles;
+drop policy if exists "profiles_update_own" on public.profiles;
 
 create policy "item_media_select_member"
 on public.item_media for select
@@ -241,6 +251,15 @@ using (
   )
 );
 
+create policy "profiles_select_authenticated"
+on public.profiles for select
+using (auth.role() = 'authenticated');
+
+create policy "profiles_update_own"
+on public.profiles for update
+using (id = auth.uid())
+with check (id = auth.uid());
+
 create or replace function public.handle_new_user()
 returns trigger as $$
 declare
@@ -249,6 +268,9 @@ declare
 begin
   perform set_config('request.jwt.claim.sub', new.id::text, true);
   perform set_config('request.jwt.claim.role', 'authenticated', true);
+  insert into public.profiles (id, email)
+  values (new.id, new.email)
+  on conflict (id) do nothing;
   foreach list_name in array array['Work', 'Personal', 'Shopping']
   loop
     insert into public.lists (owner_id, name)
