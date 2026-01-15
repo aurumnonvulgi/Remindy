@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   description: "A mobile-first task and list app centered on one fast add action.",
   applicationName: "AddOne",
   manifest: "/manifest.webmanifest",
-  themeColor: "#f04d2d",
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
@@ -27,6 +26,15 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "AddOne",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#f04d2d",
 };
 
 export default function RootLayout({

@@ -20,15 +20,27 @@
 }
 
 @layer base {
+  html {
+    height: 100%;
+  }
+
   body {
     min-height: 100%;
     background: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans), system-ui, sans-serif;
+    overscroll-behavior: none;
   }
 
   * {
     border-color: var(--stroke);
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  html,
+  body {
+    height: -webkit-fill-available;
   }
 }
 
