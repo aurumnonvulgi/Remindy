@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -43,6 +44,7 @@ const listIcon: Record<string, string> = {
 
 export default function Home() {
   const supabase = useMemo(() => getSupabaseClient(), []);
+  const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState("");
@@ -52,20 +54,6 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [activeListId, setActiveListId] = useState<string | null>(null);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
-  const [viewMode, setViewMode] = useState<"lists" | "detail">("lists");
-  const [listDetailName, setListDetailName] = useState("");
-  const [listDetailColor, setListDetailColor] = useState("");
-  const [listDetailNotice, setListDetailNotice] = useState("");
-  const [listMembers, setListMembers] = useState<
-    Array<{
-      user_id: string;
-      email: string | null;
-      full_name: string | null;
-      role: "owner" | "editor" | "viewer";
-    }>
-  >([]);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("viewer");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
@@ -144,10 +132,6 @@ export default function Home() {
   const locationInputRef = useRef<HTMLInputElement | null>(null);
   const voiceButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const activeList = useMemo(
-    () => lists.find((list) => list.id === activeListId) ?? null,
-    [activeListId, lists]
-  );
   const mediaPreviewUrl = useMemo(() => {
     if (!mediaFile) {
       return null;
@@ -184,7 +168,6 @@ export default function Home() {
       setLists([]);
       setItems([]);
       setActiveListId(null);
-      setViewMode("lists");
       return;
     }
 
@@ -210,59 +193,6 @@ export default function Home() {
 
     loadLists();
   }, [session, supabase]);
-
-  useEffect(() => {
-    if (!activeList) {
-      setListDetailName("");
-      setListDetailColor("");
-      return;
-    }
-    setListDetailName(activeList.name);
-    setListDetailColor(activeList.color ?? "");
-  }, [activeList]);
-
-  useEffect(() => {
-    if (!supabase || !session || !activeListId || viewMode !== "detail") {
-      setListMembers([]);
-      return;
-    }
-
-    const loadMembers = async () => {
-      const { data: memberRows, error } = await supabase
-        .from("list_members")
-        .select("user_id,role")
-        .eq("list_id", activeListId);
-
-      if (error || !memberRows) {
-        setListMembers([]);
-        return;
-      }
-
-      const userIds = memberRows.map((row) => row.user_id);
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id,email,full_name")
-        .in("id", userIds);
-
-      const profileMap = new Map(
-        (profiles ?? []).map((profile) => [profile.id, profile])
-      );
-
-      const next = memberRows.map((row) => {
-        const profile = profileMap.get(row.user_id);
-        return {
-          user_id: row.user_id,
-          email: profile?.email ?? null,
-          full_name: profile?.full_name ?? null,
-          role: row.role as "owner" | "editor" | "viewer",
-        };
-      });
-
-      setListMembers(next);
-    };
-
-    loadMembers();
-  }, [activeListId, session, supabase, viewMode]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -609,14 +539,6 @@ export default function Home() {
     );
   };
 
-  const handleSignOut = async () => {
-    if (!supabase) {
-      return;
-    }
-
-    await supabase.auth.signOut();
-  };
-
   const handleCreateAction = (
     action: "task" | "day" | "reminder" | "list"
   ) => {
@@ -676,114 +598,6 @@ export default function Home() {
     setCreateListName("");
     setCreateListOpen(false);
     setCreateNotice("List created.");
-  };
-
-  const handleSaveListDetails = async () => {
-    if (!supabase || !session || !activeListId) {
-      return;
-    }
-    const name = listDetailName.trim();
-    if (!name) {
-      setListDetailNotice("List name is required.");
-      return;
-    }
-
-    setListDetailNotice("Saving...");
-    const { error } = await supabase
-      .from("lists")
-      .update({
-        name,
-        color: listDetailColor || null,
-      })
-      .eq("id", activeListId);
-
-    if (error) {
-      setListDetailNotice(error.message);
-      return;
-    }
-
-    setLists((prev) =>
-      prev.map((list) =>
-        list.id === activeListId
-          ? { ...list, name, color: listDetailColor || null }
-          : list
-      )
-    );
-    setListDetailNotice("Saved.");
-  };
-
-  const handleInviteMember = async () => {
-    if (!supabase || !session || !activeListId) {
-      return;
-    }
-    const email = inviteEmail.trim().toLowerCase();
-    if (!email) {
-      setListDetailNotice("Enter an email to invite.");
-      return;
-    }
-
-    setListDetailNotice("Sending invite...");
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id,email")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (!profile?.id) {
-      setListDetailNotice("No user found with that email.");
-      return;
-    }
-
-    const { error } = await supabase.from("list_members").insert({
-      list_id: activeListId,
-      user_id: profile.id,
-      role: inviteRole,
-    });
-
-    if (error) {
-      setListDetailNotice(error.message);
-      return;
-    }
-
-    setInviteEmail("");
-    setListDetailNotice("Invite added.");
-    setMemberCounts((prev) => ({
-      ...prev,
-      [activeListId]: (prev[activeListId] ?? 1) + 1,
-    }));
-    setListMembers((prev) => [
-      ...prev,
-      {
-        user_id: profile.id,
-        email: profile.email ?? null,
-        full_name: null,
-        role: inviteRole,
-      },
-    ]);
-  };
-
-  const handleRemoveMember = async (userId: string) => {
-    if (!supabase || !session || !activeListId) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from("list_members")
-      .delete()
-      .eq("list_id", activeListId)
-      .eq("user_id", userId);
-
-    if (error) {
-      setListDetailNotice(error.message);
-      return;
-    }
-
-    setListMembers((prev) => prev.filter((member) => member.user_id !== userId));
-    setMemberCounts((prev) => ({
-      ...prev,
-      [activeListId]: Math.max((prev[activeListId] ?? 1) - 1, 1),
-    }));
-    setListDetailNotice("Member removed.");
   };
 
   const focusTitleInput = () => {
@@ -1387,12 +1201,6 @@ export default function Home() {
                 <span className="text-lg leading-none">+</span>
                 Create
               </button>
-              <button
-                onClick={handleSignOut}
-                className="rounded-xl border border-[#eceff4] px-3 py-2 text-xs font-semibold text-[#667085]"
-              >
-                Sign out
-              </button>
             </div>
           </div>
 
@@ -1671,262 +1479,7 @@ export default function Home() {
           ) : null}
         </header>
 
-        {viewMode === "detail" && activeList ? (
-          <section className="rounded-3xl border border-[#e7ecf4] bg-[#f7f9fc] px-5 py-5 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <button
-                onClick={() => setViewMode("lists")}
-                className="rounded-full border border-[#93c5fd] bg-[#dbeafe] px-3 py-1 text-xs font-semibold text-[#1d4ed8]"
-              >
-                ← Back to all lists
-              </button>
-              <p className="text-xs uppercase tracking-[0.3em] text-[#9aa0aa]">
-                List details
-              </p>
-            </div>
-
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-[#eceff4] bg-[#f8fafc] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                  Name
-                </p>
-                <input
-                  value={listDetailName}
-                  onChange={(event) => setListDetailName(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-[#1f2937]"
-                />
-                <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                    Color
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {[
-                      { label: "Default", value: "" },
-                      { label: "Lavender", value: "from-[#efe9ff] to-[#f7f4ff] border-[#d8cef9] text-[#5c3ec8]" },
-                      { label: "Sunrise", value: "from-[#fff1dc] to-[#fff8ed] border-[#f1d6a7] text-[#8a5b1e]" },
-                      { label: "Mint", value: "from-[#e9fff4] to-[#f2fff9] border-[#bfead6] text-[#2a7b5d]" },
-                      { label: "Peach", value: "from-[#fff0e7] to-[#fff7f1] border-[#f1c9b1] text-[#c46a2c]" },
-                      { label: "Ocean", value: "from-[#e0f2fe] to-[#f0f9ff] border-[#7dd3fc] text-[#0369a1]" },
-                      { label: "Berry", value: "from-[#ffe4f1] to-[#fff1f7] border-[#f9a8d4] text-[#9d174d]" },
-                      { label: "Slate", value: "from-[#e2e8f0] to-[#f8fafc] border-[#cbd5f5] text-[#475569]" },
-                      { label: "Lime", value: "from-[#ecfccb] to-[#f7fee7] border-[#bef264] text-[#3f6212]" },
-                    ].map((option) => (
-                      <button
-                        key={option.label}
-                        onClick={() => setListDetailColor(option.value)}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                          listDetailColor === option.value
-                            ? "border-[#1f2937] bg-white text-[#1f2937]"
-                            : "border-[#eceff4] text-[#6b7280]"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <button
-                  onClick={handleSaveListDetails}
-                  className="mt-4 w-full rounded-2xl bg-[#1f2937] px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Save list settings
-                </button>
-              </div>
-
-              <div className="rounded-2xl border border-[#eceff4] bg-[#f8fafc] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                  Members
-                </p>
-                <div className="mt-3 space-y-2">
-                  {listMembers.length === 0 ? (
-                    <p className="text-xs text-[#8b8f98]">No members yet.</p>
-                  ) : (
-                    listMembers.map((member) => (
-                      <div
-                        key={member.user_id}
-                        className="flex items-center justify-between rounded-xl border border-[#eceff4] bg-white px-3 py-2 text-xs"
-                      >
-                        <div>
-                          <p className="font-semibold text-[#1f2937]">
-                            {member.full_name || member.email || member.user_id.slice(0, 6)}
-                          </p>
-                          <p className="text-[10px] text-[#8b8f98]">{member.role}</p>
-                        </div>
-                        {member.role !== "owner" ? (
-                          <button
-                            onClick={() => handleRemoveMember(member.user_id)}
-                            className="rounded-full border border-[#fca5a5] px-2 py-1 text-[10px] font-semibold text-[#b91c1c]"
-                          >
-                            Remove
-                          </button>
-                        ) : (
-                          <span className="text-[10px] font-semibold text-[#6b7280]">
-                            Owner
-                          </span>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-                  <input
-                    value={inviteEmail}
-                    onChange={(event) => setInviteEmail(event.target.value)}
-                    placeholder="Invite by email"
-                    className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs"
-                  />
-                  <select
-                    value={inviteRole}
-                    onChange={(event) =>
-                      setInviteRole(event.target.value as "editor" | "viewer")
-                    }
-                    className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs"
-                  >
-                    <option value="viewer">Viewer</option>
-                    <option value="editor">Editor</option>
-                  </select>
-                  <button
-                    onClick={handleInviteMember}
-                    className="rounded-2xl bg-[#1f2937] px-3 py-2 text-xs font-semibold text-white"
-                  >
-                    Invite
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {listDetailNotice ? (
-              <p className="mt-3 text-xs text-[#6b7280]">{listDetailNotice}</p>
-            ) : null}
-
-            <div className="mt-6">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-[#1f2937]">
-                  Tasks in {activeList.name}
-                </p>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                    Status
-                  </span>
-                  {["all", "open", "completed"].map((value) => (
-                    <button
-                      key={value}
-                      onClick={() =>
-                        setStatusFilter(value as "all" | "open" | "completed")
-                      }
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                        statusFilter === value
-                          ? "border-[#1f2937] text-[#1f2937]"
-                          : "border-[#eceff4]"
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                  Type
-                </span>
-                {["all", "text", "audio", "image", "video", "doodle"].map(
-                  (value) => (
-                    <button
-                      key={value}
-                      onClick={() =>
-                        setTypeFilter(
-                          value as
-                            | "all"
-                            | "text"
-                            | "audio"
-                            | "image"
-                            | "video"
-                            | "doodle"
-                        )
-                      }
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                        typeFilter === value
-                          ? "border-[#1f2937] text-[#1f2937]"
-                          : "border-[#eceff4]"
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  )
-                )}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
-                  Priority
-                </span>
-                {["all", "low", "medium", "high"].map((value) => (
-                  <button
-                    key={value}
-                    onClick={() =>
-                      setPriorityFilter(
-                        value as "all" | "low" | "medium" | "high"
-                      )
-                    }
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                      priorityFilter === value
-                        ? "border-[#1f2937] text-[#1f2937]"
-                        : "border-[#eceff4]"
-                    }`}
-                  >
-                    {value}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-3 grid gap-3">
-                {filteredItems
-                  .filter((item) => item.list_id === activeList.id)
-                  .map((item) => (
-                    <div
-                      key={item.id}
-                      className={`rounded-2xl border px-4 py-3 ${
-                        item.type === "audio"
-                          ? "border-[#fecaca] bg-[#fff1f2]"
-                          : item.type === "image" || item.type === "video"
-                          ? "border-[#bbf7d0] bg-[#f0fdf4]"
-                          : item.type === "doodle"
-                          ? "border-[#fde68a] bg-[#fffbeb]"
-                          : "border-[#bfdbfe] bg-[#eff6ff]"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-[#1f2937]">
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-[#8b8f98]">
-                            {item.type} · {item.priority}
-                          </p>
-                        </div>
-                        <span
-                          className={`rounded-full border px-2 py-1 text-[10px] font-semibold ${
-                            item.status === "completed"
-                              ? "border-[#86efac] text-[#166534]"
-                              : "border-[#fcd34d] text-[#92400e]"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                {filteredItems.filter((item) => item.list_id === activeList.id)
-                  .length === 0 ? (
-                  <p className="text-xs text-[#8b8f98]">
-                    No tasks yet for this list.
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        {viewMode === "lists" ? (
-          <section className="grid gap-4 sm:grid-cols-2">
+        <section className="grid gap-4 sm:grid-cols-2">
           {listStats.length === 0 ? (
             <div className="rounded-2xl border border-[#eceff4] bg-white px-4 py-6 text-center text-sm text-[#8b8f98]">
               No lists yet. Create your first list.
@@ -1942,7 +1495,7 @@ export default function Home() {
                   key={list.id}
                   onClick={() => {
                     setActiveListId(list.id);
-                    setViewMode("detail");
+                    router.push(`/lists/${list.id}`);
                   }}
                   draggable={listOrderMode === "custom"}
                   onDragStart={(event) => {
@@ -1997,8 +1550,7 @@ export default function Home() {
               );
             })
           )}
-          </section>
-        ) : null}
+        </section>
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 border-t border-[#eceff4] bg-white">
@@ -2086,6 +1638,11 @@ export default function Home() {
           ].map((tab) => (
             <button
               key={tab.label}
+              onClick={() => {
+                if (tab.label === "Settings") {
+                  router.push("/settings");
+                }
+              }}
               className={`flex flex-col items-center gap-1 ${
                 tab.active ? "text-[#1f2937]" : ""
               }`}
