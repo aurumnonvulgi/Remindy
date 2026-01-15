@@ -58,6 +58,7 @@ export default function Home() {
   const [createListOpen, setCreateListOpen] = useState(false);
   const [createListName, setCreateListName] = useState("");
   const [createNotice, setCreateNotice] = useState("");
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "open" | "completed"
   >("all");
@@ -107,6 +108,16 @@ export default function Home() {
   const mediaChunksRef = useRef<Blob[]>([]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const mediaPreviewUrl = useMemo(() => {
+    if (!mediaFile) {
+      return null;
+    }
+    return URL.createObjectURL(mediaFile);
+  }, [mediaFile]);
+  const audioClipUrls = useMemo(
+    () => audioClips.map((clip) => URL.createObjectURL(clip)),
+    [audioClips]
+  );
 
   useEffect(() => {
     if (!supabase) {
@@ -352,6 +363,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (mediaPreviewUrl) {
+        URL.revokeObjectURL(mediaPreviewUrl);
+      }
+    };
+  }, [mediaPreviewUrl]);
+
+  useEffect(() => {
+    return () => {
+      audioClipUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [audioClipUrls]);
+
+  useEffect(() => {
     if (noteType !== "doodle") {
       return;
     }
@@ -477,6 +502,13 @@ export default function Home() {
   const handleCreateAction = (
     action: "task" | "day" | "reminder" | "list"
   ) => {
+    if (action === "task") {
+      setCreateMenuOpen(false);
+      setCreateTaskOpen(true);
+      setCreateNotice("");
+      setNoteStatus("");
+      return;
+    }
     if (action === "list") {
       setCreateMenuOpen(false);
       setCreateListOpen(true);
@@ -744,32 +776,32 @@ export default function Home() {
   const handleCreateNote = async () => {
     if (!supabase || !session) {
       setNoteStatus("Sign in to create a task.");
-      return;
+      return false;
     }
 
     if (!activeListId) {
       setNoteStatus("Create or select a list first.");
-      return;
+      return false;
     }
 
     if (!noteTitle.trim()) {
       setNoteStatus("Add a title to continue.");
-      return;
+      return false;
     }
 
     if (noteType === "audio" && audioClips.length === 0) {
       setNoteStatus("Record a voice memo first.");
-      return;
+      return false;
     }
 
     if (noteType === "image" && !mediaFile) {
       setNoteStatus("Upload a photo or video.");
-      return;
+      return false;
     }
 
     if (noteType === "doodle" && !doodleDirty) {
       setNoteStatus("Add a doodle first.");
-      return;
+      return false;
     }
 
     const reminderAt =
@@ -855,7 +887,7 @@ export default function Home() {
 
     if (error) {
       setNoteStatus(error.message);
-      return;
+      return false;
     }
 
     if (data?.id && mediaEntries.length > 0) {
@@ -869,7 +901,7 @@ export default function Home() {
       );
       if (mediaError) {
         setNoteStatus(mediaError.message);
-        return;
+        return false;
       }
     }
 
@@ -892,6 +924,7 @@ export default function Home() {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("taskDraft");
     }
+    return true;
   };
 
 
@@ -1538,6 +1571,353 @@ export default function Home() {
                 className="flex-1 rounded-xl border border-[#eceff4] px-4 py-2 text-sm font-semibold text-[#6b7280]"
               >
                 Replace Existing
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {createTaskOpen ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-[var(--shadow)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Create task</h2>
+                <p className="text-sm text-[var(--muted)]">
+                  Capture a task in any format.
+                </p>
+              </div>
+              <button
+                onClick={() => setCreateTaskOpen(false)}
+                className="rounded-xl border border-[#eceff4] px-3 py-1 text-xs font-semibold text-[#6b7280]"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                  List
+                </p>
+                <select
+                  value={activeListId ?? ""}
+                  onChange={(event) => setActiveListId(event.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                >
+                  {lists.map((list) => (
+                    <option key={list.id} value={list.id}>
+                      {list.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Title
+                  </p>
+                  {speechActive ? (
+                    <span className="text-xs font-semibold text-[#dc2626]">
+                      Listening...
+                    </span>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={titleInputRef}
+                    value={noteTitle}
+                    onChange={(event) => setNoteTitle(event.target.value)}
+                    placeholder="What needs to be done?"
+                    className="flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  />
+                  <button
+                    onPointerDown={handleStartDictation}
+                    onPointerUp={handleStopDictation}
+                    onPointerLeave={handleStopDictation}
+                    className={`flex h-12 w-12 items-center justify-center rounded-full border ${
+                      speechActive
+                        ? "border-[#dc2626] bg-[#fee2e2] text-[#dc2626]"
+                        : "border-black/10 bg-white text-[#1f2937]"
+                    }`}
+                  >
+                    🎙️
+                  </button>
+                </div>
+                <p className="text-xs text-[#8b8f98]">
+                  Press &amp; Hold to Dictate
+                </p>
+                {micPermission === "denied" ? (
+                  <p className="text-xs text-[#dc2626]">
+                    Microphone access is blocked in this browser.
+                  </p>
+                ) : null}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                  Task type
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                  {[
+                    { label: "Text note", value: "text" },
+                    { label: "Voice memo", value: "audio" },
+                    { label: "Photos/Video", value: "image" },
+                    { label: "Doodle pad", value: "doodle" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setNoteType(option.value as Item["type"])}
+                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${
+                        noteType === option.value
+                          ? "border-[#1f2937] bg-[#1f2937] text-white"
+                          : "border-black/10 bg-white text-[#1f2937]"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {noteType === "text" ? (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Notes
+                  </p>
+                  <textarea
+                    value={noteBody}
+                    onChange={(event) => setNoteBody(event.target.value)}
+                    placeholder="Add details or steps"
+                    rows={4}
+                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  />
+                </div>
+              ) : null}
+
+              {noteType === "audio" ? (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Voice memo
+                  </p>
+                  <button
+                    onPointerDown={handleVoiceRecordStart}
+                    onPointerUp={handleVoiceRecordStop}
+                    onPointerLeave={handleVoiceRecordStop}
+                    className={`mt-2 w-full rounded-2xl px-4 py-3 text-sm font-semibold ${
+                      voiceRecording
+                        ? "bg-[#dc2626] text-white"
+                        : "border border-black/10 bg-white text-[#1f2937]"
+                    }`}
+                  >
+                    {voiceRecording ? "Recording..." : "Press & hold to record"}
+                  </button>
+                  {audioClipUrls.length > 0 ? (
+                    <div className="mt-3 space-y-2">
+                      {audioClipUrls.map((url, index) => (
+                        <audio key={url} controls className="w-full">
+                          <source src={url} type="audio/webm" />
+                          Recording {index + 1}
+                        </audio>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {noteType === "image" ? (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Photo or video
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleMediaChange}
+                    className="mt-2 w-full rounded-2xl border border-dashed border-black/20 bg-white px-4 py-3 text-sm"
+                  />
+                  {mediaPreviewUrl ? (
+                    <div className="mt-3 overflow-hidden rounded-2xl border border-black/10 bg-[#f8f9fb]">
+                      {mediaKind === "video" ? (
+                        <video
+                          src={mediaPreviewUrl}
+                          controls
+                          className="h-48 w-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={mediaPreviewUrl}
+                          alt="Upload preview"
+                          className="h-48 w-full object-cover"
+                        />
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {noteType === "doodle" ? (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Doodle
+                  </p>
+                  <button
+                    onClick={() => setDoodleOpen(true)}
+                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold"
+                  >
+                    Open doodle pad
+                  </button>
+                  {doodlePreview ? (
+                    <img
+                      src={doodlePreview}
+                      alt="Doodle preview"
+                      className="mt-3 h-48 w-full rounded-2xl border border-black/10 object-cover"
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Priority
+                  </p>
+                  <select
+                    value={priority}
+                    onChange={(event) =>
+                      setPriority(event.target.value as "low" | "medium" | "high")
+                    }
+                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                    Due date
+                  </p>
+                  <input
+                    type="date"
+                    value={dueDate}
+                    onChange={(event) => setDueDate(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-[#f8f9fb] p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">Reminders</p>
+                    <p className="text-xs text-[#8b8f98]">
+                      Send a reminder for this task.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setReminderEnabled((prev) => !prev)}
+                    className={`rounded-full px-4 py-1 text-xs font-semibold ${
+                      reminderEnabled
+                        ? "bg-[#1f2937] text-white"
+                        : "border border-black/10 bg-white text-[#1f2937]"
+                    }`}
+                  >
+                    {reminderEnabled ? "On" : "Off"}
+                  </button>
+                </div>
+                {reminderEnabled ? (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <select
+                      value={reminderChannel}
+                      onChange={(event) =>
+                        setReminderChannel(
+                          event.target.value as "popup" | "email" | "sound"
+                        )
+                      }
+                      className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                    >
+                      <option value="popup">Popup alert</option>
+                      <option value="email">Email alert</option>
+                      <option value="sound">Sound alert</option>
+                    </select>
+                    <select
+                      value={reminderFrequency}
+                      onChange={(event) => setReminderFrequency(event.target.value)}
+                      className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                    >
+                      <option value="once">One-time</option>
+                      <option value="daily">Daily</option>
+                      <option value="every_other_day">Every other day</option>
+                      <option value="weekly">Weekly</option>
+                    </select>
+                    <input
+                      type="time"
+                      value={reminderTime}
+                      onChange={(event) => setReminderTime(event.target.value)}
+                      className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                    />
+                  </div>
+                ) : null}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+                  Location reminder
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setLocationMode("address")}
+                    className={`rounded-full px-4 py-1 text-xs font-semibold ${
+                      locationMode === "address"
+                        ? "bg-[#1f2937] text-white"
+                        : "border border-black/10 bg-white text-[#1f2937]"
+                    }`}
+                  >
+                    Address
+                  </button>
+                  <button
+                    onClick={handleUseLocation}
+                    className="rounded-full border border-black/10 bg-white px-4 py-1 text-xs font-semibold text-[#1f2937]"
+                  >
+                    Use GPS
+                  </button>
+                </div>
+                <input
+                  value={locationValue}
+                  onChange={(event) => setLocationValue(event.target.value)}
+                  placeholder={
+                    locationMode === "gps"
+                      ? "GPS coordinates"
+                      : "Enter an address"
+                  }
+                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                />
+              </div>
+
+              {noteStatus ? (
+                <p className="text-xs text-[#8b8f98]">{noteStatus}</p>
+              ) : null}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={() => setCreateTaskOpen(false)}
+                className="rounded-2xl border border-black/10 px-4 py-3 text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const saved = await handleCreateNote();
+                  if (saved) {
+                    setCreateTaskOpen(false);
+                  }
+                }}
+                className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
+              >
+                Save task
               </button>
             </div>
           </div>
