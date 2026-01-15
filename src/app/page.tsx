@@ -1326,8 +1326,8 @@ export default function Home() {
           </div>
           {showFilters ? (
             <div className="rounded-2xl border border-[#eceff4] bg-white px-4 py-4 text-xs text-[#6b7280]">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-xl border border-[#dbeafe] bg-[#eff6ff] px-3 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
                     Status
                   </p>
@@ -1349,7 +1349,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                <div>
+                <div className="rounded-xl border border-[#e9d5ff] bg-[#f5f3ff] px-3 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
                     Type
                   </p>
@@ -1381,7 +1381,7 @@ export default function Home() {
                     )}
                   </div>
                 </div>
-                <div>
+                <div className="rounded-xl border border-[#fde68a] bg-[#fffbeb] px-3 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
                     Priority
                   </p>
@@ -1405,7 +1405,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                <div>
+                <div className="rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] px-3 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
                     Task count
                   </p>
@@ -1431,7 +1431,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                <div>
+                <div className="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-3 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
                     Order lists
                   </p>
@@ -1472,18 +1472,20 @@ export default function Home() {
                   ) : null}
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setStatusFilter("all");
-                  setTypeFilter("all");
-                  setPriorityFilter("all");
-                  setTaskCountSort("none");
-                  setListOrderMode("created");
-                }}
-                className="mt-4 text-xs font-semibold text-[#1f2937] underline"
-              >
-                Reset filters
-              </button>
+              <div className="mt-4 rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2">
+                <button
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setTypeFilter("all");
+                    setPriorityFilter("all");
+                    setTaskCountSort("none");
+                    setListOrderMode("created");
+                  }}
+                  className="text-xs font-semibold text-[#1f2937]"
+                >
+                  Reset filters
+                </button>
+              </div>
             </div>
           ) : null}
         </header>
