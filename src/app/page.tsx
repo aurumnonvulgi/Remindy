@@ -46,6 +46,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [lists, setLists] = useState<List[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -408,17 +409,15 @@ export default function Home() {
     };
   }, [session, supabase]);
 
-  const handleMagicLink = async () => {
-    if (!supabase || !email) {
+  const handlePasswordSignIn = async () => {
+    if (!supabase || !email || !password) {
       return;
     }
 
-    setStatusMessage("Sending magic link...");
-    const { error } = await supabase.auth.signInWithOtp({
+    setStatusMessage("Signing in...");
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
+      password,
     });
 
     if (error) {
@@ -426,7 +425,28 @@ export default function Home() {
       return;
     }
 
-    setStatusMessage("Check your email for the sign-in link.");
+    setStatusMessage("");
+  };
+
+  const handlePasswordSignUp = async () => {
+    if (!supabase || !email || !password) {
+      return;
+    }
+
+    setStatusMessage("Creating account...");
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setStatusMessage(error.message);
+      return;
+    }
+
+    setStatusMessage(
+      "Account created. Check your email to confirm if required."
+    );
   };
 
   const handleSignOut = async () => {
@@ -910,9 +930,11 @@ export default function Home() {
           <p className="text-xs uppercase tracking-[0.38em] text-[var(--muted)]">
             AddOne
           </p>
-          <h1 className="mt-2 font-display text-3xl">Sign in with magic link</h1>
+          <h1 className="mt-2 font-display text-3xl">
+            Sign in with email &amp; password
+          </h1>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            We will email you a secure sign-in link. No passwords needed.
+            Use your email and a password. You can also create a new account.
           </p>
           <div className="mt-6 space-y-3">
             <input
@@ -922,11 +944,24 @@ export default function Home() {
               onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
             />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+            />
             <button
-              onClick={handleMagicLink}
+              onClick={handlePasswordSignIn}
               className="w-full rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
             >
-              Send magic link
+              Sign in
+            </button>
+            <button
+              onClick={handlePasswordSignUp}
+              className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-[#1f2937]"
+            >
+              Create account
             </button>
             {statusMessage ? (
               <p className="text-xs text-[var(--muted)]">{statusMessage}</p>
