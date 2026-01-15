@@ -59,6 +59,10 @@ export default function Home() {
   const [createListName, setCreateListName] = useState("");
   const [createNotice, setCreateNotice] = useState("");
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createTaskListId, setCreateTaskListId] = useState("");
+  const [activeTaskSection, setActiveTaskSection] = useState<
+    "list" | "title" | "type" | "details" | "reminder" | "location" | "review"
+  >("list");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "open" | "completed"
   >("all");
@@ -520,6 +524,8 @@ export default function Home() {
       setCreateMenuOpen(false);
       setCreateTaskOpen(true);
       setCreateNotice("");
+      setCreateTaskListId("");
+      setActiveTaskSection("list");
       setNoteStatus("");
       return;
     }
@@ -793,7 +799,7 @@ export default function Home() {
       return false;
     }
 
-    if (!activeListId) {
+    if (!createTaskListId) {
       setNoteStatus("Create or select a list first.");
       return false;
     }
@@ -880,7 +886,7 @@ export default function Home() {
     const { data, error } = await supabase
       .from("items")
       .insert({
-        list_id: activeListId,
+        list_id: createTaskListId,
         created_by: session.user.id,
         type: finalType,
         title: noteTitle.trim(),
@@ -934,6 +940,7 @@ export default function Home() {
     setVoiceRecording(false);
     setDoodleDirty(false);
     setDoodlePreview(null);
+    setActiveListId(createTaskListId);
     setNoteStatus("Task created.");
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("taskDraft");
@@ -1610,15 +1617,34 @@ export default function Home() {
             </div>
 
             <div className="mt-5 grid gap-5">
-              <div>
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "list"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                } ${!createTaskListId ? "animate-pulse" : ""}`}
+                onClick={() => setActiveTaskSection("list")}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                   List
                 </p>
                 <select
-                  value={activeListId ?? ""}
-                  onChange={(event) => setActiveListId(event.target.value)}
+                  value={createTaskListId}
+                  onFocus={() => setActiveTaskSection("list")}
+                  onChange={(event) => {
+                    setCreateTaskListId(event.target.value);
+                    setActiveListId(event.target.value);
+                  }}
                   className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                 >
+                  <option value="" disabled>
+                    Select a list
+                  </option>
+                  {lists.length === 0 ? (
+                    <option value="" disabled>
+                      No lists available
+                    </option>
+                  ) : null}
                   {lists.map((list) => (
                     <option key={list.id} value={list.id}>
                       {list.name}
@@ -1627,7 +1653,15 @@ export default function Home() {
                 </select>
               </div>
 
-              <div className="space-y-2">
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "title"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                }`}
+                onClick={() => setActiveTaskSection("title")}
+              >
+                <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Title
@@ -1643,6 +1677,7 @@ export default function Home() {
                     ref={titleInputRef}
                     value={noteTitle}
                     onChange={(event) => setNoteTitle(event.target.value)}
+                    onFocus={() => setActiveTaskSection("title")}
                     placeholder="What needs to be done?"
                     className="flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                   />
@@ -1667,9 +1702,17 @@ export default function Home() {
                     Microphone access is blocked in this browser.
                   </p>
                 ) : null}
+                </div>
               </div>
 
-              <div>
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "type"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                }`}
+                onClick={() => setActiveTaskSection("type")}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                   Task type
                 </p>
@@ -1696,13 +1739,21 @@ export default function Home() {
               </div>
 
               {noteType === "text" ? (
-                <div>
+                <div
+                  className={`rounded-2xl border px-4 py-4 ${
+                    activeTaskSection === "details"
+                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      : "border-black/10 bg-white"
+                  }`}
+                  onClick={() => setActiveTaskSection("details")}
+                >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Notes
                   </p>
                   <textarea
                     value={noteBody}
                     onChange={(event) => setNoteBody(event.target.value)}
+                    onFocus={() => setActiveTaskSection("details")}
                     placeholder="Add details or steps"
                     rows={4}
                     className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
@@ -1711,7 +1762,14 @@ export default function Home() {
               ) : null}
 
               {noteType === "audio" ? (
-                <div>
+                <div
+                  className={`rounded-2xl border px-4 py-4 ${
+                    activeTaskSection === "details"
+                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      : "border-black/10 bg-white"
+                  }`}
+                  onClick={() => setActiveTaskSection("details")}
+                >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Voice memo
                   </p>
@@ -1741,7 +1799,14 @@ export default function Home() {
               ) : null}
 
               {noteType === "image" ? (
-                <div>
+                <div
+                  className={`rounded-2xl border px-4 py-4 ${
+                    activeTaskSection === "details"
+                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      : "border-black/10 bg-white"
+                  }`}
+                  onClick={() => setActiveTaskSection("details")}
+                >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Photo or video
                   </p>
@@ -1772,7 +1837,14 @@ export default function Home() {
               ) : null}
 
               {noteType === "doodle" ? (
-                <div>
+                <div
+                  className={`rounded-2xl border px-4 py-4 ${
+                    activeTaskSection === "details"
+                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      : "border-black/10 bg-white"
+                  }`}
+                  onClick={() => setActiveTaskSection("details")}
+                >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Doodle
                   </p>
@@ -1792,7 +1864,15 @@ export default function Home() {
                 </div>
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "details"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                }`}
+                onClick={() => setActiveTaskSection("details")}
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                     Priority
@@ -1802,6 +1882,7 @@ export default function Home() {
                     onChange={(event) =>
                       setPriority(event.target.value as "low" | "medium" | "high")
                     }
+                    onFocus={() => setActiveTaskSection("details")}
                     className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                   >
                     <option value="low">Low</option>
@@ -1817,12 +1898,21 @@ export default function Home() {
                     type="date"
                     value={dueDate}
                     onChange={(event) => setDueDate(event.target.value)}
+                    onFocus={() => setActiveTaskSection("details")}
                     className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                   />
                 </div>
+                </div>
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-[#f8f9fb] p-4">
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "reminder"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                }`}
+                onClick={() => setActiveTaskSection("reminder")}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold">Reminders</p>
@@ -1850,6 +1940,7 @@ export default function Home() {
                           event.target.value as "popup" | "email" | "sound"
                         )
                       }
+                      onFocus={() => setActiveTaskSection("reminder")}
                       className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                     >
                       <option value="popup">Popup alert</option>
@@ -1859,6 +1950,7 @@ export default function Home() {
                     <select
                       value={reminderFrequency}
                       onChange={(event) => setReminderFrequency(event.target.value)}
+                      onFocus={() => setActiveTaskSection("reminder")}
                       className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                     >
                       <option value="once">One-time</option>
@@ -1870,13 +1962,21 @@ export default function Home() {
                       type="time"
                       value={reminderTime}
                       onChange={(event) => setReminderTime(event.target.value)}
+                      onFocus={() => setActiveTaskSection("reminder")}
                       className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
                     />
                   </div>
                 ) : null}
               </div>
 
-              <div>
+              <div
+                className={`rounded-2xl border px-4 py-4 ${
+                  activeTaskSection === "location"
+                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    : "border-black/10 bg-white"
+                }`}
+                onClick={() => setActiveTaskSection("location")}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                   Location reminder
                 </p>
@@ -1901,6 +2001,7 @@ export default function Home() {
                 <input
                   value={locationValue}
                   onChange={(event) => setLocationValue(event.target.value)}
+                  onFocus={() => setActiveTaskSection("location")}
                   placeholder={
                     locationMode === "gps"
                       ? "GPS coordinates"
