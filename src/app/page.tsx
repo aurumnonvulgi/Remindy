@@ -839,6 +839,7 @@ export default function Home() {
       (pos) => {
         const coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
         setLocationValue(coords);
+        setActiveTaskSection("review");
       },
       () => setNoteStatus("Unable to get location.")
     );
@@ -906,13 +907,7 @@ export default function Home() {
       return false;
     }
 
-    if (locationValue.trim() === "" && locationMode === "address") {
-      setNoteStatus("Add an address or use GPS.");
-      setActiveTaskSection("location");
-      setInvalidField("location");
-      locationInputRef.current?.focus();
-      return false;
-    }
+    // Location is optional.
 
     const reminderAt =
       reminderEnabled && dueDate && reminderTime
@@ -1765,11 +1760,15 @@ export default function Home() {
               </div>
 
               <div
-                className={`rounded-2xl border px-4 py-4 ${
+                className={`rounded-2xl border px-4 py-4 transition ${
                   activeTaskSection === "title"
-                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    ? "border-[#3b82f6] bg-[#eaf2ff]"
                     : "border-black/10 bg-white"
-                } ${activeTaskSection === "title" && !noteTitle.trim() ? "animate-pulse" : ""}`}
+                } ${
+                  activeTaskSection === "title" && !noteTitle.trim()
+                    ? "animate-pulse border-[#60a5fa] bg-[#dbeafe]"
+                    : ""
+                }`}
                 onClick={() => setActiveTaskSection("title")}
               >
                 <div className="space-y-2">
@@ -1826,11 +1825,11 @@ export default function Home() {
               </div>
 
               <div
-                className={`rounded-2xl border px-4 py-4 ${
+                className={`rounded-2xl border px-4 py-4 transition ${
                   activeTaskSection === "type"
-                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    ? "border-[#7c3aed] bg-[#f1eaff]"
                     : "border-black/10 bg-white"
-                } ${activeTaskSection === "type" ? "animate-pulse" : ""}`}
+                } ${activeTaskSection === "type" ? "animate-pulse border-[#a78bfa] bg-[#ede9fe]" : ""}`}
                 onClick={() => setActiveTaskSection("type")}
               >
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1838,10 +1837,10 @@ export default function Home() {
                 </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-4">
                   {[
-                    { label: "Text note", value: "text" },
-                    { label: "Voice memo", value: "audio" },
-                    { label: "Photos/Video", value: "image" },
-                    { label: "Doodle pad", value: "doodle" },
+                    { label: "Text note", value: "text", icon: "📝", tone: "bg-[#e0f2fe] text-[#0c4a6e] border-[#7dd3fc]" },
+                    { label: "Voice memo", value: "audio", icon: "🎙️", tone: "bg-[#fee2e2] text-[#7f1d1d] border-[#fca5a5]" },
+                    { label: "Photos/Video", value: "image", icon: "📷", tone: "bg-[#dcfce7] text-[#14532d] border-[#86efac]" },
+                    { label: "Doodle pad", value: "doodle", icon: "✏️", tone: "bg-[#fef3c7] text-[#78350f] border-[#fcd34d]" },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -1852,12 +1851,13 @@ export default function Home() {
                           setInvalidField(null);
                         }
                       }}
-                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${
+                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition ${
                         noteType === option.value
                           ? "border-[#1f2937] bg-[#1f2937] text-white"
-                          : "border-black/10 bg-white text-[#1f2937]"
+                          : `${option.tone}`
                       }`}
                     >
+                      <span className="mr-2">{option.icon}</span>
                       {option.label}
                     </button>
                   ))}
@@ -1866,11 +1866,15 @@ export default function Home() {
 
               {noteType === "text" ? (
                 <div
-                  className={`rounded-2xl border px-4 py-4 ${
+                  className={`rounded-2xl border px-4 py-4 transition ${
                     activeTaskSection === "details"
-                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      ? "border-[#14b8a6] bg-[#e6fffb]"
                       : "border-black/10 bg-white"
-                  } ${activeTaskSection === "details" && !noteBody.trim() ? "animate-pulse" : ""}`}
+                  } ${
+                    activeTaskSection === "details" && !noteBody.trim()
+                      ? "animate-pulse border-[#5eead4] bg-[#ccfbf1]"
+                      : ""
+                  }`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1903,11 +1907,15 @@ export default function Home() {
 
               {noteType === "audio" ? (
                 <div
-                  className={`rounded-2xl border px-4 py-4 ${
+                  className={`rounded-2xl border px-4 py-4 transition ${
                     activeTaskSection === "details"
-                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      ? "border-[#ef4444] bg-[#fff1f2]"
                       : "border-black/10 bg-white"
-                  } ${activeTaskSection === "details" && audioClips.length === 0 ? "animate-pulse" : ""}`}
+                  } ${
+                    activeTaskSection === "details" && audioClips.length === 0
+                      ? "animate-pulse border-[#f87171] bg-[#fee2e2]"
+                      : ""
+                  }`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1928,6 +1936,17 @@ export default function Home() {
                   >
                     {voiceRecording ? "Tap to stop recording" : "Tap to record"}
                   </button>
+                  {voiceRecording ? (
+                    <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#dc2626]">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-[#dc2626]" />
+                      Recording in progress
+                      <span className="ml-auto flex items-center gap-1">
+                        <span className="h-1 w-1 animate-bounce rounded-full bg-[#dc2626]" />
+                        <span className="h-1 w-1 animate-bounce rounded-full bg-[#dc2626] [animation-delay:120ms]" />
+                        <span className="h-1 w-1 animate-bounce rounded-full bg-[#dc2626] [animation-delay:240ms]" />
+                      </span>
+                    </div>
+                  ) : null}
                   {audioClipUrls.length > 0 ? (
                     <div className="mt-3 space-y-2">
                       {audioClipUrls.map((url, index) => (
@@ -1943,11 +1962,15 @@ export default function Home() {
 
               {noteType === "image" ? (
                 <div
-                  className={`rounded-2xl border px-4 py-4 ${
+                  className={`rounded-2xl border px-4 py-4 transition ${
                     activeTaskSection === "details"
-                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      ? "border-[#22c55e] bg-[#ecfdf5]"
                       : "border-black/10 bg-white"
-                  } ${activeTaskSection === "details" && !mediaFile ? "animate-pulse" : ""}`}
+                  } ${
+                    activeTaskSection === "details" && !mediaFile
+                      ? "animate-pulse border-[#86efac] bg-[#dcfce7]"
+                      : ""
+                  }`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -1994,11 +2017,15 @@ export default function Home() {
 
               {noteType === "doodle" ? (
                 <div
-                  className={`rounded-2xl border px-4 py-4 ${
+                  className={`rounded-2xl border px-4 py-4 transition ${
                     activeTaskSection === "details"
-                      ? "border-[#1f2937] bg-[#f8f9fb]"
+                      ? "border-[#f59e0b] bg-[#fffbeb]"
                       : "border-black/10 bg-white"
-                  } ${activeTaskSection === "details" && !doodleDirty ? "animate-pulse" : ""}`}
+                  } ${
+                    activeTaskSection === "details" && !doodleDirty
+                      ? "animate-pulse border-[#fcd34d] bg-[#fef3c7]"
+                      : ""
+                  }`}
                   onClick={() => setActiveTaskSection("details")}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
@@ -2012,7 +2039,7 @@ export default function Home() {
                         : "border-black/10"
                     }`}
                   >
-                    Open doodle pad
+                    Touch to doodle
                   </button>
                   {doodlePreview ? (
                     <img
@@ -2066,15 +2093,15 @@ export default function Home() {
               </div>
 
               <div
-                className={`rounded-2xl border px-4 py-4 ${
+                className={`rounded-2xl border px-4 py-4 transition ${
                   activeTaskSection === "reminder"
-                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    ? "border-[#f97316] bg-[#fff7ed]"
                     : "border-black/10 bg-white"
                 } ${
                   activeTaskSection === "reminder" &&
                   reminderEnabled &&
                   !reminderTime
-                    ? "animate-pulse"
+                    ? "animate-pulse border-[#fb923c] bg-[#ffedd5]"
                     : ""
                 }`}
                 onClick={() => setActiveTaskSection("reminder")}
@@ -2155,15 +2182,13 @@ export default function Home() {
               </div>
 
               <div
-                className={`rounded-2xl border px-4 py-4 ${
+                className={`rounded-2xl border px-4 py-4 transition ${
                   activeTaskSection === "location"
-                    ? "border-[#1f2937] bg-[#f8f9fb]"
+                    ? "border-[#10b981] bg-[#ecfdf5]"
                     : "border-black/10 bg-white"
                 } ${
-                  activeTaskSection === "location" &&
-                  locationMode === "address" &&
-                  !locationValue.trim()
-                    ? "animate-pulse"
+                  activeTaskSection === "location"
+                    ? "animate-pulse border-[#6ee7b7] bg-[#d1fae5]"
                     : ""
                 }`}
                 onClick={() => setActiveTaskSection("location")}
