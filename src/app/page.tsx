@@ -1672,13 +1672,13 @@ export default function Home() {
         </header>
 
         {viewMode === "detail" && activeList ? (
-          <section className="rounded-3xl border border-[#eceff4] bg-white px-5 py-5 shadow-sm">
+          <section className="rounded-3xl border border-[#e7ecf4] bg-[#f7f9fc] px-5 py-5 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <button
                 onClick={() => setViewMode("lists")}
-                className="rounded-full border border-[#eceff4] px-3 py-1 text-xs font-semibold text-[#6b7280]"
+                className="rounded-full border border-[#93c5fd] bg-[#dbeafe] px-3 py-1 text-xs font-semibold text-[#1d4ed8]"
               >
-                ← Back to lists
+                ← Back to all lists
               </button>
               <p className="text-xs uppercase tracking-[0.3em] text-[#9aa0aa]">
                 List details
@@ -1706,6 +1706,10 @@ export default function Home() {
                       { label: "Sunrise", value: "from-[#fff1dc] to-[#fff8ed] border-[#f1d6a7] text-[#8a5b1e]" },
                       { label: "Mint", value: "from-[#e9fff4] to-[#f2fff9] border-[#bfead6] text-[#2a7b5d]" },
                       { label: "Peach", value: "from-[#fff0e7] to-[#fff7f1] border-[#f1c9b1] text-[#c46a2c]" },
+                      { label: "Ocean", value: "from-[#e0f2fe] to-[#f0f9ff] border-[#7dd3fc] text-[#0369a1]" },
+                      { label: "Berry", value: "from-[#ffe4f1] to-[#fff1f7] border-[#f9a8d4] text-[#9d174d]" },
+                      { label: "Slate", value: "from-[#e2e8f0] to-[#f8fafc] border-[#cbd5f5] text-[#475569]" },
+                      { label: "Lime", value: "from-[#ecfccb] to-[#f7fee7] border-[#bef264] text-[#3f6212]" },
                     ].map((option) => (
                       <button
                         key={option.label}
@@ -1800,7 +1804,10 @@ export default function Home() {
                 <p className="text-sm font-semibold text-[#1f2937]">
                   Tasks in {activeList.name}
                 </p>
-                <div className="flex flex-wrap gap-2 text-xs">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
+                    Status
+                  </span>
                   {["all", "open", "completed"].map((value) => (
                     <button
                       key={value}
@@ -1818,7 +1825,10 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
+                  Type
+                </span>
                 {["all", "text", "audio", "image", "video", "doodle"].map(
                   (value) => (
                     <button
@@ -1845,7 +1855,10 @@ export default function Home() {
                   )
                 )}
               </div>
-              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa0aa]">
+                  Priority
+                </span>
                 {["all", "low", "medium", "high"].map((value) => (
                   <button
                     key={value}
@@ -1870,7 +1883,15 @@ export default function Home() {
                   .map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-[#eceff4] bg-white px-4 py-3"
+                      className={`rounded-2xl border px-4 py-3 ${
+                        item.type === "audio"
+                          ? "border-[#fecaca] bg-[#fff1f2]"
+                          : item.type === "image" || item.type === "video"
+                          ? "border-[#bbf7d0] bg-[#f0fdf4]"
+                          : item.type === "doodle"
+                          ? "border-[#fde68a] bg-[#fffbeb]"
+                          : "border-[#bfdbfe] bg-[#eff6ff]"
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -1881,7 +1902,13 @@ export default function Home() {
                             {item.type} · {item.priority}
                           </p>
                         </div>
-                        <span className="rounded-full border border-[#eceff4] px-2 py-1 text-[10px] font-semibold text-[#6b7280]">
+                        <span
+                          className={`rounded-full border px-2 py-1 text-[10px] font-semibold ${
+                            item.status === "completed"
+                              ? "border-[#86efac] text-[#166534]"
+                              : "border-[#fcd34d] text-[#92400e]"
+                          }`}
+                        >
                           {item.status}
                         </span>
                       </div>
