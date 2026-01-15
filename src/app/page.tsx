@@ -210,6 +210,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    if (createTaskOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+    document.body.style.overflow = "";
+  }, [createTaskOpen]);
+
+  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
@@ -1578,8 +1592,8 @@ export default function Home() {
       ) : null}
 
       {createTaskOpen ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-6">
-          <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-[var(--shadow)]">
+        <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/40 px-4 py-6">
+          <div className="w-full max-w-3xl max-h-[85vh] overflow-y-auto overscroll-contain rounded-3xl bg-white p-6 shadow-[var(--shadow)]">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Create task</h2>
