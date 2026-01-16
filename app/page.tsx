@@ -40,6 +40,13 @@ const seededShuffle = <T,>(items: T[], seed: number): T[] => {
   return result;
 };
 
+const pickWindowStart = (seed: number, maxStart: number) => {
+  if (maxStart <= 0) {
+    return 0;
+  }
+  return Math.abs(seed * 73) % (maxStart + 1);
+};
+
 type Candle = {
   open: number;
   close: number;
@@ -158,7 +165,7 @@ export default function Home() {
       result: "win" | "loss";
     }>
   >([]);
-  const [liveCandles, setLiveCandles] = useState<Candle[]>([]);
+  const [apiCandles, setApiCandles] = useState<Candle[]>([]);
   const [tradeLoading, setTradeLoading] = useState(false);
   const [tradeError, setTradeError] = useState<string | null>(null);
 
@@ -364,7 +371,14 @@ export default function Home() {
     () => `${tradeAsset}-${tradeTimeframe}-${tradeSeed}`,
     [tradeAsset, tradeTimeframe, tradeSeed]
   );
-  const candles = liveCandles;
+  const startIndex = useMemo(
+    () => pickWindowStart(tradeSeed, Math.max(apiCandles.length - 75, 0)),
+    [apiCandles.length, tradeSeed]
+  );
+  const candles = useMemo(
+    () => apiCandles.slice(startIndex, startIndex + 75),
+    [apiCandles, startIndex]
+  );
   const hasEnoughCandles = candles.length >= 75;
   const entryCandle = candles[49];
   const exitCandle = candles[74];
@@ -453,14 +467,14 @@ export default function Home() {
           throw new Error("No candles returned for that selection.");
         }
         if (isActive) {
-          setLiveCandles(payload.candles.slice(0, 75));
+          setApiCandles(payload.candles);
         }
       } catch (error) {
         if (isActive) {
           setTradeError(
             error instanceof Error ? error.message : "Unable to load candles."
           );
-          setLiveCandles([]);
+          setApiCandles([]);
         }
       } finally {
         if (isActive) {
@@ -472,7 +486,7 @@ export default function Home() {
     return () => {
       isActive = false;
     };
-  }, [tradeAsset, tradeTimeframe, tradeSeed]);
+  }, [tradeAsset, tradeTimeframe]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -890,7 +904,8 @@ export default function Home() {
             </div>
             <p className="mt-3 text-xs text-slate-500">
               Showing {visibleCandles.length} candles. Choose long or short to
-              reveal the next 25.
+              reveal the next 25. New round uses a different window from the
+              same data set.
             </p>
           </div>
 

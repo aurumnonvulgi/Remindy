@@ -8,6 +8,11 @@ type Candle = {
 };
 
 const API_BASE = "https://www.alphavantage.co/query";
+const CACHE_TTL_MS = 30 * 1000;
+const cache = new Map<
+  string,
+  { timestamp: number; payload: { candles: Candle[]; source: string; symbol: string; interval: string } }
+>();
 
 const assetMap: Record<string, { symbol: string; type: "crypto" }> = {
   BTCUSD: { symbol: "BTC", type: "crypto" },
@@ -109,12 +114,21 @@ export async function GET(request: Request) {
     resampleSize = 4;
   }
 
+  const cacheKey = `${assetInfo.symbol}-${timeframe}`;
+  const cached = cache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return NextResponse.json(cached.payload);
+  }
+
   const response = await fetch(`${API_BASE}?${params.toString()}`, {
     next: { revalidate: 60 },
   });
   const payload = (await response.json()) as Record<string, unknown>;
 
   if (payload["Error Message"] || payload["Note"] || payload["Information"]) {
+    if (cached) {
+      return NextResponse.json(cached.payload);
+    }
     return NextResponse.json(
       { error: payload["Error Message"] || payload["Note"] || payload["Information"] },
       { status: 502 }
@@ -126,10 +140,13 @@ export async function GET(request: Request) {
     candles = resampleCandles(candles, resampleSize);
   }
 
-  return NextResponse.json({
+  const responsePayload = {
     candles,
     source: "alpha-vantage",
     symbol: assetInfo.symbol,
     interval: timeframe,
-  });
+  };
+  cache.set(cacheKey, { timestamp: Date.now(), payload: responsePayload });
+
+  return NextResponse.json(responsePayload);
 }
