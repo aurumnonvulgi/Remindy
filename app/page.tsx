@@ -12,6 +12,13 @@ type GameItem = Phrase & {
   id: string;
 };
 
+type PinyinOption = {
+  id: string;
+  cardId: string;
+  pinyin: string;
+  zh: string;
+};
+
 const PHRASES: Phrase[] = [
   { zh: "你好", pinyin: "Nǐ hǎo", en: "Hello" },
   { zh: "谢谢", pinyin: "Xièxie", en: "Thank you" },
@@ -81,6 +88,11 @@ export default function Home() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceUri, setVoiceUri] = useState("");
   const [gameSeed, setGameSeed] = useState(0);
+  const [selectedPinyinId, setSelectedPinyinId] = useState<string | null>(null);
+  const [pinyinAssignments, setPinyinAssignments] = useState<
+    Record<string, string>
+  >({});
+  const [mismatchCardId, setMismatchCardId] = useState<string | null>(null);
   const lastSpokenRef = useRef<string>("");
   const speakLockRef = useRef(false);
 
@@ -156,6 +168,64 @@ export default function Home() {
       ...item,
     }));
   }, [gameSeed]);
+
+  const pinyinOptions = useMemo<PinyinOption[]>(() => {
+    const options = gameItems.map((item) => ({
+      id: `${item.id}-pinyin`,
+      cardId: item.id,
+      pinyin: item.pinyin,
+      zh: item.zh,
+    }));
+    for (let i = options.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return options;
+  }, [gameItems]);
+
+  useEffect(() => {
+    setSelectedPinyinId(null);
+    setPinyinAssignments({});
+    setMismatchCardId(null);
+  }, [gameSeed]);
+
+  const assignedPinyinIds = useMemo(
+    () => new Set(Object.values(pinyinAssignments)),
+    [pinyinAssignments]
+  );
+
+  const handleAssignPinyin = useCallback(
+    (cardId: string) => {
+      if (pinyinAssignments[cardId]) {
+        setPinyinAssignments((current) => {
+          const next = { ...current };
+          delete next[cardId];
+          return next;
+        });
+        return;
+      }
+      if (!selectedPinyinId) {
+        return;
+      }
+      const selected = pinyinOptions.find(
+        (option) => option.id === selectedPinyinId
+      );
+      if (!selected) {
+        return;
+      }
+      if (selected.cardId !== cardId) {
+        setMismatchCardId(cardId);
+        window.setTimeout(() => setMismatchCardId(null), 650);
+        return;
+      }
+      setPinyinAssignments((current) => ({
+        ...current,
+        [cardId]: selected.id,
+      }));
+      setSelectedPinyinId(null);
+    },
+    [pinyinAssignments, pinyinOptions, selectedPinyinId]
+  );
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -244,11 +314,41 @@ export default function Home() {
               <p className="mt-3 text-sm text-rose-600">{ttsError}</p>
             ) : null}
 
+            <div className="mt-5 flex flex-wrap gap-3">
+              {pinyinOptions
+                .filter((option) => !assignedPinyinIds.has(option.id))
+                .map((option) => {
+                  const isSelected = option.id === selectedPinyinId;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedPinyinId((current) =>
+                          current === option.id ? null : option.id
+                        )
+                      }
+                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        isSelected
+                          ? "border-slate-900 bg-slate-900 text-white"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                      }`}
+                    >
+                      {option.pinyin}
+                    </button>
+                  );
+                })}
+            </div>
+
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {gameItems.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+                  className={`rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition ${
+                    mismatchCardId === item.id
+                      ? "border-rose-400 ring-2 ring-rose-200"
+                      : ""
+                  }`}
                 >
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                     English
@@ -258,10 +358,14 @@ export default function Home() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => speakText(item.zh)}
-                    className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                    onClick={() => handleAssignPinyin(item.id)}
+                    className="mt-4 w-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
                   >
-                    {item.pinyin}
+                    {pinyinAssignments[item.id]
+                      ? pinyinOptions.find(
+                          (option) => option.id === pinyinAssignments[item.id]
+                        )?.pinyin
+                      : "Tap to place Pinyin"}
                   </button>
                   <button
                     type="button"
