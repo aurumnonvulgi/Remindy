@@ -7,7 +7,7 @@ type Candle = {
   low: number;
 };
 
-const API_BASE = "https://api.binance.com/api/v3/klines";
+const API_BASE = "https://api.exchange.coinbase.com/products";
 const CACHE_TTL_MS = 15 * 1000;
 const cache = new Map<
   string,
@@ -18,17 +18,17 @@ const cache = new Map<
 >();
 
 const assetMap: Record<string, string> = {
-  BTCUSD: "BTCUSDT",
-  ETHUSD: "ETHUSDT",
-  LTCUSD: "LTCUSDT",
+  BTCUSD: "BTC-USD",
+  ETHUSD: "ETH-USD",
+  LTCUSD: "LTC-USD",
 };
 
-const intervalMap: Record<string, string> = {
-  "5m": "5m",
-  "15m": "15m",
-  "30m": "30m",
-  "1h": "1h",
-  "4h": "4h",
+const intervalMap: Record<string, number> = {
+  "5m": 300,
+  "15m": 900,
+  "30m": 1800,
+  "1h": 3600,
+  "4h": 14400,
 };
 
 const parseKlines = (rows: unknown[]): Candle[] =>
@@ -37,16 +37,17 @@ const parseKlines = (rows: unknown[]): Candle[] =>
       if (!Array.isArray(row)) {
         return null;
       }
-      const open = Number(row[1]);
+      const low = Number(row[1]);
       const high = Number(row[2]);
-      const low = Number(row[3]);
+      const open = Number(row[3]);
       const close = Number(row[4]);
       if (![open, high, low, close].every((v) => Number.isFinite(v))) {
         return null;
       }
       return { open, high, low, close };
     })
-    .filter((item): item is Candle => Boolean(item));
+    .filter((item): item is Candle => Boolean(item))
+    .reverse();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -68,12 +69,11 @@ export async function GET(request: Request) {
   }
 
   const params = new URLSearchParams({
-    symbol,
-    interval: intervalMap[timeframe],
-    limit: "200",
+    granularity: String(intervalMap[timeframe]),
   });
 
-  const response = await fetch(`${API_BASE}?${params.toString()}`, {
+  const response = await fetch(`${API_BASE}/${symbol}/candles?${params}`, {
+    headers: { Accept: "application/json" },
     next: { revalidate: 30 },
   });
   const payload = (await response.json()) as unknown;
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
 
   const responsePayload = {
     candles,
-    source: "binance",
+    source: "coinbase",
     symbol,
     interval: timeframe,
   };
