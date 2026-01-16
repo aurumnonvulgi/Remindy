@@ -278,9 +278,16 @@ export default function Home() {
                 </span>
               </div>
 
-              <button
-                type="button"
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={revealInstantly}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    revealInstantly();
+                  }
+                }}
                 className="group flex min-h-[220px] w-full flex-col items-center justify-center gap-4 rounded-[24px] border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-center transition hover:border-slate-300 hover:bg-white"
               >
                 <span className="text-xs uppercase tracking-[0.4em] text-slate-400">
@@ -305,16 +312,22 @@ export default function Home() {
                     <span className="ml-2 inline-block h-8 w-[2px] animate-pulse bg-slate-400" />
                   )}
                 </span>
-              </button>
-              <button
-                type="button"
-                onClick={replayReveal}
-                className="self-center rounded-full border border-dashed border-slate-300 bg-white px-5 py-2 text-xs font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
-              >
-                Replay strokes
-              </button>
+                <span className="text-xs text-slate-500">
+                  Tap to reveal instantly
+                </span>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    replayReveal();
+                  }}
+                  className="mt-1 inline-flex items-center gap-2 rounded-full border border-dashed border-slate-300 bg-white px-4 py-1 text-[11px] font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
+                >
+                  Replay strokes
+                </button>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr]">
+              <div className="grid gap-4">
                 <div className="rounded-[18px] bg-slate-900 px-5 py-4 text-left text-white">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-xs uppercase tracking-[0.3em] text-white/60">
@@ -348,11 +361,11 @@ export default function Home() {
                     Tap a word to hear it
                   </p>
                 </div>
-                <div className="rounded-[18px] bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-[18px] bg-white px-5 py-3 shadow-sm">
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                    Meaning
+                    English
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900">
+                  <p className="mt-1 text-lg font-semibold text-slate-900">
                     {isComplete ? phrase.en : "Revealing…"}
                   </p>
                 </div>
@@ -362,18 +375,18 @@ export default function Home() {
                 <p className="text-sm text-rose-600">{ttsError}</p>
               ) : null}
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="grid w-full gap-3 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={handlePrev}
-                  className="rounded-2xl bg-rose-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-500"
+                  className="w-full rounded-2xl bg-rose-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-500"
                 >
                   Previous
                 </button>
                 <button
                   type="button"
                   onClick={speakPhrase}
-                  className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
                   style={{ background: accent }}
                 >
                   <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
@@ -384,7 +397,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-500"
+                  className="w-full rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-500"
                 >
                   Next
                 </button>
