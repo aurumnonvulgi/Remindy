@@ -326,7 +326,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+      <details className="mx-auto w-full max-w-5xl rounded-[28px] border border-white/70 bg-white/70 p-4 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[22px] bg-white/80 px-6 py-4 text-xl font-semibold text-slate-900 shadow-sm transition hover:bg-white">
+          Mandarin Flashcards
+          <span className="text-sm text-slate-400 transition group-open:rotate-180">
+            ▼
+          </span>
+        </summary>
+        <div className="mt-6 flex flex-col gap-8">
         <header className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 text-xl shadow-sm">
@@ -651,10 +658,11 @@ export default function Home() {
             </div>
           </section>
         </main>
-        <footer className="pt-4 text-center text-sm font-semibold tracking-[0.5em] text-slate-400 sm:text-base">
-          4AM4E
-        </footer>
-      </div>
+        </div>
+      </details>
+      <footer className="pt-6 text-center text-sm font-semibold tracking-[0.5em] text-slate-400 sm:text-base">
+        4AM4E
+      </footer>
       <style jsx global>{`
         @keyframes success-burst {
           0% {
