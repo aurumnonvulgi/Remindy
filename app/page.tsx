@@ -926,7 +926,7 @@ export default function Home() {
                 Timeframe
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["5m", "15m", "30m", "1h", "4h", "1d", "1w"].map((frame) => (
+                {["5m", "15m", "30m", "1h", "4h"].map((frame) => (
                   <button
                     key={frame}
                     type="button"

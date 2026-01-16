@@ -93,22 +93,20 @@ export async function GET(request: Request) {
   const params = new URLSearchParams({ apikey: apiKey });
   let resampleSize = 1;
 
-  if (["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
-    params.set("function", "CRYPTO_INTRADAY");
-    params.set("symbol", assetInfo.symbol);
-    params.set("market", "USD");
-    params.set("interval", intervalMap[timeframe] || "60min");
-    params.set("outputsize", "compact");
-    if (timeframe === "4h") {
-      resampleSize = 4;
-    }
-  } else {
-    params.set("function", "DIGITAL_CURRENCY_DAILY");
-    params.set("symbol", assetInfo.symbol);
-    params.set("market", "USD");
-    if (timeframe === "1w") {
-      resampleSize = 5;
-    }
+  if (!["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
+    return NextResponse.json(
+      { error: "Timeframe not supported for free crypto data." },
+      { status: 400 }
+    );
+  }
+
+  params.set("function", "CRYPTO_INTRADAY");
+  params.set("symbol", assetInfo.symbol);
+  params.set("market", "USD");
+  params.set("interval", intervalMap[timeframe] || "60min");
+  params.set("outputsize", "compact");
+  if (timeframe === "4h") {
+    resampleSize = 4;
   }
 
   const response = await fetch(`${API_BASE}?${params.toString()}`, {
