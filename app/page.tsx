@@ -13,6 +13,10 @@ type PinyinToken = {
   zh?: string;
 };
 
+type GameItem = Phrase & {
+  id: string;
+};
+
 const PHRASES: Phrase[] = [
   { zh: "你好", pinyin: "Nǐ hǎo", en: "Hello" },
   { zh: "谢谢", pinyin: "Xièxie", en: "Thank you" },
@@ -89,6 +93,12 @@ export default function Home() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceUri, setVoiceUri] = useState("");
   const [replaySeed, setReplaySeed] = useState(0);
+  const [gameSeed, setGameSeed] = useState(0);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [englishMatches, setEnglishMatches] = useState<Record<string, string>>(
+    {}
+  );
+  const [audioMatches, setAudioMatches] = useState<Record<string, string>>({});
   const lastSpokenRef = useRef<string>("");
   const speakLockRef = useRef(false);
   const autoSpokenIndexRef = useRef<number | null>(null);
@@ -240,6 +250,36 @@ export default function Home() {
     }
     return pinyinWords.map((word) => ({ word }));
   }, [phrase.zh, pinyinWords]);
+
+  const gameItems = useMemo<GameItem[]>(() => {
+    const pool = [...PHRASES];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, 4).map((item, index) => ({
+      id: `${index}-${item.zh}`,
+      ...item,
+    }));
+  }, [gameSeed]);
+
+  const englishTargets = useMemo(() => {
+    const shuffled = [...gameItems];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [gameItems]);
+
+  const audioTargets = useMemo(() => {
+    const shuffled = [...gameItems];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [gameItems]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -480,6 +520,144 @@ export default function Home() {
               </label>
             </div>
           </details>
+          <section className="rounded-[26px] border border-white/70 bg-white/80 p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Match the phrase
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setGameSeed((current) => current + 1);
+                  setEnglishMatches({});
+                  setAudioMatches({});
+                }}
+                className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+              >
+                New round
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-slate-600">
+              Drag the Mandarin phrase onto the matching English meaning and
+              the audio tile.
+            </p>
+
+            <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Mandarin
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {gameItems.map((item) => (
+                    <div
+                      key={item.id}
+                      draggable
+                      onDragStart={(event) => {
+                        event.dataTransfer.setData("text/plain", item.id);
+                        setDraggingId(item.id);
+                      }}
+                      onDragEnd={() => setDraggingId(null)}
+                      className={`cursor-grab rounded-2xl border bg-white px-4 py-3 text-lg font-semibold text-slate-900 shadow-sm transition ${
+                        draggingId === item.id
+                          ? "scale-95 border-slate-400"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {item.zh}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  English
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {englishTargets.map((target) => {
+                    const matchId = englishMatches[target.id];
+                    const isCorrect = matchId === target.id;
+                    return (
+                      <div
+                        key={target.id}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          const id = event.dataTransfer.getData("text/plain");
+                          if (id) {
+                            setEnglishMatches((current) => ({
+                              ...current,
+                              [target.id]: id,
+                            }));
+                          }
+                        }}
+                        className={`flex min-h-[64px] flex-col justify-between rounded-2xl border bg-white px-4 py-3 text-sm font-semibold transition ${
+                          matchId
+                            ? isCorrect
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                              : "border-rose-300 bg-rose-50 text-rose-700"
+                            : "border-slate-200 text-slate-700"
+                        }`}
+                      >
+                        <span>{target.en}</span>
+                        <span className="text-xs font-medium text-slate-400">
+                          {matchId
+                            ? isCorrect
+                              ? "Matched"
+                              : "Try again"
+                            : "Drop Mandarin here"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Audio
+                </p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {audioTargets.map((target) => {
+                    const matchId = audioMatches[target.id];
+                    const isCorrect = matchId === target.id;
+                    return (
+                      <div
+                        key={target.id}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          const id = event.dataTransfer.getData("text/plain");
+                          if (id) {
+                            setAudioMatches((current) => ({
+                              ...current,
+                              [target.id]: id,
+                            }));
+                          }
+                        }}
+                        className={`flex min-h-[64px] items-center justify-between rounded-2xl border bg-white px-4 py-3 text-sm font-semibold transition ${
+                          matchId
+                            ? isCorrect
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                              : "border-rose-300 bg-rose-50 text-rose-700"
+                            : "border-slate-200 text-slate-700"
+                        }`}
+                      >
+                        <span>{matchId ? "Ready" : "Drop Mandarin here"}</span>
+                        <button
+                          type="button"
+                          onClick={() => speakText(target.zh)}
+                          className="rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                        >
+                          🔊
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
         </main>
         <footer className="pt-4 text-center text-sm font-semibold tracking-[0.5em] text-slate-400 sm:text-base">
           4AM4E
