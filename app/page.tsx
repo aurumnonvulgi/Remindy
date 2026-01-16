@@ -66,27 +66,11 @@ type Candle = {
   low: number;
 };
 
-const buildCandles = (
-  seedKey: string,
-  count: number,
-  startPrice: number
-): Candle[] => {
-  const rand = seededRandom(hashString(seedKey));
-  const candles: Candle[] = [];
-  let lastClose = startPrice;
-  for (let i = 0; i < count; i += 1) {
-    const volatility = 0.6 + rand() * 2.2;
-    const direction = rand() > 0.52 ? 1 : -1;
-    const move = direction * (rand() * volatility);
-    const open = lastClose;
-    const close = Math.max(0.1, open + move);
-    const wick = rand() * volatility * 0.8;
-    const high = Math.max(open, close) + wick;
-    const low = Math.min(open, close) - wick;
-    candles.push({ open, close, high, low: Math.max(0.05, low) });
-    lastClose = close;
-  }
-  return candles;
+type CandleResponse = {
+  candles: Candle[];
+  source: string;
+  symbol: string;
+  interval: string;
 };
 
 const PHRASES: Phrase[] = [
@@ -193,6 +177,9 @@ export default function Home() {
       result: "win" | "loss";
     }>
   >([]);
+  const [liveCandles, setLiveCandles] = useState<Candle[]>([]);
+  const [tradeLoading, setTradeLoading] = useState(false);
+  const [tradeError, setTradeError] = useState<string | null>(null);
   const tradeSymbol = useMemo(() => {
     const map: Record<string, string> = {
       BTCUSD: "BINANCE:BTCUSDT",
@@ -435,10 +422,8 @@ export default function Home() {
     () => `${tradeAsset}-${tradeTimeframe}-${tradeSeed}`,
     [tradeAsset, tradeTimeframe, tradeSeed]
   );
-  const candles = useMemo(
-    () => buildCandles(tradeConfigKey, 75, 100),
-    [tradeConfigKey]
-  );
+  const candles = liveCandles;
+  const hasEnoughCandles = candles.length >= 75;
   const entryCandle = candles[49];
   const exitCandle = candles[74];
   const entryPrice = entryCandle?.close ?? 0;
@@ -454,8 +439,11 @@ export default function Home() {
         : "loss"
       : null;
 
-  const visibleCandles = tradeRevealed ? candles : candles.slice(0, 50);
+  const visibleCandles = tradeRevealed ? candles.slice(0, 75) : candles.slice(0, 50);
   const candleRange = useMemo(() => {
+    if (!visibleCandles.length) {
+      return { high: 1, low: 0 };
+    }
     const highs = visibleCandles.map((candle) => candle.high);
     const lows = visibleCandles.map((candle) => candle.low);
     return {
@@ -466,7 +454,7 @@ export default function Home() {
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
-      if (!entryCandle) {
+      if (!entryCandle || !exitCandle) {
         return;
       }
       setTradeSelection(direction);
@@ -498,6 +486,46 @@ export default function Home() {
   useEffect(() => {
     setTradeSelection(null);
     setTradeRevealed(false);
+  }, [tradeAsset, tradeTimeframe, tradeSeed]);
+
+  useEffect(() => {
+    let isActive = true;
+    const fetchCandles = async () => {
+      setTradeLoading(true);
+      setTradeError(null);
+      try {
+        const params = new URLSearchParams({
+          asset: tradeAsset,
+          timeframe: tradeTimeframe,
+        });
+        const response = await fetch(`/api/alpha?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error("Failed to load market data.");
+        }
+        const payload = (await response.json()) as CandleResponse;
+        if (!payload.candles?.length) {
+          throw new Error("No candles returned for that selection.");
+        }
+        if (isActive) {
+          setLiveCandles(payload.candles.slice(0, 75));
+        }
+      } catch (error) {
+        if (isActive) {
+          setTradeError(
+            error instanceof Error ? error.message : "Unable to load candles."
+          );
+          setLiveCandles([]);
+        }
+      } finally {
+        if (isActive) {
+          setTradeLoading(false);
+        }
+      }
+    };
+    fetchCandles();
+    return () => {
+      isActive = false;
+    };
   }, [tradeAsset, tradeTimeframe, tradeSeed]);
 
   return (
@@ -878,43 +906,56 @@ export default function Home() {
             </p>
 
             <div className="mt-4 flex h-48 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
-              {visibleCandles.map((candle, index) => {
-                const range = candleRange.high - candleRange.low || 1;
-                const highPos =
-                  ((candleRange.high - candle.high) / range) * 100;
-                const lowPos =
-                  ((candleRange.high - candle.low) / range) * 100;
-                const openPos =
-                  ((candleRange.high - candle.open) / range) * 100;
-                const closePos =
-                  ((candleRange.high - candle.close) / range) * 100;
-                const bodyTop = Math.min(openPos, closePos);
-                const bodyBottom = Math.max(openPos, closePos);
-                const isUp = candle.close >= candle.open;
-                return (
-                  <div key={`${tradeConfigKey}-${index}`} className="relative h-full flex-1">
+              {tradeLoading ? (
+                <p className="text-sm text-slate-500">Loading candles…</p>
+              ) : tradeError ? (
+                <p className="text-sm text-rose-600">{tradeError}</p>
+              ) : !hasEnoughCandles ? (
+                <p className="text-sm text-slate-500">
+                  Not enough candles returned for this selection.
+                </p>
+              ) : (
+                visibleCandles.map((candle, index) => {
+                  const range = candleRange.high - candleRange.low || 1;
+                  const highPos =
+                    ((candleRange.high - candle.high) / range) * 100;
+                  const lowPos =
+                    ((candleRange.high - candle.low) / range) * 100;
+                  const openPos =
+                    ((candleRange.high - candle.open) / range) * 100;
+                  const closePos =
+                    ((candleRange.high - candle.close) / range) * 100;
+                  const bodyTop = Math.min(openPos, closePos);
+                  const bodyBottom = Math.max(openPos, closePos);
+                  const isUp = candle.close >= candle.open;
+                  return (
                     <div
-                      className="absolute left-1/2 w-[2px] -translate-x-1/2 rounded-full bg-slate-400"
-                      style={{
-                        top: `${highPos}%`,
-                        height: `${Math.max(4, lowPos - highPos)}%`,
-                      }}
-                    />
-                    <div
-                      className={`absolute left-1/2 w-[10px] -translate-x-1/2 rounded-md ${
-                        isUp ? "bg-emerald-400" : "bg-rose-400"
-                      }`}
-                      style={{
-                        top: `${bodyTop}%`,
-                        height: `${Math.max(6, bodyBottom - bodyTop)}%`,
-                      }}
-                    />
-                  </div>
-                );
-              })}
+                      key={`${tradeConfigKey}-${index}`}
+                      className="relative h-full flex-1"
+                    >
+                      <div
+                        className="absolute left-1/2 w-[2px] -translate-x-1/2 rounded-full bg-slate-400"
+                        style={{
+                          top: `${highPos}%`,
+                          height: `${Math.max(4, lowPos - highPos)}%`,
+                        }}
+                      />
+                      <div
+                        className={`absolute left-1/2 w-[10px] -translate-x-1/2 rounded-md ${
+                          isUp ? "bg-emerald-400" : "bg-rose-400"
+                        }`}
+                        style={{
+                          top: `${bodyTop}%`,
+                          height: `${Math.max(6, bodyBottom - bodyTop)}%`,
+                        }}
+                      />
+                    </div>
+                  );
+                })
+              )}
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              Game candles are simulated for now. Choose long or short to
+              Showing {visibleCandles.length} candles. Choose long or short to
               reveal the next 25.
             </p>
           </div>
@@ -977,7 +1018,7 @@ export default function Home() {
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
-                  disabled={tradeRevealed}
+                  disabled={tradeRevealed || tradeLoading || !hasEnoughCandles}
                   onClick={() => handleTradeSelect("long")}
                   className="rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-200"
                 >
@@ -985,7 +1026,7 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  disabled={tradeRevealed}
+                  disabled={tradeRevealed || tradeLoading || !hasEnoughCandles}
                   onClick={() => handleTradeSelect("short")}
                   className="rounded-2xl bg-rose-400 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-rose-200"
                 >
