@@ -193,6 +193,45 @@ export default function Home() {
       result: "win" | "loss";
     }>
   >([]);
+  const tradeSymbol = useMemo(() => {
+    const map: Record<string, string> = {
+      BTCUSD: "BINANCE:BTCUSDT",
+      ETHUSD: "BINANCE:ETHUSDT",
+      AAPL: "NASDAQ:AAPL",
+      SP500: "SP:SPX",
+      TSLA: "NASDAQ:TSLA",
+    };
+    return map[tradeAsset] || "BINANCE:BTCUSDT";
+  }, [tradeAsset]);
+  const tradeInterval = useMemo(() => {
+    const map: Record<string, string> = {
+      "5m": "5",
+      "15m": "15",
+      "30m": "30",
+      "1h": "60",
+      "4h": "240",
+      "1d": "D",
+      "1w": "W",
+    };
+    return map[tradeTimeframe] || "60";
+  }, [tradeTimeframe]);
+  const tradingViewSrc = useMemo(() => {
+    const params = new URLSearchParams({
+      symbol: tradeSymbol,
+      interval: tradeInterval,
+      theme: "light",
+      style: "1",
+      locale: "en",
+      toolbarbg: "#f8fafc",
+      enable_publishing: "false",
+      hide_top_toolbar: "true",
+      hide_legend: "true",
+      withdateranges: "false",
+      allow_symbol_change: "false",
+      saveimage: "false",
+    });
+    return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
+  }, [tradeInterval, tradeSymbol]);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -826,7 +865,19 @@ export default function Home() {
                 {tradeTimeframe}
               </span>
             </div>
-            <div className="mt-4 flex h-56 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
+            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100">
+              <iframe
+                title="TradingView chart"
+                src={tradingViewSrc}
+                className="h-64 w-full border-0"
+                allowTransparency
+              />
+            </div>
+            <p className="mt-3 text-xs text-slate-500">
+              Live chart via TradingView (read-only).
+            </p>
+
+            <div className="mt-4 flex h-48 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
               {visibleCandles.map((candle, index) => {
                 const range = candleRange.high - candleRange.low || 1;
                 const highPos =
@@ -863,7 +914,7 @@ export default function Home() {
               })}
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              Showing {visibleCandles.length} candles. Choose long or short to
+              Game candles are simulated for now. Choose long or short to
               reveal the next 25.
             </p>
           </div>
