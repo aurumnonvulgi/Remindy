@@ -381,7 +381,20 @@ export default function Home() {
         : "loss"
       : null;
 
-  const visibleCandles = tradeRevealed ? candles.slice(0, 75) : candles.slice(0, 50);
+  const visibleCandles = tradeRevealed
+    ? candles.slice(0, 75)
+    : candles.slice(0, 50);
+  const candleRange = useMemo(() => {
+    if (!visibleCandles.length) {
+      return { high: 1, low: 0 };
+    }
+    const highs = visibleCandles.map((candle) => candle.high);
+    const lows = visibleCandles.map((candle) => candle.low);
+    return {
+      high: Math.max(...highs, 1),
+      low: Math.min(...lows, 0),
+    };
+  }, [visibleCandles]);
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
