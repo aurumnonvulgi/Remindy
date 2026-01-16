@@ -104,11 +104,11 @@ export default function Home() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceUri, setVoiceUri] = useState("");
   const [gameSeed, setGameSeed] = useState(0);
-  const [selectedPinyinId, setSelectedPinyinId] = useState<string | null>(null);
   const [pinyinAssignments, setPinyinAssignments] = useState<
     Record<string, string>
   >({});
   const [mismatchCardId, setMismatchCardId] = useState<string | null>(null);
+  const [successCardId, setSuccessCardId] = useState<string | null>(null);
   const lastSpokenRef = useRef<string>("");
   const speakLockRef = useRef(false);
 
@@ -193,9 +193,9 @@ export default function Home() {
   }, [gameItems, gameSeed]);
 
   useEffect(() => {
-    setSelectedPinyinId(null);
     setPinyinAssignments({});
     setMismatchCardId(null);
+    setSuccessCardId(null);
   }, [gameSeed]);
 
   const assignedPinyinIds = useMemo(
@@ -204,21 +204,8 @@ export default function Home() {
   );
 
   const handleAssignPinyin = useCallback(
-    (cardId: string) => {
-      if (pinyinAssignments[cardId]) {
-        setPinyinAssignments((current) => {
-          const next = { ...current };
-          delete next[cardId];
-          return next;
-        });
-        return;
-      }
-      if (!selectedPinyinId) {
-        return;
-      }
-      const selected = pinyinOptions.find(
-        (option) => option.id === selectedPinyinId
-      );
+    (cardId: string, optionId: string) => {
+      const selected = pinyinOptions.find((option) => option.id === optionId);
       if (!selected) {
         return;
       }
@@ -231,9 +218,10 @@ export default function Home() {
         ...current,
         [cardId]: selected.id,
       }));
-      setSelectedPinyinId(null);
+      setSuccessCardId(cardId);
+      window.setTimeout(() => setSuccessCardId(null), 900);
     },
-    [pinyinAssignments, pinyinOptions, selectedPinyinId]
+    [pinyinOptions]
   );
 
   return (
@@ -327,21 +315,15 @@ export default function Home() {
               {pinyinOptions
                 .filter((option) => !assignedPinyinIds.has(option.id))
                 .map((option) => {
-                  const isSelected = option.id === selectedPinyinId;
                   return (
                     <button
                       key={option.id}
                       type="button"
-                      onClick={() =>
-                        setSelectedPinyinId((current) =>
-                          current === option.id ? null : option.id
-                        )
-                      }
-                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                        isSelected
-                          ? "border-slate-900 bg-slate-900 text-white"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                      }`}
+                      draggable
+                      onDragStart={(event) => {
+                        event.dataTransfer.setData("text/plain", option.id);
+                      }}
+                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300"
                     >
                       {option.pinyin}
                     </button>
@@ -355,7 +337,9 @@ export default function Home() {
                   key={item.id}
                   className={`rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition ${
                     mismatchCardId === item.id
-                      ? "border-rose-400 ring-2 ring-rose-200"
+                      ? "border-rose-500 ring-4 ring-rose-200"
+                      : successCardId === item.id
+                      ? "border-emerald-500 ring-4 ring-emerald-200"
                       : ""
                   }`}
                 >
@@ -367,14 +351,23 @@ export default function Home() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => handleAssignPinyin(item.id)}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const optionId = event.dataTransfer.getData("text/plain");
+                      if (optionId) {
+                        handleAssignPinyin(item.id, optionId);
+                      }
+                    }}
                     className="mt-4 w-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
                   >
                     {pinyinAssignments[item.id]
                       ? pinyinOptions.find(
                           (option) => option.id === pinyinAssignments[item.id]
                         )?.pinyin
-                      : "Tap to place Pinyin"}
+                      : "Drag Pinyin here"}
                   </button>
                   <button
                     type="button"
