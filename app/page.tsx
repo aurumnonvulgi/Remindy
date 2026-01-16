@@ -40,25 +40,6 @@ const seededShuffle = <T,>(items: T[], seed: number): T[] => {
   return result;
 };
 
-const hashString = (value: string): number => {
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i += 1) {
-    hash ^= value.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-};
-
-const seededRandom = (seed: number) => {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) | 0;
-    let t = Math.imul(state ^ (state >>> 15), 1 | state);
-    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-};
-
 type Candle = {
   open: number;
   close: number;
@@ -180,45 +161,6 @@ export default function Home() {
   const [liveCandles, setLiveCandles] = useState<Candle[]>([]);
   const [tradeLoading, setTradeLoading] = useState(false);
   const [tradeError, setTradeError] = useState<string | null>(null);
-  const tradeSymbol = useMemo(() => {
-    const map: Record<string, string> = {
-      BTCUSD: "BINANCE:BTCUSDT",
-      ETHUSD: "BINANCE:ETHUSDT",
-      AAPL: "NASDAQ:AAPL",
-      SP500: "SP:SPX",
-      TSLA: "NASDAQ:TSLA",
-    };
-    return map[tradeAsset] || "BINANCE:BTCUSDT";
-  }, [tradeAsset]);
-  const tradeInterval = useMemo(() => {
-    const map: Record<string, string> = {
-      "5m": "5",
-      "15m": "15",
-      "30m": "30",
-      "1h": "60",
-      "4h": "240",
-      "1d": "D",
-      "1w": "W",
-    };
-    return map[tradeTimeframe] || "60";
-  }, [tradeTimeframe]);
-  const tradingViewSrc = useMemo(() => {
-    const params = new URLSearchParams({
-      symbol: tradeSymbol,
-      interval: tradeInterval,
-      theme: "light",
-      style: "1",
-      locale: "en",
-      toolbarbg: "#f8fafc",
-      enable_publishing: "false",
-      hide_top_toolbar: "true",
-      hide_legend: "true",
-      withdateranges: "false",
-      allow_symbol_change: "false",
-      saveimage: "false",
-    });
-    return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
-  }, [tradeInterval, tradeSymbol]);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -440,17 +382,6 @@ export default function Home() {
       : null;
 
   const visibleCandles = tradeRevealed ? candles.slice(0, 75) : candles.slice(0, 50);
-  const candleRange = useMemo(() => {
-    if (!visibleCandles.length) {
-      return { high: 1, low: 0 };
-    }
-    const highs = visibleCandles.map((candle) => candle.high);
-    const lows = visibleCandles.map((candle) => candle.low);
-    return {
-      high: Math.max(...highs, 1),
-      low: Math.min(...lows, 0),
-    };
-  }, [visibleCandles]);
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
@@ -499,10 +430,12 @@ export default function Home() {
           timeframe: tradeTimeframe,
         });
         const response = await fetch(`/api/alpha?${params.toString()}`);
+        const payload = (await response.json()) as CandleResponse & {
+          error?: string;
+        };
         if (!response.ok) {
-          throw new Error("Failed to load market data.");
+          throw new Error(payload?.error || "Failed to load market data.");
         }
-        const payload = (await response.json()) as CandleResponse;
         if (!payload.candles?.length) {
           throw new Error("No candles returned for that selection.");
         }
@@ -893,19 +826,7 @@ export default function Home() {
                 {tradeTimeframe}
               </span>
             </div>
-            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100">
-              <iframe
-                title="TradingView chart"
-                src={tradingViewSrc}
-                className="h-64 w-full border-0"
-                allowTransparency
-              />
-            </div>
-            <p className="mt-3 text-xs text-slate-500">
-              Live chart via TradingView (read-only).
-            </p>
-
-            <div className="mt-4 flex h-48 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
+            <div className="mt-4 flex h-56 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
               {tradeLoading ? (
                 <p className="text-sm text-slate-500">Loading candles…</p>
               ) : tradeError ? (
