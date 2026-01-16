@@ -7,143 +7,96 @@ type Candle = {
   low: number;
 };
 
-const API_BASE = "https://www.alphavantage.co/query";
-const CACHE_TTL_MS = 30 * 1000;
+const API_BASE = "https://api.binance.com/api/v3/klines";
+const CACHE_TTL_MS = 15 * 1000;
 const cache = new Map<
   string,
-  { timestamp: number; payload: { candles: Candle[]; source: string; symbol: string; interval: string } }
+  {
+    timestamp: number;
+    payload: { candles: Candle[]; source: string; symbol: string; interval: string };
+  }
 >();
 
-const assetMap: Record<string, { symbol: string; type: "crypto" }> = {
-  BTCUSD: { symbol: "BTC", type: "crypto" },
-  ETHUSD: { symbol: "ETH", type: "crypto" },
-  LTCUSD: { symbol: "LTC", type: "crypto" },
+const assetMap: Record<string, string> = {
+  BTCUSD: "BTCUSDT",
+  ETHUSD: "ETHUSDT",
+  LTCUSD: "LTCUSDT",
 };
 
 const intervalMap: Record<string, string> = {
-  "5m": "5min",
-  "15m": "15min",
-  "30m": "30min",
-  "1h": "60min",
+  "5m": "5m",
+  "15m": "15m",
+  "30m": "30m",
+  "1h": "1h",
+  "4h": "4h",
 };
 
-const resampleCandles = (candles: Candle[], groupSize: number): Candle[] => {
-  if (groupSize <= 1) {
-    return candles;
-  }
-  const result: Candle[] = [];
-  for (let i = 0; i < candles.length; i += groupSize) {
-    const slice = candles.slice(i, i + groupSize);
-    if (!slice.length) {
-      continue;
-    }
-    const open = slice[0].open;
-    const close = slice[slice.length - 1].close;
-    const high = Math.max(...slice.map((c) => c.high));
-    const low = Math.min(...slice.map((c) => c.low));
-    result.push({ open, close, high, low });
-  }
-  return result;
-};
-
-const pickValue = (values: Record<string, string>, keys: string[]) => {
-  for (const key of keys) {
-    if (key in values) {
-      return Number(values[key]);
-    }
-  }
-  return NaN;
-};
-
-const parseSeries = (payload: Record<string, unknown>): Candle[] => {
-  const seriesKey = Object.keys(payload).find((key) =>
-    key.toLowerCase().includes("time series")
-  );
-  if (!seriesKey) {
-    return [];
-  }
-  const series = payload[seriesKey] as Record<string, Record<string, string>>;
-  const entries = Object.entries(series).map(([timestamp, values]) => {
-    const open = pickValue(values, ["1. open", "1a. open (USD)"]);
-    const high = pickValue(values, ["2. high", "2a. high (USD)"]);
-    const low = pickValue(values, ["3. low", "3a. low (USD)"]);
-    const close = pickValue(values, ["4. close", "4a. close (USD)"]);
-    return {
-      timestamp,
-      candle: { open, high, low, close },
-    };
-  });
-  entries.sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
-  return entries.map((entry) => entry.candle).filter((c) =>
-    [c.open, c.high, c.low, c.close].every((v) => Number.isFinite(v))
-  );
-};
+const parseKlines = (rows: unknown[]): Candle[] =>
+  rows
+    .map((row) => {
+      if (!Array.isArray(row)) {
+        return null;
+      }
+      const open = Number(row[1]);
+      const high = Number(row[2]);
+      const low = Number(row[3]);
+      const close = Number(row[4]);
+      if (![open, high, low, close].every((v) => Number.isFinite(v))) {
+        return null;
+      }
+      return { open, high, low, close };
+    })
+    .filter((item): item is Candle => Boolean(item));
 
 export async function GET(request: Request) {
-  const apiKey = process.env.ALPHAVANTAGE_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "Missing ALPHAVANTAGE_API_KEY." },
-      { status: 500 }
-    );
-  }
-
   const { searchParams } = new URL(request.url);
   const asset = searchParams.get("asset") || "BTCUSD";
   const timeframe = searchParams.get("timeframe") || "1h";
-  const assetInfo = assetMap[asset] || assetMap.BTCUSD;
+  const symbol = assetMap[asset] || assetMap.BTCUSD;
 
-  const params = new URLSearchParams({ apikey: apiKey });
-  let resampleSize = 1;
-
-  if (!["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
+  if (!intervalMap[timeframe]) {
     return NextResponse.json(
-      { error: "Timeframe not supported for free crypto data." },
+      { error: "Timeframe not supported for crypto data." },
       { status: 400 }
     );
   }
 
-  params.set("function", "CRYPTO_INTRADAY");
-  params.set("symbol", assetInfo.symbol);
-  params.set("market", "USD");
-  params.set("interval", intervalMap[timeframe] || "60min");
-  params.set("outputsize", "compact");
-  if (timeframe === "4h") {
-    resampleSize = 4;
-  }
-
-  const cacheKey = `${assetInfo.symbol}-${timeframe}`;
+  const cacheKey = `${symbol}-${timeframe}`;
   const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     return NextResponse.json(cached.payload);
   }
 
-  const response = await fetch(`${API_BASE}?${params.toString()}`, {
-    next: { revalidate: 60 },
+  const params = new URLSearchParams({
+    symbol,
+    interval: intervalMap[timeframe],
+    limit: "200",
   });
-  const payload = (await response.json()) as Record<string, unknown>;
 
-  if (payload["Error Message"] || payload["Note"] || payload["Information"]) {
+  const response = await fetch(`${API_BASE}?${params.toString()}`, {
+    next: { revalidate: 30 },
+  });
+  const payload = (await response.json()) as unknown;
+
+  if (!response.ok) {
     if (cached) {
       return NextResponse.json(cached.payload);
     }
-    return NextResponse.json(
-      { error: payload["Error Message"] || payload["Note"] || payload["Information"] },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: "Failed to fetch crypto data." }, { status: 502 });
   }
 
-  let candles = parseSeries(payload);
-  if (resampleSize > 1) {
-    candles = resampleCandles(candles, resampleSize);
+  const candles = parseKlines(Array.isArray(payload) ? payload : []);
+  if (!candles.length) {
+    if (cached) {
+      return NextResponse.json(cached.payload);
+    }
+    return NextResponse.json({ error: "No candles returned." }, { status: 502 });
   }
 
   const responsePayload = {
     candles,
-    source: "alpha-vantage",
-    symbol: assetInfo.symbol,
+    source: "binance",
+    symbol,
     interval: timeframe,
   };
   cache.set(cacheKey, { timestamp: Date.now(), payload: responsePayload });
