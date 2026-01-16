@@ -19,6 +19,22 @@ type PinyinOption = {
   zh: string;
 };
 
+const seededShuffle = <T,>(items: T[], seed: number): T[] => {
+  const result = [...items];
+  let state = seed >>> 0;
+  const next = () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(next() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+
 const PHRASES: Phrase[] = [
   { zh: "你好", pinyin: "Nǐ hǎo", en: "Hello" },
   { zh: "谢谢", pinyin: "Xièxie", en: "Thank you" },
@@ -158,15 +174,12 @@ export default function Home() {
   }, [speechRate, voiceUri, voices]);
 
   const gameItems = useMemo<GameItem[]>(() => {
-    const pool = [...PHRASES];
-    for (let i = pool.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return pool.slice(0, 4).map((item, index) => ({
-      id: `${index}-${item.zh}`,
-      ...item,
-    }));
+    return seededShuffle(PHRASES, gameSeed)
+      .slice(0, 4)
+      .map((item, index) => ({
+        id: `${index}-${item.zh}`,
+        ...item,
+      }));
   }, [gameSeed]);
 
   const pinyinOptions = useMemo<PinyinOption[]>(() => {
@@ -176,12 +189,8 @@ export default function Home() {
       pinyin: item.pinyin,
       zh: item.zh,
     }));
-    for (let i = options.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], options[i]];
-    }
-    return options;
-  }, [gameItems]);
+    return seededShuffle(options, gameSeed + 101);
+  }, [gameItems, gameSeed]);
 
   useEffect(() => {
     setSelectedPinyinId(null);
