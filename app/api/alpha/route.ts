@@ -9,14 +9,11 @@ type Candle = {
 
 const API_BASE = "https://www.alphavantage.co/query";
 
-const assetMap: Record<string, { symbol: string; type: "stock" | "crypto" }> =
-  {
-    BTCUSD: { symbol: "BTC", type: "crypto" },
-    ETHUSD: { symbol: "ETH", type: "crypto" },
-    AAPL: { symbol: "AAPL", type: "stock" },
-    SP500: { symbol: "SPX", type: "stock" },
-    TSLA: { symbol: "TSLA", type: "stock" },
-  };
+const assetMap: Record<string, { symbol: string; type: "crypto" }> = {
+  BTCUSD: { symbol: "BTC", type: "crypto" },
+  ETHUSD: { symbol: "ETH", type: "crypto" },
+  LTCUSD: { symbol: "LTC", type: "crypto" },
+};
 
 const intervalMap: Record<string, string> = {
   "5m": "5min",
@@ -96,40 +93,21 @@ export async function GET(request: Request) {
   const params = new URLSearchParams({ apikey: apiKey });
   let resampleSize = 1;
 
-  if (assetInfo.type === "crypto") {
-    if (["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
-      params.set("function", "CRYPTO_INTRADAY");
-      params.set("symbol", assetInfo.symbol);
-      params.set("market", "USD");
-      params.set("interval", intervalMap[timeframe] || "60min");
-      params.set("outputsize", "compact");
-      if (timeframe === "4h") {
-        resampleSize = 4;
-      }
-    } else {
-      params.set("function", "DIGITAL_CURRENCY_DAILY");
-      params.set("symbol", assetInfo.symbol);
-      params.set("market", "USD");
-      if (timeframe === "1w") {
-        resampleSize = 5;
-      }
+  if (["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
+    params.set("function", "CRYPTO_INTRADAY");
+    params.set("symbol", assetInfo.symbol);
+    params.set("market", "USD");
+    params.set("interval", intervalMap[timeframe] || "60min");
+    params.set("outputsize", "compact");
+    if (timeframe === "4h") {
+      resampleSize = 4;
     }
   } else {
-    if (["5m", "15m", "30m", "1h", "4h"].includes(timeframe)) {
-      params.set("function", "TIME_SERIES_INTRADAY");
-      params.set("symbol", assetInfo.symbol);
-      params.set("interval", intervalMap[timeframe] || "60min");
-      params.set("outputsize", "compact");
-      if (timeframe === "4h") {
-        resampleSize = 4;
-      }
-    } else {
-      params.set("function", "TIME_SERIES_DAILY_ADJUSTED");
-      params.set("symbol", assetInfo.symbol);
-      params.set("outputsize", "compact");
-      if (timeframe === "1w") {
-        resampleSize = 5;
-      }
+    params.set("function", "DIGITAL_CURRENCY_DAILY");
+    params.set("symbol", assetInfo.symbol);
+    params.set("market", "USD");
+    if (timeframe === "1w") {
+      resampleSize = 5;
     }
   }
 

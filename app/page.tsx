@@ -814,7 +814,7 @@ export default function Home() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-              Trading Charts Game
+              Crypto Charts Game
             </p>
             <h2 className="text-2xl font-semibold text-slate-900">
               Candle Quest
@@ -903,9 +903,7 @@ export default function Home() {
                 {[
                   { id: "BTCUSD", label: "Bitcoin" },
                   { id: "ETHUSD", label: "Ethereum" },
-                  { id: "AAPL", label: "Apple" },
-                  { id: "SP500", label: "S&P 500" },
-                  { id: "TSLA", label: "Tesla" },
+                  { id: "LTCUSD", label: "Litecoin" },
                 ].map((asset) => (
                   <button
                     key={asset.id}
