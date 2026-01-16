@@ -8,11 +8,6 @@ type Phrase = {
   en: string;
 };
 
-type PinyinToken = {
-  word: string;
-  zh?: string;
-};
-
 type GameItem = Phrase & {
   id: string;
 };
@@ -80,38 +75,14 @@ const PHRASES: Phrase[] = [
   { zh: "你让我安心", pinyin: "Nǐ ràng wǒ ān xīn", en: "You make me feel safe" },
 ];
 
-const ACCENTS = ["#ff7a59", "#ffc53d", "#5eead4", "#60a5fa"];
-
 export default function Home() {
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [typedCount, setTypedCount] = useState(0);
-  const [revealLevel, setRevealLevel] = useState(4);
-  const [autoSpeak, setAutoSpeak] = useState(true);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsError, setTtsError] = useState<string | null>(null);
   const [speechRate, setSpeechRate] = useState(0.85);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceUri, setVoiceUri] = useState("");
-  const [replaySeed, setReplaySeed] = useState(0);
   const [gameSeed, setGameSeed] = useState(0);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [englishMatches, setEnglishMatches] = useState<Record<string, string>>(
-    {}
-  );
-  const [audioMatches, setAudioMatches] = useState<Record<string, string>>({});
   const lastSpokenRef = useRef<string>("");
   const speakLockRef = useRef(false);
-  const autoSpokenIndexRef = useRef<number | null>(null);
-
-  const phrase = PHRASES[phraseIndex];
-  const accent = useMemo(
-    () => ACCENTS[phraseIndex % ACCENTS.length],
-    [phraseIndex]
-  );
-  const revealDelay = useMemo(() => {
-    const delays = [70, 130, 220, 360, 550, 800];
-    return delays[Math.min(Math.max(revealLevel - 1, 0), delays.length - 1)];
-  }, [revealLevel]);
 
   const availableVoices = useMemo(
     () =>
@@ -144,24 +115,6 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    setTypedCount(0);
-    autoSpokenIndexRef.current = null;
-    if (!phrase) {
-      return;
-    }
-    const interval = window.setInterval(() => {
-      setTypedCount((current) => {
-        if (current >= phrase.zh.length) {
-          window.clearInterval(interval);
-          return current;
-        }
-        return current + 1;
-      });
-    }, revealDelay);
-    return () => window.clearInterval(interval);
-  }, [phraseIndex, phrase?.zh, revealDelay, replaySeed]);
-
   const speakText = useCallback((text: string) => {
     if (!("speechSynthesis" in window)) {
       setTtsError("Speech is not supported on this device.");
@@ -172,7 +125,6 @@ export default function Home() {
       return;
     }
     speakLockRef.current = true;
-    setIsSpeaking(true);
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     const selected = voiceUri
@@ -183,73 +135,15 @@ export default function Home() {
     if (selected) {
       utterance.voice = selected;
     }
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
     utterance.onend = () => {
-      setIsSpeaking(false);
       speakLockRef.current = false;
     };
     utterance.onerror = () => {
-      setIsSpeaking(false);
       speakLockRef.current = false;
     };
     lastSpokenRef.current = text;
     window.speechSynthesis.speak(utterance);
   }, [speechRate, voiceUri, voices]);
-
-  const speakPhrase = useCallback(() => {
-    speakText(phrase.zh);
-  }, [phrase?.zh, speakText]);
-
-  useEffect(() => {
-    if (
-      autoSpeak &&
-      typedCount >= phrase.zh.length &&
-      autoSpokenIndexRef.current !== phraseIndex
-    ) {
-      autoSpokenIndexRef.current = phraseIndex;
-      speakPhrase();
-    }
-  }, [autoSpeak, typedCount, phrase?.zh, speakPhrase, phraseIndex]);
-
-  const handleNext = useCallback(() => {
-    setPhraseIndex((current) => (current + 1) % PHRASES.length);
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    setPhraseIndex((current) =>
-      current === 0 ? PHRASES.length - 1 : current - 1
-    );
-  }, []);
-
-  const revealInstantly = useCallback(() => {
-    setTypedCount(phrase.zh.length);
-  }, [phrase?.zh]);
-
-  const replayReveal = useCallback(() => {
-    setTypedCount(0);
-    setReplaySeed((current) => current + 1);
-  }, []);
-
-  const typedText = phrase.zh.slice(0, typedCount);
-  const isComplete = typedCount >= phrase.zh.length;
-  const pinyinWords = useMemo(
-    () => phrase.pinyin.split(" ").filter(Boolean),
-    [phrase.pinyin]
-  );
-  const pinyinTokens = useMemo<PinyinToken[]>(() => {
-    const hanChars = Array.from(
-      phrase.zh.replace(/[^\p{Script=Han}…]/gu, "")
-    );
-    if (pinyinWords.length === hanChars.length) {
-      return pinyinWords.map((word, index) => ({
-        word,
-        zh: hanChars[index],
-      }));
-    }
-    return pinyinWords.map((word) => ({ word }));
-  }, [phrase.zh, pinyinWords]);
 
   const gameItems = useMemo<GameItem[]>(() => {
     const pool = [...PHRASES];
@@ -262,24 +156,6 @@ export default function Home() {
       ...item,
     }));
   }, [gameSeed]);
-
-  const englishTargets = useMemo(() => {
-    const shuffled = [...gameItems];
-    for (let i = shuffled.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, [gameItems]);
-
-  const audioTargets = useMemo(() => {
-    const shuffled = [...gameItems];
-    for (let i = shuffled.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, [gameItems]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -301,159 +177,6 @@ export default function Home() {
         </header>
 
         <main className="flex flex-col gap-6">
-          <section className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/80 p-8 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
-            <div
-              className="absolute -right-20 -top-20 h-48 w-48 rounded-full opacity-40"
-              style={{ background: accent }}
-            />
-            <div className="absolute bottom-[-80px] left-[-40px] h-40 w-40 rounded-full bg-slate-100/70" />
-
-            <div className="relative flex flex-col gap-8">
-              <div className="flex items-center justify-between text-sm text-slate-500">
-                <span className="rounded-full bg-slate-100 px-3 py-1">
-                  Card {phraseIndex + 1} of {PHRASES.length}
-                </span>
-                <span className="rounded-full bg-slate-900 px-3 py-1 text-white">
-                  {autoSpeak ? "Auto-speak on" : "Auto-speak off"}
-                </span>
-              </div>
-
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={revealInstantly}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    revealInstantly();
-                  }
-                }}
-                className="group flex min-h-[220px] w-full flex-col items-center justify-center gap-4 rounded-[24px] border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-center transition hover:border-slate-300 hover:bg-white"
-              >
-                <span className="text-xs uppercase tracking-[0.4em] text-slate-400">
-                  Phrase
-                </span>
-                <span className="flex flex-wrap items-center justify-center gap-1 text-5xl font-semibold text-slate-900 sm:text-6xl">
-                  {Array.from(phrase.zh).map((char, index) => {
-                    const isVisible = index < typedCount;
-                    const isNew = index === typedCount - 1;
-                    return (
-                      <span
-                        key={`${char}-${index}-${replaySeed}`}
-                        className={`inline-block ${
-                          isVisible ? "opacity-100" : "opacity-0"
-                        } ${isNew ? "animate-reveal-burst" : ""}`}
-                      >
-                        {char}
-                      </span>
-                    );
-                  })}
-                  {!isComplete && (
-                    <span className="ml-2 inline-block h-8 w-[2px] animate-pulse bg-slate-400" />
-                  )}
-                </span>
-                <span className="text-xs text-slate-500">
-                  Tap to reveal instantly
-                </span>
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    replayReveal();
-                  }}
-                  className="mt-1 inline-flex items-center gap-2 rounded-full border border-dashed border-slate-300 bg-white px-4 py-1 text-[11px] font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
-                >
-                  Replay strokes
-                </button>
-              </div>
-
-              <div className="grid gap-4">
-                <div className="rounded-[18px] bg-slate-900 px-5 py-4 text-left text-white">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                      Pinyin
-                    </p>
-                    <button
-                      type="button"
-                      onClick={speakPhrase}
-                      className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/25"
-                    >
-                      Play phrase
-                    </button>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {isComplete
-                      ? pinyinTokens.map((token, index) => (
-                          <button
-                            key={`${token.word}-${index}`}
-                            type="button"
-                            onClick={() =>
-                              speakText(token.zh ? token.zh : phrase.zh)
-                            }
-                            className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white transition hover:bg-white/20"
-                          >
-                            {token.word}
-                          </button>
-                        ))
-                      : "…"}
-                  </div>
-                  <p className="mt-2 text-xs text-white/70">
-                    Tap a word to hear it
-                  </p>
-                </div>
-                <div className="rounded-[18px] bg-white px-5 py-3 shadow-sm">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                    English
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900">
-                    {isComplete ? phrase.en : "Revealing…"}
-                  </p>
-                </div>
-              </div>
-
-              {ttsError ? (
-                <p className="text-sm text-rose-600">{ttsError}</p>
-              ) : null}
-
-              <div className="grid w-full gap-3 sm:grid-cols-3">
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  className="w-full rounded-2xl bg-rose-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-500"
-                >
-                  Previous
-                </button>
-                <button
-                  type="button"
-                  onClick={speakPhrase}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
-                  style={{ background: accent }}
-                >
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                    {isSpeaking ? "⏺" : "▶"}
-                  </span>
-                  {isSpeaking ? "Speaking" : "Play audio"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="w-full rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-500"
-                >
-                  Next
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setPhraseIndex(Math.floor(Math.random() * PHRASES.length))
-                }
-                className="mt-2 w-full rounded-2xl bg-amber-300 px-6 py-4 text-base font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-400"
-              >
-                Surprise me
-              </button>
-            </div>
-          </section>
-
           <details className="group rounded-[26px] bg-white/80 p-6 shadow-sm">
             <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-semibold text-slate-900">
               Controls
@@ -462,18 +185,6 @@ export default function Home() {
               </span>
             </summary>
             <div className="mt-4 flex flex-col gap-4 text-sm text-slate-600">
-              <label className="flex items-center justify-between gap-3">
-                Reveal speed
-                <input
-                  type="range"
-                  min={1}
-                  max={6}
-                  step={1}
-                  value={revealLevel}
-                  onChange={(event) => setRevealLevel(Number(event.target.value))}
-                  className="w-36 accent-slate-900"
-                />
-              </label>
               <label className="flex items-center justify-between gap-3">
                 Speech speed
                 <input
@@ -490,15 +201,6 @@ export default function Home() {
                 Some voices ignore speed changes. Try another Chinese voice if
                 you don&apos;t hear a difference.
               </p>
-              <label className="flex items-center justify-between gap-3">
-                Auto-speak
-                <input
-                  type="checkbox"
-                  checked={autoSpeak}
-                  onChange={(event) => setAutoSpeak(event.target.checked)}
-                  className="h-5 w-5 accent-slate-900"
-                />
-              </label>
               <label className="flex flex-col gap-2 text-sm text-slate-600">
                 Voice
                 <select
@@ -529,8 +231,6 @@ export default function Home() {
                 type="button"
                 onClick={() => {
                   setGameSeed((current) => current + 1);
-                  setEnglishMatches({});
-                  setAudioMatches({});
                 }}
                 className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
               >
@@ -538,124 +238,40 @@ export default function Home() {
               </button>
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              Drag the Mandarin phrase onto the matching English meaning and
-              the audio tile.
+              Match by listening and reading. No symbols shown.
             </p>
+            {ttsError ? (
+              <p className="mt-3 text-sm text-rose-600">{ttsError}</p>
+            ) : null}
 
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
-              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                  Mandarin
-                </p>
-                <div className="mt-3 flex flex-col gap-3">
-                  {gameItems.map((item) => (
-                    <div
-                      key={item.id}
-                      draggable
-                      onDragStart={(event) => {
-                        event.dataTransfer.setData("text/plain", item.id);
-                        setDraggingId(item.id);
-                      }}
-                      onDragEnd={() => setDraggingId(null)}
-                      className={`cursor-grab rounded-2xl border bg-white px-4 py-3 text-lg font-semibold text-slate-900 shadow-sm transition ${
-                        draggingId === item.id
-                          ? "scale-95 border-slate-400"
-                          : "border-slate-200 hover:border-slate-300"
-                      }`}
-                    >
-                      {item.zh}
-                    </div>
-                  ))}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {gameItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+                >
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                    English
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">
+                    {item.en}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => speakText(item.zh)}
+                    className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                  >
+                    {item.pinyin}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => speakText(item.zh)}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    🔊 Play audio
+                  </button>
                 </div>
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                  English
-                </p>
-                <div className="mt-3 flex flex-col gap-3">
-                  {englishTargets.map((target) => {
-                    const matchId = englishMatches[target.id];
-                    const isCorrect = matchId === target.id;
-                    return (
-                      <div
-                        key={target.id}
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={(event) => {
-                          event.preventDefault();
-                          const id = event.dataTransfer.getData("text/plain");
-                          if (id) {
-                            setEnglishMatches((current) => ({
-                              ...current,
-                              [target.id]: id,
-                            }));
-                          }
-                        }}
-                        className={`flex min-h-[64px] flex-col justify-between rounded-2xl border bg-white px-4 py-3 text-sm font-semibold transition ${
-                          matchId
-                            ? isCorrect
-                              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                              : "border-rose-300 bg-rose-50 text-rose-700"
-                            : "border-slate-200 text-slate-700"
-                        }`}
-                      >
-                        <span>{target.en}</span>
-                        <span className="text-xs font-medium text-slate-400">
-                          {matchId
-                            ? isCorrect
-                              ? "Matched"
-                              : "Try again"
-                            : "Drop Mandarin here"}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-slate-200 p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                  Audio
-                </p>
-                <div className="mt-3 flex flex-col gap-3">
-                  {audioTargets.map((target) => {
-                    const matchId = audioMatches[target.id];
-                    const isCorrect = matchId === target.id;
-                    return (
-                      <div
-                        key={target.id}
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={(event) => {
-                          event.preventDefault();
-                          const id = event.dataTransfer.getData("text/plain");
-                          if (id) {
-                            setAudioMatches((current) => ({
-                              ...current,
-                              [target.id]: id,
-                            }));
-                          }
-                        }}
-                        className={`flex min-h-[64px] items-center justify-between rounded-2xl border bg-white px-4 py-3 text-sm font-semibold transition ${
-                          matchId
-                            ? isCorrect
-                              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                              : "border-rose-300 bg-rose-50 text-rose-700"
-                            : "border-slate-200 text-slate-700"
-                        }`}
-                      >
-                        <span>{matchId ? "Ready" : "Drop Mandarin here"}</span>
-                        <button
-                          type="button"
-                          onClick={() => speakText(target.zh)}
-                          className="rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
-                        >
-                          🔊
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              ))}
             </div>
           </section>
         </main>
