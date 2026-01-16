@@ -337,9 +337,9 @@ export default function Home() {
                   key={item.id}
                   className={`rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition ${
                     mismatchCardId === item.id
-                      ? "border-rose-500 ring-4 ring-rose-200"
+                      ? "border-rose-500 ring-4 ring-rose-300 animate-error-flash"
                       : successCardId === item.id
-                      ? "border-emerald-500 ring-4 ring-emerald-200"
+                      ? "border-emerald-500 ring-4 ring-emerald-300 animate-success-burst"
                       : ""
                   }`}
                 >
@@ -385,6 +385,51 @@ export default function Home() {
           4AM4E
         </footer>
       </div>
+      <style jsx global>{`
+        @keyframes success-burst {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+            background-color: #ffffff;
+          }
+          45% {
+            transform: scale(1.03);
+            box-shadow: 0 0 0 16px rgba(16, 185, 129, 0.25);
+            background-color: #ecfdf5;
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            background-color: #ffffff;
+          }
+        }
+        @keyframes error-flash {
+          0% {
+            transform: translateX(0);
+            box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5);
+            background-color: #ffffff;
+          }
+          30% {
+            transform: translateX(-6px);
+            box-shadow: 0 0 0 16px rgba(244, 63, 94, 0.2);
+            background-color: #fff1f2;
+          }
+          60% {
+            transform: translateX(6px);
+          }
+          100% {
+            transform: translateX(0);
+            box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+            background-color: #ffffff;
+          }
+        }
+        .animate-success-burst {
+          animation: success-burst 0.8s ease-out;
+        }
+        .animate-error-flash {
+          animation: error-flash 0.7s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
