@@ -260,7 +260,7 @@ export default function Home() {
           </div>
         </header>
 
-        <main className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <main className="flex flex-col gap-6">
           <section className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/80 p-8 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
             <div
               className="absolute -right-20 -top-20 h-48 w-48 rounded-full opacity-40"
@@ -414,80 +414,74 @@ export default function Home() {
             </div>
           </section>
 
-          <aside className="flex flex-col gap-6">
-            <details className="group rounded-[26px] bg-white/80 p-6 shadow-sm">
-              <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-semibold text-slate-900">
-                Controls
-                <span className="text-sm text-slate-400 transition group-open:rotate-180">
-                  ▼
-                </span>
-              </summary>
-              <div className="mt-4 flex flex-col gap-4 text-sm text-slate-600">
-                <label className="flex items-center justify-between gap-3">
-                  Reveal speed
-                  <input
-                    type="range"
-                    min={1}
-                    max={6}
-                    step={1}
-                    value={revealLevel}
-                    onChange={(event) =>
-                      setRevealLevel(Number(event.target.value))
-                    }
-                    className="w-36 accent-slate-900"
-                  />
-                </label>
-                <label className="flex items-center justify-between gap-3">
-                  Speech speed
-                  <input
-                    type="range"
-                    min={0.4}
-                    max={1.6}
-                    step={0.1}
-                    value={speechRate}
-                    onChange={(event) =>
-                      setSpeechRate(Number(event.target.value))
-                    }
-                    className="w-36 accent-slate-900"
-                  />
-                </label>
-                <p className="text-xs text-slate-500">
-                  Some voices ignore speed changes. Try another Chinese voice
-                  if you don&apos;t hear a difference.
-                </p>
-                <label className="flex items-center justify-between gap-3">
-                  Auto-speak
-                  <input
-                    type="checkbox"
-                    checked={autoSpeak}
-                    onChange={(event) => setAutoSpeak(event.target.checked)}
-                    className="h-5 w-5 accent-slate-900"
-                  />
-                </label>
-                <label className="flex flex-col gap-2 text-sm text-slate-600">
-                  Voice
-                  <select
-                    value={voiceUri}
-                    onChange={(event) => setVoiceUri(event.target.value)}
-                    className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
-                  >
-                    {availableVoices.map((voice) => (
-                      <option key={voice.voiceURI} value={voice.voiceURI}>
-                        {voice.name} ({voice.lang})
-                      </option>
-                    ))}
-                  </select>
-                  {availableVoices.length === 0 ? (
-                    <span className="text-xs text-rose-500">
-                      No Chinese voices available on this device.
-                    </span>
-                  ) : null}
-                </label>
-              </div>
-            </details>
-          </aside>
+          <details className="group rounded-[26px] bg-white/80 p-6 shadow-sm">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-semibold text-slate-900">
+              Controls
+              <span className="text-sm text-slate-400 transition group-open:rotate-180">
+                ▼
+              </span>
+            </summary>
+            <div className="mt-4 flex flex-col gap-4 text-sm text-slate-600">
+              <label className="flex items-center justify-between gap-3">
+                Reveal speed
+                <input
+                  type="range"
+                  min={1}
+                  max={6}
+                  step={1}
+                  value={revealLevel}
+                  onChange={(event) => setRevealLevel(Number(event.target.value))}
+                  className="w-36 accent-slate-900"
+                />
+              </label>
+              <label className="flex items-center justify-between gap-3">
+                Speech speed
+                <input
+                  type="range"
+                  min={0.4}
+                  max={1.6}
+                  step={0.1}
+                  value={speechRate}
+                  onChange={(event) => setSpeechRate(Number(event.target.value))}
+                  className="w-36 accent-slate-900"
+                />
+              </label>
+              <p className="text-xs text-slate-500">
+                Some voices ignore speed changes. Try another Chinese voice if
+                you don&apos;t hear a difference.
+              </p>
+              <label className="flex items-center justify-between gap-3">
+                Auto-speak
+                <input
+                  type="checkbox"
+                  checked={autoSpeak}
+                  onChange={(event) => setAutoSpeak(event.target.checked)}
+                  className="h-5 w-5 accent-slate-900"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-600">
+                Voice
+                <select
+                  value={voiceUri}
+                  onChange={(event) => setVoiceUri(event.target.value)}
+                  className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+                >
+                  {availableVoices.map((voice) => (
+                    <option key={voice.voiceURI} value={voice.voiceURI}>
+                      {voice.name} ({voice.lang})
+                    </option>
+                  ))}
+                </select>
+                {availableVoices.length === 0 ? (
+                  <span className="text-xs text-rose-500">
+                    No Chinese voices available on this device.
+                  </span>
+                ) : null}
+              </label>
+            </div>
+          </details>
         </main>
-        <footer className="pt-2 text-center text-xs font-semibold tracking-[0.5em] text-slate-400">
+        <footer className="pt-4 text-center text-sm font-semibold tracking-[0.5em] text-slate-400 sm:text-base">
           4AM4E
         </footer>
       </div>
