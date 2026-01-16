@@ -40,6 +40,55 @@ const seededShuffle = <T,>(items: T[], seed: number): T[] => {
   return result;
 };
 
+const hashString = (value: string): number => {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+};
+
+const seededRandom = (seed: number) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+type Candle = {
+  open: number;
+  close: number;
+  high: number;
+  low: number;
+};
+
+const buildCandles = (
+  seedKey: string,
+  count: number,
+  startPrice: number
+): Candle[] => {
+  const rand = seededRandom(hashString(seedKey));
+  const candles: Candle[] = [];
+  let lastClose = startPrice;
+  for (let i = 0; i < count; i += 1) {
+    const volatility = 0.6 + rand() * 2.2;
+    const direction = rand() > 0.52 ? 1 : -1;
+    const move = direction * (rand() * volatility);
+    const open = lastClose;
+    const close = Math.max(0.1, open + move);
+    const wick = rand() * volatility * 0.8;
+    const high = Math.max(open, close) + wick;
+    const low = Math.min(open, close) - wick;
+    candles.push({ open, close, high, low: Math.max(0.05, low) });
+    lastClose = close;
+  }
+  return candles;
+};
+
 const PHRASES: Phrase[] = [
   { zh: "你好", pinyin: "Nǐ hǎo", en: "Hello" },
   { zh: "谢谢", pinyin: "Xièxie", en: "Thank you" },
@@ -125,6 +174,25 @@ export default function Home() {
   const lastSpokenRef = useRef<string>("");
   const speakLockRef = useRef(false);
   const autoSpokenIndexRef = useRef<number | null>(null);
+
+  const [tradeAsset, setTradeAsset] = useState("BTCUSD");
+  const [tradeTimeframe, setTradeTimeframe] = useState("1h");
+  const [tradeSeed, setTradeSeed] = useState(1);
+  const [tradeSelection, setTradeSelection] = useState<
+    "long" | "short" | null
+  >(null);
+  const [tradeRevealed, setTradeRevealed] = useState(false);
+  const [tradeHistory, setTradeHistory] = useState<
+    Array<{
+      id: string;
+      asset: string;
+      timeframe: string;
+      direction: "long" | "short";
+      entry: number;
+      exit: number;
+      result: "win" | "loss";
+    }>
+  >([]);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -323,6 +391,75 @@ export default function Home() {
     },
     [pinyinOptions]
   );
+
+  const tradeConfigKey = useMemo(
+    () => `${tradeAsset}-${tradeTimeframe}-${tradeSeed}`,
+    [tradeAsset, tradeTimeframe, tradeSeed]
+  );
+  const candles = useMemo(
+    () => buildCandles(tradeConfigKey, 75, 100),
+    [tradeConfigKey]
+  );
+  const entryCandle = candles[49];
+  const exitCandle = candles[74];
+  const entryPrice = entryCandle?.close ?? 0;
+  const exitPrice = exitCandle?.close ?? 0;
+  const tradeOutcome =
+    tradeSelection && tradeRevealed
+      ? tradeSelection === "long"
+        ? exitPrice >= entryPrice
+          ? "win"
+          : "loss"
+        : exitPrice <= entryPrice
+        ? "win"
+        : "loss"
+      : null;
+
+  const visibleCandles = tradeRevealed ? candles : candles.slice(0, 50);
+  const candleRange = useMemo(() => {
+    const highs = visibleCandles.map((candle) => candle.high);
+    const lows = visibleCandles.map((candle) => candle.low);
+    return {
+      high: Math.max(...highs, 1),
+      low: Math.min(...lows, 0),
+    };
+  }, [visibleCandles]);
+
+  const handleTradeSelect = useCallback(
+    (direction: "long" | "short") => {
+      if (!entryCandle) {
+        return;
+      }
+      setTradeSelection(direction);
+      setTradeRevealed(true);
+      const result =
+        direction === "long"
+          ? exitPrice >= entryPrice
+            ? "win"
+            : "loss"
+          : exitPrice <= entryPrice
+          ? "win"
+          : "loss";
+      setTradeHistory((current) => [
+        {
+          id: `${tradeConfigKey}-${direction}`,
+          asset: tradeAsset,
+          timeframe: tradeTimeframe,
+          direction,
+          entry: entryPrice,
+          exit: exitPrice,
+          result,
+        },
+        ...current,
+      ]);
+    },
+    [entryCandle, entryPrice, exitPrice, tradeAsset, tradeConfigKey, tradeTimeframe]
+  );
+
+  useEffect(() => {
+    setTradeSelection(null);
+    setTradeRevealed(false);
+  }, [tradeAsset, tradeTimeframe, tradeSeed]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -660,6 +797,206 @@ export default function Home() {
         </main>
         </div>
       </details>
+      <section className="mx-auto mt-8 w-full max-w-5xl rounded-[28px] border border-white/70 bg-white/80 p-6 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+              Trading Charts Game
+            </p>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Candle Quest
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTradeSeed((current) => current + 1)}
+            className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+          >
+            New round
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1">
+                {tradeAsset}
+              </span>
+              <span className="rounded-full bg-slate-900 px-3 py-1 text-white">
+                {tradeTimeframe}
+              </span>
+            </div>
+            <div className="mt-4 flex h-56 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
+              {visibleCandles.map((candle, index) => {
+                const range = candleRange.high - candleRange.low || 1;
+                const highPos =
+                  ((candleRange.high - candle.high) / range) * 100;
+                const lowPos =
+                  ((candleRange.high - candle.low) / range) * 100;
+                const openPos =
+                  ((candleRange.high - candle.open) / range) * 100;
+                const closePos =
+                  ((candleRange.high - candle.close) / range) * 100;
+                const bodyTop = Math.min(openPos, closePos);
+                const bodyBottom = Math.max(openPos, closePos);
+                const isUp = candle.close >= candle.open;
+                return (
+                  <div key={`${tradeConfigKey}-${index}`} className="relative h-full flex-1">
+                    <div
+                      className="absolute left-1/2 w-[2px] -translate-x-1/2 rounded-full bg-slate-400"
+                      style={{
+                        top: `${highPos}%`,
+                        height: `${Math.max(4, lowPos - highPos)}%`,
+                      }}
+                    />
+                    <div
+                      className={`absolute left-1/2 w-[10px] -translate-x-1/2 rounded-md ${
+                        isUp ? "bg-emerald-400" : "bg-rose-400"
+                      }`}
+                      style={{
+                        top: `${bodyTop}%`,
+                        height: `${Math.max(6, bodyBottom - bodyTop)}%`,
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs text-slate-500">
+              Showing {visibleCandles.length} candles. Choose long or short to
+              reveal the next 25.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                Asset
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {[
+                  { id: "BTCUSD", label: "Bitcoin" },
+                  { id: "ETHUSD", label: "Ethereum" },
+                  { id: "AAPL", label: "Apple" },
+                  { id: "SP500", label: "S&P 500" },
+                  { id: "TSLA", label: "Tesla" },
+                ].map((asset) => (
+                  <button
+                    key={asset.id}
+                    type="button"
+                    onClick={() => setTradeAsset(asset.id)}
+                    className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
+                      tradeAsset === asset.id
+                        ? "bg-slate-900 text-white"
+                        : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    {asset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                Timeframe
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {["5m", "15m", "30m", "1h", "4h", "1d", "1w"].map((frame) => (
+                  <button
+                    key={frame}
+                    type="button"
+                    onClick={() => setTradeTimeframe(frame)}
+                    className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
+                      tradeTimeframe === frame
+                        ? "bg-slate-900 text-white"
+                        : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    {frame}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                Position
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={tradeRevealed}
+                  onClick={() => handleTradeSelect("long")}
+                  className="rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-200"
+                >
+                  Go Long
+                </button>
+                <button
+                  type="button"
+                  disabled={tradeRevealed}
+                  onClick={() => handleTradeSelect("short")}
+                  className="rounded-2xl bg-rose-400 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-rose-200"
+                >
+                  Go Short
+                </button>
+              </div>
+              {tradeRevealed && tradeOutcome ? (
+                <div
+                  className={`mt-4 rounded-2xl px-4 py-3 text-sm font-semibold ${
+                    tradeOutcome === "win"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  Result: {tradeOutcome.toUpperCase()} — Entry {entryPrice.toFixed(2)} → Exit{" "}
+                  {exitPrice.toFixed(2)}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+              Trade Log
+            </p>
+            <span className="text-xs text-slate-500">
+              {tradeHistory.length} total
+            </span>
+          </div>
+          <div className="mt-3 space-y-2 text-sm text-slate-700">
+            {tradeHistory.length === 0 ? (
+              <p className="text-slate-500">No trades yet.</p>
+            ) : (
+              tradeHistory.slice(0, 6).map((trade) => (
+                <div
+                  key={trade.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2"
+                >
+                  <span className="font-semibold text-slate-900">
+                    {trade.asset} · {trade.timeframe}
+                  </span>
+                  <span className="text-slate-500">{trade.direction}</span>
+                  <span
+                    className={`font-semibold ${
+                      trade.result === "win"
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                    }`}
+                  >
+                    {trade.result.toUpperCase()}
+                  </span>
+                  <span className="text-slate-500">
+                    {trade.entry.toFixed(2)} → {trade.exit.toFixed(2)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
       <footer className="pt-6 text-center text-sm font-semibold tracking-[0.5em] text-slate-400 sm:text-base">
         4AM4E
       </footer>
