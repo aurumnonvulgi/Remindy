@@ -1,989 +1,610 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
-const SLIDES = [
-  {
-    layout: "center",
-    title: "Orquesta Típica del Estado",
-    subtitle: "Orquesta Típica de Jalisco",
-    body: [
-      "Desde 1979, una tradición viva que lleva la música popular mexicana a cada rincón de Jalisco.",
-      "La Orquesta Típica representa identidad, memoria colectiva y un repertorio que celebra a México.",
-    ],
-    image:
-      "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
-  },
-  {
-    layout: "split-left",
-    title: "Origen en 1979",
-    subtitle: "Convocatoria a músicos",
-    body: [
-      "En 1979, el departamento de Bellas Artes del gobierno del Estado de Jalisco lanzó una convocatoria para formar la Orquesta Típica de Guadalajara.",
-      "El 14 de agosto comenzaron los ensayos en el Teatro Degollado; el 15 de septiembre se realizó el concierto inaugural en Palacio de Gobierno.",
-    ],
-    image:
-      "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "split-right",
-    title: "Fundación e impulso",
-    subtitle: "Bellas Artes · Gobierno de Jalisco",
-    body: [
-      "Fue fundada por el departamento de Bellas Artes, con el Lic. Flavio Romero de Velasco como gobernador constitucional y principal impulsor.",
-      "En ese periodo, el Lic. José López Portillo era Presidente de la República. El primer director fue el maestro Juan de la Peña y Flores.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "stack",
-    title: "Nombre e identidad",
-    subtitle: "De Guadalajara a Jalisco",
-    body: [
-      "Al inicio fue “de Guadalajara” para ser reconocida en cualquier parte del mundo.",
-      "Se cambió a Orquesta Típica de Jalisco para difundir la cultura y tradiciones del estado que representa.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "quote",
-    title: "Tradición viva",
-    subtitle: "Plaza de Armas",
-    body: [
-      "Por tradición, se presenta todos los miércoles y viernes a las 18:30 horas en el quiosco de la Plaza de Armas de Guadalajara.",
-      "Interpreta 10 melodías y cierra con una fracción del son popular “Guadalajara”, de Pepe Guízar.",
-    ],
-    image:
-      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "split-left",
-    title: "Gira permanente",
-    subtitle: "Jalisco y México",
-    body: [
-      "Es la agrupación que más viaja al interior del estado: ha recorrido todos los municipios con gran éxito y aceptación del público.",
-      "También ha llevado la música y tradiciones mexicanas a otros estados de la República.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "split-right",
-    title: "Instrumentos clásicos",
-    subtitle: "Base sinfónica",
-    body: [
-      "Violines, viola, violonchelos y contrabajos; alientos madera: flautas, oboes y clarinetes.",
-      "Alientos metales: trompetas, trombones y percusiones como timbal y platillo.",
-    ],
-    image:
-      "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "collage",
-    title: "Instrumentos típicos",
-    subtitle: "Timbre tradicional",
-    body: [
-      "El carácter típico lo aportan el salterio, bandolón, mandolinas, arpa, guitarra, vihuela y marimba.",
-      "Son el sello sonoro que distingue a la orquesta en cada presentación.",
-    ],
-    images: [
-      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
-    ],
-  },
-  {
-    layout: "center",
-    title: "Repertorio",
-    subtitle: "México, rescate y tradición",
-    body: [
-      "Sones, polkas, huapangos, pasosdobles, marchas, boleros, fantasías, mosaicos y popurríes.",
-      "Valses, danzas, canciones rancheras y corridos llenan el escenario con identidad mexicana.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "split-right",
-    title: "Directores",
-    subtitle: "Legado musical",
-    body: [
-      "Juan de la Peña y Flores, Francisco Hernández García, Antonio Cordero, Martín Gordo López, Salvador Arreola N., Cirilo Santana Lomelí, Pedro Macías Limón, José Luis Núñez Melchor.",
-      "Director actual: René Nuño.",
-    ],
-    image:
-      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "stack",
-    title: "Vigencia",
-    subtitle: "Orgullo jalisciense",
-    body: [
-      "La tradición de las Orquestas Típicas en México ha disminuido en los últimos 50 años.",
-      "Jalisco conserva esta joya desde 1979 gracias al desempeño de sus integrantes y al amor por la música tradicional.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    layout: "center",
-    title: "México en escena",
-    subtitle: "Rescate y tradición",
-    body: [
-      "La Orquesta Típica mantiene vigente la música tradicional mexicana y la comparte con nuevas generaciones.",
-    ],
-    image:
-      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-];
-
-const MENU_GROUPS = [
-  {
-    title: "Historia",
-    links: [
-      { label: "Origen en 1979", href: "#section-1" },
-      { label: "Fundación e impulso", href: "#section-2" },
-      { label: "Nombre e identidad", href: "#section-3" },
-    ],
-  },
-  {
-    title: "Tradición",
-    links: [
-      { label: "Plaza de Armas", href: "#section-4" },
-      { label: "Gira permanente", href: "#section-5" },
-    ],
-  },
-  {
-    title: "Música",
-    links: [
-      { label: "Instrumentos clásicos", href: "#section-6" },
-      { label: "Instrumentos típicos", href: "#section-7" },
-      { label: "Repertorio", href: "#section-8" },
-    ],
-  },
-  {
-    title: "Dirección",
-    links: [
-      { label: "Directores", href: "#section-9" },
-      { label: "Vigencia", href: "#section-10" },
-    ],
-  },
+const IMAGE_POOL = [
+  "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
+  "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
+  "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
+  "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
+  "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
 ];
 
 const QUIZ_QUESTIONS = [
   {
-    question: "¿Cuál de estos pueblos es reconocido por su alfarería y artesanías?",
-    options: ["Tlaquepaque", "Mazamitla", "Tequila", "Tapalpa"],
+    state: "Jalisco",
+    question: "¿Qué género musical es emblemático de Jalisco?",
+    options: ["Mariachi", "Son jarocho", "Cumbia", "Danzón"],
     answer: 0,
+    blurb:
+      "Jalisco es hogar del mariachi y de sones que reflejan orgullo regional y fiesta popular.",
+    orchestraTie:
+      "La orquesta interpreta sones y arreglos tradicionales para difundir la esencia jalisciense en cada concierto.",
   },
   {
-    question: "¿Qué pueblo es famoso por la bebida que lleva su nombre?",
-    options: ["Lagos de Moreno", "Tequila", "Mascota", "Chapala"],
-    answer: 1,
+    state: "Veracruz",
+    question: "¿Qué estilo tradicional está ligado a Veracruz?",
+    options: ["Son jarocho", "Banda", "Norteño", "Bolero ranchero"],
+    answer: 0,
+    blurb:
+      "Veracruz es cuna del son jarocho, con jarana y requinto que invitan al zapateado.",
+    orchestraTie:
+      "La orquesta incorpora sones de la costa para compartir la diversidad rítmica de México.",
   },
   {
-    question: "¿Dónde encuentras bosques de pino y arquitectura de montaña?",
-    options: ["Mazamitla", "Puerto Vallarta", "Ameca", "Ocotlán"],
+    state: "Sinaloa",
+    question: "¿Qué género representa a Sinaloa?",
+    options: ["Banda", "Huapango", "Son huasteco", "Trova"],
     answer: 0,
+    blurb:
+      "Sinaloa es reconocido por sus bandas y la fuerza de sus metales.",
+    orchestraTie:
+      "Los arreglos de banda en la orquesta acercan esta energía al público de todas las edades.",
   },
   {
-    question: "¿Qué pueblo es conocido por su laguna y malecón?",
-    options: ["Chapala", "Arandas", "Zapotlán el Grande", "Colotlán"],
+    state: "Nuevo León",
+    question: "¿Qué estilo se asocia con el norte del país?",
+    options: ["Norteño", "Son jarocho", "Danzón", "Jarana yucateca"],
     answer: 0,
+    blurb:
+      "En el norte destacan el acordeón y los corridos del estilo norteño.",
+    orchestraTie:
+      "La orquesta adapta melodías norteñas para mostrar la identidad de la región.",
   },
   {
-    question: "¿Cuál es famoso por su basílica y peregrinaciones?",
-    options: ["San Juan de los Lagos", "Teuchitlán", "Cocula", "Sayula"],
+    state: "Oaxaca",
+    question: "¿Qué música tradicional suele vincularse a Oaxaca?",
+    options: ["Son istmeño", "Banda sinaloense", "Huapango", "Cumbia"],
     answer: 0,
+    blurb:
+      "Oaxaca resguarda sones y danzas del Istmo con gran riqueza melódica.",
+    orchestraTie:
+      "Estos sones se convierten en puentes culturales en el repertorio de la orquesta.",
   },
   {
-    question: "¿Dónde puedes visitar los Guachimontones?",
-    options: ["Teuchitlán", "Talpa de Allende", "Autlán", "Etzatlán"],
+    state: "Chiapas",
+    question: "¿Qué instrumento es símbolo musical de Chiapas?",
+    options: ["Marimba", "Acordeón", "Saxofón", "Jarana"],
     answer: 0,
+    blurb:
+      "La marimba es emblema chiapaneco y acompaña celebraciones tradicionales.",
+    orchestraTie:
+      "Incluir marimba en la orquesta resalta la calidez del sur del país.",
   },
   {
-    question: "¿Qué pueblo destaca por romerías y tradiciones religiosas?",
-    options: ["Talpa de Allende", "Jalostotitlán", "Zacoalco", "Atemajac"],
+    state: "Yucatán",
+    question: "¿Qué género romántico es típico de Yucatán?",
+    options: ["Trova yucateca", "Banda", "Son huasteco", "Norteño"],
     answer: 0,
+    blurb:
+      "Yucatán es conocido por su trova íntima y melodías suaves.",
+    orchestraTie:
+      "La orquesta realza la trova con arreglos que dialogan con cuerdas y alientos.",
   },
   {
-    question: "¿Cuál es un pueblo mágico conocido por sus calles empedradas?",
-    options: ["Tapalpa", "El Salto", "Zapotiltic", "Degollado"],
+    state: "Guerrero",
+    question: "¿Qué tradición musical destaca en Guerrero?",
+    options: ["Chilena", "Danzón", "Son jarocho", "Banda"],
     answer: 0,
+    blurb:
+      "Las chilenas guerrerenses mezclan ritmos costeños con alegría comunitaria.",
+    orchestraTie:
+      "Presentar chilenas en escena ayuda a difundir la cultura de la costa del Pacífico.",
   },
   {
-    question: "¿Qué pueblo resalta por su arquitectura colonial en Los Altos?",
-    options: ["Lagos de Moreno", "Jocotepec", "Amatitán", "Tonila"],
+    state: "Michoacán",
+    question: "¿Qué música tradicional es conocida en Michoacán?",
+    options: ["Pirekua", "Banda", "Norteño", "Cumbia"],
     answer: 0,
+    blurb:
+      "La pirekua es un canto tradicional purépecha con profunda carga emotiva.",
+    orchestraTie:
+      "La orquesta honra estas tradiciones al integrarlas en su repertorio nacional.",
   },
   {
-    question: "¿Dónde hay paisajes serranos y cascadas cercanas?",
-    options: ["Mascota", "Zapotlanejo", "Acatlán", "Atoyac"],
+    state: "Puebla",
+    question: "¿Qué danza festiva es típica de Puebla?",
+    options: ["Huapango", "Danzón", "Son istmeño", "Chilena"],
     answer: 0,
+    blurb:
+      "Puebla conserva huapangos que dialogan con voces y cuerdas.",
+    orchestraTie:
+      "La orquesta reinterpreta huapangos para mostrar la riqueza del centro del país.",
+  },
+  {
+    state: "Hidalgo",
+    question: "¿Qué región se asocia al son huasteco?",
+    options: ["La Huasteca", "La Mixteca", "La Tarahumara", "El Istmo"],
+    answer: 0,
+    blurb:
+      "Hidalgo forma parte de la Huasteca, donde florece el son huasteco.",
+    orchestraTie:
+      "El son huasteco aporta virtuosismo y color al programa de la orquesta.",
+  },
+  {
+    state: "Coahuila",
+    question: "¿Qué instrumento es clave en la música del norte?",
+    options: ["Acordeón", "Arpa", "Ocarina", "Marimba"],
+    answer: 0,
+    blurb:
+      "En el norte, el acordeón guía polkas y corridos fronterizos.",
+    orchestraTie:
+      "La orquesta adapta polkas norteñas para rendir homenaje a esa energía.",
+  },
+  {
+    state: "Tabasco",
+    question: "¿Qué ritmo suele escucharse en el sureste?",
+    options: ["Cumbia", "Huapango", "Norteño", "Banda"],
+    answer: 0,
+    blurb:
+      "Tabasco vibra con cumbias y ritmos tropicales que invitan a bailar.",
+    orchestraTie:
+      "Los arreglos tropicales permiten a la orquesta conectar con públicos diversos.",
+  },
+  {
+    state: "Baja California",
+    question: "¿Qué influencia musical es común en la frontera?",
+    options: ["Fusión norteña", "Danzón", "Trova", "Son istmeño"],
+    answer: 0,
+    blurb:
+      "La frontera mezcla sonidos norteños con nuevas fusiones urbanas.",
+    orchestraTie:
+      "La orquesta reconoce esta mezcla como parte viva del México contemporáneo.",
+  },
+  {
+    state: "Tamaulipas",
+    question: "¿Qué ritmo es representativo del noreste?",
+    options: ["Polka", "Son jarocho", "Chilena", "Trova"],
+    answer: 0,
+    blurb:
+      "Las polkas han inspirado a generaciones en el noreste mexicano.",
+    orchestraTie:
+      "Incluir polkas en conciertos celebra la herencia del noreste en el país.",
+  },
+  {
+    state: "Querétaro",
+    question: "¿Qué género es común en el centro del país?",
+    options: ["Danzón", "Banda", "Norteño", "Chilena"],
+    answer: 0,
+    blurb:
+      "En el centro se disfrutan danzones y bailes de salón con elegancia.",
+    orchestraTie:
+      "La orquesta reimagina danzones con arreglos sinfónicos y tradicionales.",
+  },
+  {
+    state: "Ciudad de México",
+    question: "¿Qué estilo musical destaca en plazas y salones capitalinos?",
+    options: ["Danzón", "Banda", "Son istmeño", "Huapango"],
+    answer: 0,
+    blurb:
+      "El danzón sigue vivo en la capital, acompañando tardes y noches de baile.",
+    orchestraTie:
+      "Interpretar danzones conecta a la orquesta con la memoria musical de la ciudad.",
+  },
+  {
+    state: "Nayarit",
+    question: "¿Qué ritmo tradicional se baila en la costa del Pacífico?",
+    options: ["Cumbia", "Trova", "Norteño", "Pirekua"],
+    answer: 0,
+    blurb:
+      "Nayarit comparte sonidos costeños que celebran la vida junto al mar.",
+    orchestraTie:
+      "La orquesta rescata ritmos costeños para un recorrido musical nacional.",
+  },
+  {
+    state: "Colima",
+    question: "¿Qué carácter tienen las fiestas musicales en Colima?",
+    options: ["Alegres y festivas", "Silenciosas", "Solemnes", "Minimalistas"],
+    answer: 0,
+    blurb:
+      "Colima es tierra de festividades con música que acompaña tradiciones locales.",
+    orchestraTie:
+      "Los programas de la orquesta recuerdan estas celebraciones en cada función.",
+  },
+  {
+    state: "Chihuahua",
+    question: "¿Qué instrumento suele acompañar corridos del norte?",
+    options: ["Acordeón", "Arpa", "Clavecín", "Flauta"],
+    answer: 0,
+    blurb:
+      "En Chihuahua los corridos y polkas del norte son parte esencial del paisaje.",
+    orchestraTie:
+      "La orquesta adapta estas melodías para representar al norte en sus giras.",
+  },
+  {
+    state: "Sonora",
+    question: "¿Qué música describe mejor el espíritu sonorense?",
+    options: ["Norteña", "Trova yucateca", "Son jarocho", "Danzón"],
+    answer: 0,
+    blurb:
+      "Sonora vibra con ritmos norteños y letras que narran la vida del desierto.",
+    orchestraTie:
+      "La orquesta lleva ese espíritu al escenario con arreglos llenos de energía.",
+  },
+  {
+    state: "Morelos",
+    question: "¿Qué ritmo social suele bailarse en Morelos?",
+    options: ["Danzón", "Banda", "Norteño", "Chilena"],
+    answer: 0,
+    blurb:
+      "Morelos es tierra de fiestas con danzón y música de salón.",
+    orchestraTie:
+      "Estos ritmos son parte del mosaico cultural que la orquesta preserva.",
+  },
+  {
+    state: "Zacatecas",
+    question: "¿Qué estilo es frecuente en las bandas del centro-norte?",
+    options: ["Banda", "Trova", "Son jarocho", "Pirekua"],
+    answer: 0,
+    blurb:
+      "Zacatecas tiene tradición de bandas que acompañan celebraciones locales.",
+    orchestraTie:
+      "La orquesta integra esos sones para mostrar la diversidad del centro-norte.",
+  },
+  {
+    state: "San Luis Potosí",
+    question: "¿Qué región influye en su música tradicional?",
+    options: ["La Huasteca", "El Istmo", "La Península", "La Tarahumara"],
+    answer: 0,
+    blurb:
+      "San Luis Potosí comparte la riqueza del son huasteco.",
+    orchestraTie:
+      "Interpretar sones huastecos recuerda el valor de esta tradición en México.",
+  },
+  {
+    state: "Campeche",
+    question: "¿Qué ambiente define sus celebraciones?",
+    options: ["Costero y festivo", "Desértico", "Montañoso", "Nevado"],
+    answer: 0,
+    blurb:
+      "Campeche combina herencias mayas con celebraciones de sabor costeño.",
+    orchestraTie:
+      "La orquesta suma estos colores para representar al sureste del país.",
+  },
+  {
+    state: "Durango",
+    question: "¿Qué ritmo norteño puede escucharse en Durango?",
+    options: ["Polka", "Trova", "Son istmeño", "Danzón"],
+    answer: 0,
+    blurb:
+      "Durango conserva polkas y corridos que cuentan historias regionales.",
+    orchestraTie:
+      "La orquesta lleva esas historias a nuevos públicos en México y el mundo.",
   },
 ];
 
 export default function Home() {
-  const [barVisible, setBarVisible] = useState(false);
-  const [quizOpen, setQuizOpen] = useState(false);
-  const [quizIndex, setQuizIndex] = useState(0);
-  const [score, setScore] = useState(0);
+  const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setBarVisible(true), 8000);
-    return () => window.clearTimeout(timer);
-  }, []);
+  const current = QUIZ_QUESTIONS[index];
+  const isLast = index === QUIZ_QUESTIONS.length - 1;
 
-  const current = QUIZ_QUESTIONS[quizIndex];
+  const image = useMemo(
+    () => IMAGE_POOL[index % IMAGE_POOL.length],
+    [index]
+  );
+
   const handleAnswer = (option: number) => {
     if (selected !== null) return;
     setSelected(option);
-    if (option === current.answer) {
+    const correct = option === current.answer;
+    if (correct) {
       setScore((prev) => prev + 1);
     }
-    window.setTimeout(() => {
-      if (quizIndex + 1 < QUIZ_QUESTIONS.length) {
-        setQuizIndex((prev) => prev + 1);
-        setSelected(null);
-      } else {
-        setShowResult(true);
-      }
-    }, 650);
+    setShowFeedback(true);
   };
 
-  const resetQuiz = () => {
-    setQuizIndex(0);
-    setScore(0);
+  const nextStep = () => {
+    if (isLast) {
+      setIndex(0);
+      setSelected(null);
+      setScore(0);
+      setShowFeedback(false);
+      return;
+    }
+    setIndex((prev) => prev + 1);
     setSelected(null);
-    setShowResult(false);
+    setShowFeedback(false);
   };
 
   return (
-    <main className="stage">
-      <section className="intro">
-        <div className="intro-strip" aria-hidden="true">
-          {[
-            "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
-            "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
-          ].map((src, index) => (
-            <div className="strip-tile" key={`strip-${index}`}>
-              <img src={src} alt="Motivo cultural" loading="lazy" />
+    <main className="page">
+      <header className="hero">
+        <div>
+          <p className="eyebrow">Orquesta Típica de Jalisco</p>
+          <h1>Ruta musical de México</h1>
+          <p className="lead">
+            Un recorrido por los estados, sus géneros tradicionales y la manera en
+            que la orquesta comparte estas músicas con el país y con el mundo.
+          </p>
+        </div>
+        <div className="hero-image">
+          <img src={IMAGE_POOL[0]} alt="Orquesta Típica de Jalisco" />
+        </div>
+      </header>
+
+      <section className="quiz">
+        <div className="quiz-card">
+          <div className="quiz-header">
+            <div>
+              <span className="label">Pregunta</span>
+              <h2>
+                {index + 1} de {QUIZ_QUESTIONS.length}
+              </h2>
             </div>
-          ))}
-        </div>
-        <div className="sombrero ride" aria-hidden="true">
-          <span className="sombrero-top" />
-          <span className="sombrero-brim" />
-        </div>
-        <div className="intro-text">
-          <p>Orquesta Típica del Estado</p>
-          <h1 className="intro-title">Orquesta Típica de Jalisco</h1>
+            <div className="score">
+              <span className="label">Puntaje</span>
+              <strong>
+                {score} / {QUIZ_QUESTIONS.length}
+              </strong>
+            </div>
+          </div>
+
+          <div className="quiz-body">
+            <div className="question">
+              <span className="state">{current.state}</span>
+              <h3>{current.question}</h3>
+              <p className="blurb">{current.blurb}</p>
+            </div>
+            <div className="visual">
+              <img src={image} alt={`Ilustración de ${current.state}`} />
+              <div className="caption">{current.state}</div>
+            </div>
+          </div>
+
+          <div className="options">
+            {current.options.map((option, idx) => {
+              const isCorrect = selected !== null && idx === current.answer;
+              const isWrong = selected === idx && idx !== current.answer;
+              return (
+                <button
+                  key={`${option}-${idx}`}
+                  className={`option ${isCorrect ? "correct" : ""} ${
+                    isWrong ? "wrong" : ""
+                  }`}
+                  onClick={() => handleAnswer(idx)}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+
+          {showFeedback && (
+            <div className="feedback">
+              <div className={selected === current.answer ? "good" : "bad"}>
+                {selected === current.answer
+                  ? "¡Respuesta correcta!"
+                  : "Ups, esta vez no."}
+              </div>
+              <p>{current.orchestraTie}</p>
+              <button className="next" onClick={nextStep}>
+                {isLast ? "Reiniciar" : "Siguiente"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      <div className="site">
-        <header className="site-header">
-          <div className="brand">
-            <span>OTJ</span>
-            <div>
-              <strong>Orquesta Típica de Jalisco</strong>
-              <em>Orquesta Típica del Estado</em>
-            </div>
-          </div>
-          <nav className="menu">
-            <div className="menu-item">
-              <button type="button" className="menu-trigger">
-                Explorar
-              </button>
-              <div className="mega">
-                {MENU_GROUPS.map((group) => (
-                  <div key={group.title} className="mega-group">
-                    <span>{group.title}</span>
-                    {group.links.map((link) => (
-                      <a key={link.label} href={link.href}>
-                        {link.label}
-                      </a>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <a className="menu-link" href="#section-4">
-              Tradición
-            </a>
-            <a className="menu-link" href="#section-8">
-              Repertorio
-            </a>
-            <a className="menu-link" href="#section-10">
-              Vigencia
-            </a>
-          </nav>
-        </header>
+      <footer className="footer">
+        <span>Orquesta Típica de Jalisco · México, rescate y tradición</span>
+        <span>4AM4E</span>
+      </footer>
 
-        <section className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow">México · Rescate y tradición</p>
-            <h1>Orquesta Típica del Estado</h1>
-            <p className="lead">
-              Una institución cultural que lleva la música popular mexicana
-              desde 1979. Tradición, identidad y repertorio vivo en cada
-              presentación.
-            </p>
-            <div className="hero-actions">
-              <a className="cta" href="#section-0">
-                Explorar historia
-              </a>
-              <a className="cta ghost" href="#section-4">
-                Ver tradiciones
-              </a>
-            </div>
-          </div>
-            <div className="hero-card">
-            <img
-              src="https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg"
-              alt="Escena cultural mexicana"
-              loading="lazy"
-            />
-          </div>
-        </section>
-
-        {SLIDES.map((slide, index) => (
-          <section
-            key={slide.title}
-            id={`section-${index}`}
-            className={`content-section ${
-              index % 2 === 1 ? "reverse" : ""
-            }`}
-          >
-            <div className="section-text">
-              <p className="section-subtitle">{slide.subtitle}</p>
-              <h2>{slide.title}</h2>
-              {slide.body.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-              <span className="section-tag">
-                Orquesta Típica del Estado
-              </span>
-            </div>
-            <div className="section-media">
-              {slide.images ? (
-                <div className="media-grid">
-                  {slide.images.map((image, imageIndex) => (
-                    <img
-                      key={`${slide.title}-grid-${imageIndex}`}
-                      src={image}
-                      alt={`${slide.title} ${imageIndex + 1}`}
-                      loading="lazy"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <img src={slide.image} alt={slide.title} loading="lazy" />
-              )}
-            </div>
-          </section>
-        ))}
-
-        <footer className="footer">
-          <div>
-            <strong>Orquesta Típica de Jalisco</strong>
-            <p>
-              Tradición viva desde 1979. Miércoles y viernes 18:30 hrs, Plaza de
-              Armas, Guadalajara.
-            </p>
-          </div>
-          <span>Actualizado · 2026</span>
-        </footer>
-      </div>
-
-      <div className={`quiz-bar ${barVisible ? "show" : ""}`}>
-        <p>Que tanto conoces los pueblos de Jalisco? Tomo un corto examen!</p>
-        <button
-          type="button"
-          onClick={() => {
-            setQuizOpen(true);
-            resetQuiz();
-          }}
-        >
-          Iniciar quiz
-        </button>
-      </div>
-
-      {quizOpen && (
-        <div className="quiz-overlay" role="dialog" aria-modal="true">
-          <div className="quiz-card">
-            <button
-              type="button"
-              className="quiz-close"
-              onClick={() => setQuizOpen(false)}
-            >
-              Cerrar
-            </button>
-            {!showResult ? (
-              <>
-                <span className="quiz-step">
-                  Pregunta {quizIndex + 1} de {QUIZ_QUESTIONS.length}
-                </span>
-                <h3>{current.question}</h3>
-                <div className="quiz-options">
-                  {current.options.map((option, index) => {
-                    const isCorrect = selected === index && index === current.answer;
-                    const isWrong = selected === index && index !== current.answer;
-                    return (
-                      <button
-                        type="button"
-                        key={option}
-                        onClick={() => handleAnswer(index)}
-                        className={`quiz-option ${isCorrect ? "correct" : ""} ${
-                          isWrong ? "wrong" : ""
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <div className="quiz-result">
-                <h3>Resultado final</h3>
-                <p>
-                  Obtuviste {score} de {QUIZ_QUESTIONS.length} respuestas
-                  correctas.
-                </p>
-                <button type="button" onClick={resetQuiz}>
-                  Intentar de nuevo
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;600&display=swap");
-        :root {
-          color-scheme: light;
-        }
-        * {
-          box-sizing: border-box;
-        }
-        body {
+      <style jsx>{`
+        :global(body) {
           margin: 0;
-          background: #050505;
-          font-family: "Manrope", sans-serif;
+          font-family: "Fraunces", "Libre Baskerville", serif;
+          background: #fff7ed;
+          color: #2f1f14;
         }
-        .stage {
+        .page {
           min-height: 100vh;
-          background: radial-gradient(circle at top, #ffe9c2 0%, #f7f2e8 40%, #e9f3ff 100%);
-        }
-        .intro {
-          position: fixed;
-          inset: 0;
+          padding: 48px clamp(24px, 6vw, 90px) 64px;
           display: grid;
-          place-items: center;
-          background: linear-gradient(180deg, #4a2a18 0%, #6b3b1f 55%, #4a2a18 100%);
-          z-index: 5;
-          animation: intro-hide 0.8s ease forwards;
-          animation-delay: 5s;
-        }
-        .intro-strip {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 20vh;
-          display: grid;
-          grid-auto-flow: column;
-          grid-auto-columns: minmax(160px, 1fr);
-          gap: 8px;
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(6px);
-        }
-        .strip-tile {
-          border-radius: 18px;
-          overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          background: rgba(255, 255, 255, 0.08);
-        }
-        .strip-tile img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .sombrero {
-          position: absolute;
-          width: 120px;
-          height: 60px;
-          left: -10%;
-          top: 25%;
-          z-index: 2;
-        }
-        .sombrero.ride {
-          animation: sombrero-sweep 3.4s ease-in-out forwards;
-        }
-        .sombrero-top {
-          position: absolute;
-          width: 70px;
-          height: 36px;
-          background: linear-gradient(120deg, #f59e0b, #facc15);
-          border-radius: 50% 50% 40% 40%;
-          left: 25px;
-          top: 6px;
-          box-shadow: 0 10px 20px rgba(120, 53, 15, 0.35);
-        }
-        .sombrero-brim {
-          position: absolute;
-          width: 120px;
-          height: 26px;
-          background: linear-gradient(120deg, #f59e0b, #fbbf24);
-          border-radius: 50%;
-          top: 26px;
-          left: 0;
-          box-shadow: 0 8px 18px rgba(120, 53, 15, 0.35);
-        }
-        .intro-text {
-          position: absolute;
-          top: 24%;
-          text-align: center;
-          color: #fef3c7;
-          font-family: "Fraunces", serif;
-          animation: intro-text 0.8s ease forwards;
-          animation-delay: 0.4s;
-          opacity: 0;
-        }
-        .intro-text h1 {
-          margin: 6px 0 0;
-          font-size: clamp(2.2rem, 4vw, 3.6rem);
-        }
-        .intro-title {
-          display: inline-block;
-          overflow: hidden;
-          white-space: nowrap;
-          border-right: 2px solid rgba(254, 243, 199, 0.9);
-          width: 0;
-          animation: type-title 3.2s steps(32, end) forwards;
-        }
-        .site {
-          opacity: 0;
-          animation: story-show 0.8s ease forwards;
-          animation-delay: 5.2s;
-          background: radial-gradient(circle at top, #fff3d6 0%, #f7f2e8 45%, #e9f3ff 100%);
-          padding: 40px clamp(20px, 4vw, 80px) 80px;
-        }
-        .site-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 24px;
-          position: sticky;
-          top: 0;
-          padding: 16px 0;
-          background: rgba(255, 244, 221, 0.9);
-          backdrop-filter: blur(10px);
-          z-index: 3;
-        }
-        .brand {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-        .brand span {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          display: grid;
-          place-items: center;
-          background: #f59e0b;
-          color: #4a2a18;
-          font-weight: 700;
-        }
-        .brand em {
-          display: block;
-          font-style: normal;
-          font-size: 12px;
-          color: #92400e;
-        }
-        .menu {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          align-items: center;
-          position: relative;
-        }
-        .menu a,
-        .menu-trigger {
-          color: #92400e;
-          text-decoration: none;
-        }
-        .menu-trigger {
-          background: transparent;
-          border: 1px solid rgba(217, 119, 6, 0.35);
-          border-radius: 999px;
-          padding: 8px 14px;
-          cursor: pointer;
-          font-size: 12px;
-          letter-spacing: 0.2em;
-        }
-        .menu-item {
-          position: relative;
-        }
-        .mega {
-          position: absolute;
-          top: 120%;
-          right: 0;
-          background: rgba(255, 248, 235, 0.98);
-          border: 1px solid rgba(217, 119, 6, 0.2);
-          border-radius: 18px;
-          padding: 18px;
-          display: grid;
-          grid-template-columns: repeat(2, minmax(180px, 1fr));
-          gap: 16px;
-          box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
-          opacity: 0;
-          pointer-events: none;
-          transform: translateY(8px);
-          transition: opacity 0.2s ease, transform 0.2s ease;
-          z-index: 10;
-        }
-        .menu-item:hover .mega,
-        .menu-item:focus-within .mega {
-          opacity: 1;
-          pointer-events: auto;
-          transform: translateY(0);
-        }
-        .mega-group span {
-          display: block;
-          font-weight: 700;
-          color: #b45309;
-          margin-bottom: 6px;
-        }
-        .mega-group a {
-          display: block;
-          font-size: 12px;
-          letter-spacing: 0.1em;
-          text-transform: none;
-          color: #4b5563;
-          margin: 6px 0;
+          gap: 40px;
         }
         .hero {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
           gap: 32px;
           align-items: center;
-          margin-top: 40px;
-        }
-        .hero h1 {
-          font-family: "Fraunces", serif;
-          font-size: clamp(2.6rem, 4vw, 3.6rem);
-          margin: 10px 0 12px;
+          background: #fef3c7;
+          border-radius: 32px;
+          padding: 32px;
+          box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
         }
         .eyebrow {
-          text-transform: uppercase;
           letter-spacing: 0.35em;
+          text-transform: uppercase;
           font-size: 12px;
           color: #b45309;
-          margin: 0;
+          margin: 0 0 8px;
+        }
+        h1 {
+          font-size: clamp(2.4rem, 4vw, 3.6rem);
+          margin: 0 0 16px;
+          color: #3b2614;
         }
         .lead {
           font-size: 18px;
           line-height: 1.7;
-          color: #6b7280;
+          margin: 0;
+          color: #4b5563;
         }
-        .hero-actions {
-          display: flex;
-          gap: 12px;
-          margin-top: 20px;
-        }
-        .cta {
-          padding: 10px 18px;
-          border-radius: 999px;
-          background: #92400e;
-          color: #fff7ed;
-          text-decoration: none;
-          font-size: 14px;
-        }
-        .cta.ghost {
-          background: transparent;
-          border: 1px solid #d97706;
-          color: #92400e;
-        }
-        .hero-card img {
+        .hero-image img {
           width: 100%;
           border-radius: 24px;
-          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+          object-fit: cover;
+          box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
         }
-        .content-section {
+        .quiz {
+          display: flex;
+          justify-content: center;
+        }
+        .quiz-card {
+          width: min(980px, 100%);
+          background: #fffaf2;
+          border-radius: 32px;
+          padding: clamp(24px, 4vw, 40px);
+          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+          border: 1px solid rgba(244, 211, 94, 0.4);
+        }
+        .quiz-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .quiz-header h2 {
+          margin: 4px 0 0;
+          font-size: 22px;
+          color: #4a2a18;
+        }
+        .label {
+          font-size: 11px;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #9a3412;
+        }
+        .score {
+          background: #fef3c7;
+          padding: 10px 16px;
+          border-radius: 999px;
+          font-size: 14px;
+          color: #92400e;
+        }
+        .quiz-body {
+          margin-top: 24px;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 32px;
+          gap: 24px;
           align-items: center;
-          padding: 48px 0;
-          border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         }
-        .content-section.reverse .section-text {
-          order: 2;
-        }
-        .section-subtitle {
+        .state {
           text-transform: uppercase;
           letter-spacing: 0.3em;
           font-size: 12px;
           color: #b45309;
+        }
+        .question h3 {
+          margin: 8px 0 12px;
+          font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+          color: #3b2614;
+        }
+        .blurb {
           margin: 0;
-        }
-        .section-text h2 {
-          font-family: "Fraunces", serif;
-          font-size: clamp(2rem, 3vw, 2.8rem);
-          margin: 10px 0 14px;
-        }
-        .section-text p {
-          margin: 0 0 14px;
-          line-height: 1.7;
           color: #4b5563;
+          line-height: 1.7;
         }
-        .section-tag {
-          display: inline-flex;
+        .visual {
+          position: relative;
+        }
+        .visual img {
+          width: 100%;
+          border-radius: 24px;
+          object-fit: cover;
+          box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
+        }
+        .caption {
+          position: absolute;
+          bottom: 12px;
+          left: 12px;
           padding: 6px 12px;
           border-radius: 999px;
-          border: 1px solid rgba(217, 119, 6, 0.4);
+          background: rgba(59, 38, 20, 0.85);
+          color: #fff7ed;
           font-size: 12px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #92400e;
         }
-        .section-media img {
-          width: 100%;
-          border-radius: 20px;
-          object-fit: cover;
-          box-shadow: 0 16px 32px rgba(15, 23, 42, 0.2);
-        }
-        .media-grid {
+        .options {
+          margin-top: 24px;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
           gap: 12px;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .option {
+          border: 1px solid rgba(217, 119, 6, 0.3);
+          border-radius: 18px;
+          padding: 14px 18px;
+          background: #fff7ed;
+          text-align: left;
+          cursor: pointer;
+          font-weight: 600;
+          font-family: inherit;
+          color: #2f1f14;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .option:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+        }
+        .option.correct {
+          background: #dcfce7;
+          border-color: #22c55e;
+        }
+        .option.wrong {
+          background: #fee2e2;
+          border-color: #ef4444;
+        }
+        .feedback {
+          margin-top: 24px;
+          padding: 20px;
+          border-radius: 20px;
+          background: #fef3c7;
+          display: grid;
+          gap: 12px;
+        }
+        .feedback .good {
+          font-weight: 700;
+          color: #15803d;
+        }
+        .feedback .bad {
+          font-weight: 700;
+          color: #b91c1c;
+        }
+        .feedback p {
+          margin: 0;
+          color: #4b5563;
+          line-height: 1.6;
+        }
+        .next {
+          justify-self: start;
+          border: none;
+          border-radius: 999px;
+          padding: 10px 18px;
+          background: #92400e;
+          color: #fff7ed;
+          font-weight: 700;
+          cursor: pointer;
         }
         .footer {
           display: flex;
           justify-content: space-between;
           flex-wrap: wrap;
           gap: 12px;
-          padding-top: 32px;
-          font-size: 14px;
-          color: #6b7280;
-        }
-        .quiz-bar {
-          position: fixed;
-          left: 0;
-          right: 0;
-          bottom: -30%;
-          height: 22vh;
-          background: rgba(74, 42, 24, 0.96);
-          color: #fff7ed;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          padding: 20px clamp(20px, 4vw, 80px);
-          transition: transform 0.6s ease;
-          transform: translateY(0);
-          z-index: 4;
-        }
-        .quiz-bar.show {
-          transform: translateY(-22vh);
-        }
-        .quiz-bar p {
-          font-size: clamp(1rem, 2vw, 1.4rem);
-          margin: 0;
-          max-width: 70%;
-        }
-        .quiz-bar button {
-          background: #fbbf24;
-          border: none;
-          border-radius: 999px;
-          padding: 12px 20px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-        .quiz-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.65);
-          display: grid;
-          place-items: center;
-          z-index: 6;
-        }
-        .quiz-card {
-          background: #fffaf2;
-          border-radius: 24px;
-          padding: 28px;
-          width: min(520px, 92vw);
-          box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
-          position: relative;
-        }
-        .quiz-close {
-          position: absolute;
-          top: 14px;
-          right: 14px;
-          background: transparent;
-          border: none;
-          color: #9ca3af;
-          cursor: pointer;
-        }
-        .quiz-step {
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          font-size: 12px;
-          color: #b45309;
-        }
-        .quiz-options {
-          margin-top: 18px;
-          display: grid;
-          gap: 10px;
-        }
-        .quiz-option {
-          border: 1px solid rgba(217, 119, 6, 0.3);
-          border-radius: 14px;
-          padding: 12px 16px;
-          background: #fff7ed;
-          text-align: left;
-          cursor: pointer;
-          font-weight: 600;
-        }
-        .quiz-option.correct {
-          background: #dcfce7;
-          border-color: #22c55e;
-        }
-        .quiz-option.wrong {
-          background: #fee2e2;
-          border-color: #ef4444;
-        }
-        .quiz-result h3 {
-          margin-top: 0;
-        }
-        .quiz-result button {
-          margin-top: 14px;
-          border: none;
-          border-radius: 999px;
-          padding: 10px 16px;
-          background: #92400e;
-          color: #fff7ed;
-          cursor: pointer;
-        }
-        h1 {
-          font-family: "Fraunces", serif;
-          font-size: clamp(2.4rem, 4vw, 3.8rem);
-          margin: 10px 0 14px;
-        }
-        .subtitle {
-          text-transform: uppercase;
-          letter-spacing: 0.35em;
-          font-size: 12px;
-          color: #fbbf24;
-          margin: 0;
-        }
-        .body {
-          font-size: 18px;
-          line-height: 1.7;
-          color: #f8fafc;
-        }
-        .body p {
-          margin: 0 0 16px;
-        }
-        .tag {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 16px;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
           font-size: 13px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
+          color: #9a3412;
         }
-        @keyframes sombrero-sweep {
-          0% {
-            transform: translateX(-10%) rotate(-6deg);
+        @media (max-width: 680px) {
+          .page {
+            padding: 32px 20px 48px;
           }
-          100% {
-            transform: translateX(120vw) rotate(6deg);
+          .hero {
+            padding: 24px;
           }
-        }
-        @keyframes type-title {
-          to {
-            width: 100%;
-          }
-        }
-        @keyframes intro-text {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-        }
-        @keyframes intro-hide {
-          to {
-            opacity: 0;
-            pointer-events: none;
-            visibility: hidden;
-          }
-        }
-        @keyframes story-show {
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes panel-rise {
-          from {
-            opacity: 0;
-            transform: scale(1.02);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        @keyframes float-in {
-          from {
-            opacity: 0;
-            transform: translateY(18px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @media (max-width: 700px) {
-          .intro-strip {
-            grid-auto-columns: minmax(120px, 1fr);
-          }
-          .hero-actions {
-            flex-direction: column;
-          }
-          .menu {
-            display: none;
-          }
-          .quiz-bar {
+          .quiz-header {
             flex-direction: column;
             align-items: flex-start;
-            height: auto;
-            bottom: -40%;
           }
-          .quiz-bar.show {
-            transform: translateY(-40%);
+          .next {
+            width: 100%;
+            text-align: center;
           }
         }
       `}</style>
