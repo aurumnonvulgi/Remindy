@@ -1,617 +1,436 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
+const PAGES = [
+  {
+    title: "Portada",
+    subtitle: "Orquesta Típica de Jalisco",
+    body: [
+      "Orquesta Típica del Estado",
+      "Un recorrido por la historia, tradición y repertorio de una agrupación que mantiene viva la música popular mexicana desde 1979.",
+    ],
+  },
+  {
+    title: "Origen",
+    subtitle: "Convocatoria y primeros ensayos",
+    body: [
+      "En 1979, el departamento de Bellas Artes del gobierno del Estado de Jalisco lanzó una convocatoria a músicos ejecutantes de diversos instrumentos para formar la Orquesta Típica de Guadalajara.",
+      "De inmediato, el 14 de agosto de 1979 la nueva orquesta comenzó a ensayar en el Teatro Degollado y el 15 de septiembre de ese mismo año, con el Palacio de Gobierno como escenario, se efectuó el concierto inaugural.",
+    ],
+  },
+  {
+    title: "Fundación",
+    subtitle: "Impulso institucional",
+    body: [
+      "Fue fundada por el entonces departamento de Bellas Artes del gobierno del Estado de Jalisco, siendo Gobernador Constitucional el Lic. Flavio Romero de Velasco, quien fuera su principal promotor e impulsor.",
+      "En ese mismo periodo fungía como Presidente de la República Mexicana el Lic. José López Portillo. Su primer director fue el maestro Juan de la Peña y Flores.",
+    ],
+  },
+  {
+    title: "Identidad",
+    subtitle: "De Guadalajara a Jalisco",
+    body: [
+      "En sus orígenes fue nombrada “de Guadalajara” con la intención de que fuera reconocida en cualquier parte del mundo.",
+      "Sin embargo se cambió el título por Orquesta Típica de Jalisco para dar mayor difusión a la cultura y tradiciones del estado que representa esta importante agrupación.",
+    ],
+  },
+  {
+    title: "Tradición viva",
+    subtitle: "Plaza de Armas",
+    body: [
+      "La Orquesta Típica de Jalisco, por tradición desde su fundación, se presenta todos los miércoles y viernes a las 18:30 horas en el quiosco de la Plaza de Armas de Guadalajara, donde interpreta 10 melodías, y como rúbrica, una fracción del son popular “Guadalajara”, de Pepe Guízar, para deleitar al público.",
+    ],
+  },
+  {
+    title: "Gira permanente",
+    subtitle: "Todo Jalisco",
+    body: [
+      "Es la agrupación que más viaja al interior del estado, ha recorrido todos los municipios con gran éxito y aceptación del público, llevando la música y tradiciones mexicanas a cada rincón de Jalisco, así como a otros estados de la República Mexicana.",
+    ],
+  },
+  {
+    title: "Instrumentos clásicos",
+    subtitle: "Base sinfónica",
+    body: [
+      "En sus bases tiene los mismos instrumentos clásicos que una orquesta sinfónica, como son: violines, viola, violonchelos y contrabajos, alientos madera: flautas, oboes y clarinetes; alientos metales: trompetas, trombones y percusiones como el timbal, platillo.",
+    ],
+  },
+  {
+    title: "Instrumentos típicos",
+    subtitle: "Timbre tradicional",
+    body: [
+      "Lo que le da el carácter o timbre de típica son los instrumentos tradicionales como son: el salterio, bandolón, mandolinas, arpa, guitarra, vihuela y marimba.",
+    ],
+  },
+  {
+    title: "Repertorio",
+    subtitle: "México, rescate y tradición",
+    body: [
+      "El repertorio de la Orquesta Típica está conformado principalmente por música popular mexicana, bajo el lema “México, rescate y tradición” e incluye sones, polkas, huapangos, pasosdobles, marchas, boleros, fantasías, mosaicos, popurríes, valses, danzas, canciones rancheras y corridos.",
+    ],
+  },
+  {
+    title: "Directores",
+    subtitle: "Legado musical",
+    body: [
+      "Entre los directores que han participado y aportado grandes joyas a la Orquesta se encuentran Juan de la Peña y Flores, Francisco Hernández García, Antonio Cordero, Martín Gordo López, Salvador Arreola N., Cirilo Santana Lomelí, Pedro Macías Limón, José Luis Núñez Melchor, y actualmente el maestro, J. Ramón Becerra Caro.",
+    ],
+  },
+  {
+    title: "Vigencia",
+    subtitle: "Orgullo jalisciense",
+    body: [
+      "La tradición de las Orquestas Típicas en la República Mexicana ha disminuido notablemente en los últimos 50 años.",
+      "Afortunadamente, nuestro estado cuenta con la Orquesta Típica de Jalisco, que está vigente desde 1979, y que, gracias al desempeño de sus integrantes, nos permite disfrutar de la belleza de nuestra música tradicional mexicana.",
+      "Aunque la agrupación está integrada actualmente casi en su totalidad por jóvenes, siguen manteniendo el amor y la pasión en cada nota, heredados por los propios fundadores de la Orquesta Típica.",
+    ],
+  },
+];
+
 export default function Home() {
+  const [pageIndex, setPageIndex] = useState(0);
+  const page = PAGES[pageIndex];
+  const progress = useMemo(
+    () => ((pageIndex + 1) / PAGES.length) * 100,
+    [pageIndex]
+  );
+
   return (
-    <main className="page">
-      <div className="bg-grid" aria-hidden="true" />
-      <div className="bg-orb orb-one" aria-hidden="true" />
-      <div className="bg-orb orb-two" aria-hidden="true" />
-      <header className="topbar fade-in">
-        <div className="logo">
-          <span className="logo-mark">WZ</span>
-          <span className="logo-text">Wazxn1 Trading Hub</span>
+    <main className="library">
+      <div className="ambient glow-one" aria-hidden="true" />
+      <div className="ambient glow-two" aria-hidden="true" />
+
+      <header className="hero">
+        <div>
+          <p className="eyebrow">Libro interactivo</p>
+          <h1>Orquesta Típica del Estado</h1>
+          <p className="subtitle">Orquesta Típica de Jalisco</p>
         </div>
-        <nav className="nav">
-          <a href="#listings">Listings</a>
-          <a href="#rates">Rates</a>
-          <a href="#safety">Safety</a>
-          <button className="cta ghost">Start Trading</button>
-        </nav>
+        <div className="progress">
+          <span>Página {pageIndex + 1} de {PAGES.length}</span>
+          <div className="progress-bar">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
       </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow fade-in">Murder Mystery 2 • Trading Hub</p>
-          <h1 className="fade-in">
-            Swap, value, and trade your MM2 items with confidence.
-          </h1>
-          <p className="lead fade-in">
-            A sleek marketplace for MM2 collectors. Track live values, match
-            offers instantly, and trade through verified escrow.
-          </p>
-          <div className="hero-actions fade-in">
-            <button className="cta">Browse Swaps</button>
-            <button className="cta ghost">Post a Trade</button>
+      <section className="book">
+        <aside className="toc">
+          <h2>Capítulos</h2>
+          <ol>
+            {PAGES.map((entry, index) => (
+              <li key={entry.title}>
+                <button
+                  type="button"
+                  onClick={() => setPageIndex(index)}
+                  className={index === pageIndex ? "active" : ""}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <strong>{entry.title}</strong>
+                    <em>{entry.subtitle}</em>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </aside>
+
+        <article className="page">
+          <div className="page-header">
+            <p className="page-number">Capítulo {pageIndex + 1}</p>
+            <h2>{page.title}</h2>
+            <p className="page-subtitle">{page.subtitle}</p>
           </div>
-          <div className="stats fade-in">
-            <div>
-              <span>24,581</span>
-              <p>Live swaps today</p>
-            </div>
-            <div>
-              <span>1m 12s</span>
-              <p>Average match time</p>
-            </div>
-            <div>
-              <span>98.4%</span>
-              <p>Verified success rate</p>
-            </div>
+
+          <div className="page-body">
+            {page.body.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
-        </div>
-        <div className="hero-panel fade-in">
-          <div className="panel-card">
-            <div className="panel-header">
-              <h3>Featured Vault</h3>
-              <span className="badge">Ultra Rare</span>
-            </div>
-            <div className="panel-body">
-              <div className="item-row">
-                <div className="item-pill emerald">Chroma Luger</div>
-                <div className="item-pill gold">Corrupt</div>
-              </div>
-              <div className="item-row">
-                <div className="item-pill crimson">Candleflame</div>
-                <div className="item-pill azure">Harvester</div>
-              </div>
-              <div className="panel-meta">
-                <p>Instant escrow • 0.5% fee</p>
-                <button className="cta small">Swap Now</button>
-              </div>
-            </div>
+
+          <div className="page-footer">
+            <button
+              type="button"
+              onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
+              disabled={pageIndex === 0}
+            >
+              ← Página anterior
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setPageIndex((prev) => Math.min(prev + 1, PAGES.length - 1))
+              }
+              disabled={pageIndex === PAGES.length - 1}
+            >
+              Página siguiente →
+            </button>
           </div>
-          <div className="pulse-card">
-            <h4>Price Pulse</h4>
-            <div className="pulse-bar">
-              <span className="pulse-fill" />
-            </div>
-            <p>MM2 market up 4.2% this week</p>
-          </div>
-        </div>
+        </article>
       </section>
 
-      <section id="listings" className="section">
-        <div className="section-header fade-in">
-          <h2>Hot Listings</h2>
-          <p>Fresh trades dropping every minute.</p>
+      <section className="gallery">
+        <div className="gallery-header">
+          <h3>Galería visual</h3>
+          <p>Espacios reservados para imágenes de la orquesta.</p>
         </div>
-        <div className="listings">
-          {[
-            ["Ice Piercer", "Godly", "4.5k offers"],
-            ["Traveler Axe", "Ancient", "1.2k offers"],
-            ["Gingermint", "Godly", "2.1k offers"],
-            ["Waves", "Chroma", "980 offers"],
-            ["Sakura", "Vintage", "750 offers"],
-            ["Swirly Blade", "Godly", "1.6k offers"],
-          ].map(([name, rarity, offers]) => (
-            <article className="listing-card fade-in" key={name}>
-              <div className="listing-top">
-                <span className="chip">{rarity}</span>
-                <span className="offers">{offers}</span>
-              </div>
-              <h3>{name}</h3>
-              <p>Auto-match enabled • Escrow ready</p>
-              <button className="cta ghost small">View swap</button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section split">
-        <div className="split-copy fade-in">
-          <h2>Trade flow built for speed.</h2>
-          <p>
-            Post your item, set your target, and get matched with verified
-            traders in seconds. Every swap is tracked with transparent logs and
-            instant value checks.
-          </p>
-          <ul>
-            <li>Live MM2 value engine</li>
-            <li>Verified escrow & dispute support</li>
-            <li>Trade alerts for wishlists</li>
-          </ul>
-        </div>
-        <div className="flow-grid">
-          {[
-            ["01", "List your item", "Choose value + desired trade."],
-            ["02", "Match instantly", "Auto or manual matching."],
-            ["03", "Verify + swap", "Escrow ensures safe delivery."],
-          ].map(([step, title, copy]) => (
-            <div className="flow-card fade-in" key={step}>
-              <span>{step}</span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
+        <div className="gallery-grid">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div className="gallery-card" key={`gallery-${index}`}>
+              <span>Imagen {index + 1}</span>
             </div>
           ))}
         </div>
-      </section>
-
-      <section id="rates" className="section rates">
-        <div className="section-header fade-in">
-          <h2>MM2 Value Exchange</h2>
-          <p>Transparent pricing across every swap.</p>
-        </div>
-        <div className="rate-grid">
-          {[
-            ["Godly", "1.02x", "Most active tier"],
-            ["Ancient", "1.15x", "High demand"],
-            ["Chroma", "1.34x", "Limited supply"],
-            ["Vintage", "0.92x", "Collector niche"],
-          ].map(([tier, multiplier, note]) => (
-            <div className="rate-card fade-in" key={tier}>
-              <h3>{tier}</h3>
-              <span>{multiplier}</span>
-              <p>{note}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="safety" className="section safety">
-        <div className="section-header fade-in">
-          <h2>Built for trust.</h2>
-          <p>Escrow-backed trading with full transparency.</p>
-        </div>
-        <div className="safety-grid">
-          {[
-            ["Verified traders", "Multi-step verification + trust scores."],
-            ["Escrow protection", "Items held until both sides confirm."],
-            ["Live moderation", "24/7 human review for disputes."],
-          ].map(([title, copy]) => (
-            <div className="safety-card fade-in" key={title}>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="cta-strip fade-in">
-        <div>
-          <h2>Ready to trade your next legendary?</h2>
-          <p>Join the fastest MM2 exchange and secure your next upgrade.</p>
-        </div>
-        <button className="cta">Open the Vault</button>
       </section>
 
       <footer className="footer">
-        <p>Not affiliated with Roblox or Murder Mystery 2. Fan-made exchange.</p>
-        <span>© 2026 Wazxn1 Trading Hub</span>
+        <p>
+          Libro interactivo de la Orquesta Típica del Estado. Diseñado para
+          compartir tradición, historia y música mexicana.
+        </p>
+        <span>Actualizado · 2026</span>
       </footer>
 
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cinzel:wght@500;600&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600&display=swap");
         :root {
-          color-scheme: dark;
-          --bg: #050507;
-          --surface: #0f1117;
-          --surface-2: #151826;
-          --ink: #f8fafc;
-          --muted: #9aa4b2;
-          --accent: #22c55e;
-          --accent-2: #f59e0b;
-          --accent-3: #38bdf8;
-          --stroke: rgba(148, 163, 184, 0.18);
+          color-scheme: light;
+        }
+        body {
+          margin: 0;
+          background: #f6efe4;
+          color: #1f2937;
+          font-family: "Manrope", sans-serif;
         }
         * {
           box-sizing: border-box;
         }
-        body {
-          margin: 0;
-          background: var(--bg);
-          font-family: "Outfit", sans-serif;
-        }
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-        .page {
+        .library {
+          min-height: 100vh;
+          padding: 40px clamp(20px, 4vw, 80px) 60px;
           position: relative;
           overflow: hidden;
-          min-height: 100vh;
-          color: var(--ink);
-          padding: 32px clamp(20px, 6vw, 80px) 60px;
         }
-        .bg-grid {
+        .ambient {
           position: absolute;
-          inset: 0;
-          background-image: radial-gradient(
-              circle at top left,
-              rgba(56, 189, 248, 0.08),
-              transparent 45%
-            ),
-            radial-gradient(
-              circle at bottom right,
-              rgba(34, 197, 94, 0.1),
-              transparent 50%
-            ),
-            linear-gradient(
-              120deg,
-              rgba(255, 255, 255, 0.02),
-              transparent 40%
-            );
-          z-index: 0;
-        }
-        .bg-orb {
-          position: absolute;
-          width: 420px;
-          height: 420px;
           border-radius: 50%;
-          filter: blur(90px);
+          filter: blur(70px);
           opacity: 0.4;
           z-index: 0;
         }
-        .orb-one {
-          top: -120px;
-          left: -120px;
-          background: rgba(34, 197, 94, 0.35);
+        .glow-one {
+          width: 320px;
+          height: 320px;
+          background: rgba(239, 68, 68, 0.2);
+          top: -80px;
+          left: -60px;
         }
-        .orb-two {
-          bottom: -180px;
-          right: -160px;
-          background: rgba(245, 158, 11, 0.35);
-        }
-        .topbar {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-        }
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        .logo-mark {
-          font-family: "Cinzel", serif;
-          font-size: 18px;
-          letter-spacing: 0.2em;
-          padding: 10px 14px;
-          border-radius: 999px;
-          border: 1px solid var(--stroke);
-          background: rgba(15, 17, 23, 0.6);
-        }
-        .logo-text {
-          font-weight: 600;
-          letter-spacing: 0.06em;
-        }
-        .nav {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          font-size: 14px;
-          color: var(--muted);
-        }
-        .nav a:hover {
-          color: var(--ink);
-        }
-        .cta {
-          border: none;
-          border-radius: 999px;
-          padding: 12px 22px;
-          background: linear-gradient(120deg, #22c55e, #10b981);
-          color: #04120a;
-          font-weight: 600;
-          cursor: pointer;
-          box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
-        }
-        .cta.small {
-          padding: 8px 14px;
-          font-size: 13px;
-        }
-        .cta.ghost {
-          background: transparent;
-          border: 1px solid var(--stroke);
-          color: var(--ink);
-          box-shadow: none;
+        .glow-two {
+          width: 420px;
+          height: 420px;
+          background: rgba(59, 130, 246, 0.15);
+          bottom: -140px;
+          right: -100px;
         }
         .hero {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 24px;
           position: relative;
-          z-index: 2;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 48px;
-          padding: 70px 0 60px;
-        }
-        .hero-copy h1 {
-          font-family: "Cinzel", serif;
-          font-size: clamp(2.6rem, 4vw, 4.2rem);
-          margin: 12px 0 16px;
+          z-index: 1;
         }
         .eyebrow {
           text-transform: uppercase;
           letter-spacing: 0.4em;
           font-size: 12px;
-          color: var(--accent-2);
-        }
-        .lead {
-          color: var(--muted);
-          font-size: 18px;
-          max-width: 520px;
-        }
-        .hero-actions {
-          display: flex;
-          gap: 16px;
-          margin: 26px 0;
-          flex-wrap: wrap;
-        }
-        .stats {
-          display: grid;
-          gap: 20px;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          margin-top: 20px;
-        }
-        .stats span {
-          font-size: 22px;
-          font-weight: 600;
-        }
-        .stats p {
-          margin: 6px 0 0;
-          color: var(--muted);
-          font-size: 14px;
-        }
-        .hero-panel {
-          display: grid;
-          gap: 18px;
-        }
-        .panel-card {
-          background: var(--surface);
-          border-radius: 24px;
-          border: 1px solid var(--stroke);
-          padding: 24px;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        }
-        .panel-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .panel-header h3 {
+          color: #b45309;
           margin: 0;
         }
-        .badge {
-          font-size: 12px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          padding: 6px 10px;
-          border-radius: 999px;
-          background: rgba(245, 158, 11, 0.2);
-          color: #fbbf24;
-          border: 1px solid rgba(245, 158, 11, 0.4);
+        h1 {
+          font-family: "Cormorant Garamond", serif;
+          font-size: clamp(2.6rem, 4vw, 4rem);
+          margin: 8px 0 6px;
         }
-        .panel-body {
-          margin-top: 20px;
-          display: grid;
-          gap: 14px;
+        .subtitle {
+          font-size: 18px;
+          margin: 0;
+          color: #6b7280;
         }
-        .item-row {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .item-pill {
-          padding: 8px 12px;
-          border-radius: 999px;
+        .progress {
+          text-align: right;
           font-size: 14px;
-          background: var(--surface-2);
-          border: 1px solid var(--stroke);
+          color: #6b7280;
+          min-width: 180px;
         }
-        .item-pill.emerald {
-          border-color: rgba(34, 197, 94, 0.4);
-          color: #86efac;
-        }
-        .item-pill.gold {
-          border-color: rgba(245, 158, 11, 0.4);
-          color: #fcd34d;
-        }
-        .item-pill.crimson {
-          border-color: rgba(248, 113, 113, 0.45);
-          color: #fecaca;
-        }
-        .item-pill.azure {
-          border-color: rgba(56, 189, 248, 0.4);
-          color: #7dd3fc;
-        }
-        .panel-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          color: var(--muted);
-          font-size: 14px;
-        }
-        .pulse-card {
-          background: var(--surface-2);
-          border-radius: 20px;
-          padding: 20px;
-          border: 1px solid var(--stroke);
-        }
-        .pulse-bar {
-          width: 100%;
-          height: 8px;
-          background: rgba(148, 163, 184, 0.2);
+        .progress-bar {
+          margin-top: 8px;
+          background: #e5e7eb;
           border-radius: 999px;
-          margin: 12px 0;
+          height: 6px;
           overflow: hidden;
         }
-        .pulse-fill {
+        .progress-bar span {
           display: block;
-          width: 65%;
           height: 100%;
-          background: linear-gradient(90deg, #38bdf8, #22c55e);
-          animation: pulse 3s ease-in-out infinite;
+          background: linear-gradient(90deg, #b45309, #f59e0b);
         }
-        .section {
+        .book {
+          margin-top: 40px;
+          display: grid;
+          grid-template-columns: minmax(220px, 1fr) minmax(320px, 2.3fr);
+          gap: 28px;
           position: relative;
-          z-index: 2;
-          margin: 40px 0 80px;
+          z-index: 1;
         }
-        .section-header h2 {
-          font-family: "Cinzel", serif;
-          margin: 0 0 10px;
+        .toc {
+          background: #fdf7ed;
+          border-radius: 20px;
+          padding: 24px;
+          border: 1px solid #f1e2c8;
+          box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
         }
-        .section-header p {
-          color: var(--muted);
+        .toc h2 {
+          margin-top: 0;
+          font-family: "Cormorant Garamond", serif;
+        }
+        .toc ol {
+          list-style: none;
+          padding: 0;
+          margin: 20px 0 0;
+          display: grid;
+          gap: 10px;
+        }
+        .toc button {
+          width: 100%;
+          text-align: left;
+          border: none;
+          background: transparent;
+          display: flex;
+          gap: 12px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .toc button span {
+          font-weight: 600;
+          color: #b45309;
+        }
+        .toc button em {
+          display: block;
+          font-style: normal;
+          font-size: 12px;
+          color: #9ca3af;
+        }
+        .toc button.active,
+        .toc button:hover {
+          background: rgba(251, 191, 36, 0.18);
+        }
+        .page {
+          background: #fffaf2;
+          border-radius: 26px;
+          padding: 32px;
+          border: 1px solid #f1e2c8;
+          box-shadow: 0 24px 40px rgba(15, 23, 42, 0.1);
+          display: flex;
+          flex-direction: column;
+          min-height: 420px;
+        }
+        .page-header h2 {
+          font-family: "Cormorant Garamond", serif;
+          font-size: 32px;
+          margin: 6px 0;
+        }
+        .page-number {
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          font-size: 12px;
+          color: #b45309;
           margin: 0;
         }
-        .listings {
-          margin-top: 28px;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 18px;
+        .page-subtitle {
+          margin: 0;
+          color: #6b7280;
         }
-        .listing-card {
-          background: rgba(15, 17, 23, 0.8);
-          border: 1px solid var(--stroke);
-          border-radius: 20px;
-          padding: 18px;
-          display: grid;
-          gap: 10px;
-          min-height: 170px;
-        }
-        .listing-top {
-          display: flex;
-          justify-content: space-between;
-          color: var(--muted);
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-        }
-        .chip {
-          padding: 4px 10px;
-          border-radius: 999px;
-          background: rgba(56, 189, 248, 0.14);
-          color: #7dd3fc;
-        }
-        .offers {
-          color: #34d399;
-        }
-        .split {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 32px;
-        }
-        .split-copy ul {
-          margin: 20px 0 0;
-          padding: 0;
-          list-style: none;
-          display: grid;
-          gap: 10px;
-          color: var(--muted);
-        }
-        .flow-grid {
+        .page-body {
+          margin-top: 20px;
           display: grid;
           gap: 16px;
+          font-size: 17px;
+          line-height: 1.7;
         }
-        .flow-card {
-          background: var(--surface-2);
-          border-radius: 20px;
-          border: 1px solid var(--stroke);
-          padding: 20px;
+        .page-footer {
+          margin-top: auto;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
         }
-        .flow-card span {
-          font-size: 12px;
-          letter-spacing: 0.3em;
-          color: var(--accent-2);
+        .page-footer button {
+          border-radius: 999px;
+          padding: 10px 18px;
+          border: 1px solid #e7d3aa;
+          background: #fff4dd;
+          cursor: pointer;
+          font-weight: 600;
+          color: #92400e;
         }
-        .rates .rate-grid {
-          margin-top: 24px;
+        .page-footer button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .gallery {
+          margin-top: 50px;
+          position: relative;
+          z-index: 1;
+        }
+        .gallery-header h3 {
+          font-family: "Cormorant Garamond", serif;
+          margin: 0 0 6px;
+          font-size: 26px;
+        }
+        .gallery-header p {
+          margin: 0;
+          color: #6b7280;
+        }
+        .gallery-grid {
+          margin-top: 18px;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
           gap: 16px;
         }
-        .rate-card {
-          background: var(--surface);
-          border-radius: 20px;
-          border: 1px solid var(--stroke);
-          padding: 18px;
-          display: grid;
-          gap: 8px;
-        }
-        .rate-card span {
-          font-size: 24px;
-          color: var(--accent);
-        }
-        .safety-grid {
-          margin-top: 24px;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 18px;
-        }
-        .safety-card {
-          background: var(--surface-2);
-          border-radius: 20px;
-          padding: 20px;
-          border: 1px solid var(--stroke);
-        }
-        .cta-strip {
-          margin: 80px 0 40px;
-          padding: 28px;
-          background: linear-gradient(
-            120deg,
-            rgba(34, 197, 94, 0.16),
-            rgba(56, 189, 248, 0.12)
-          );
-          border-radius: 24px;
-          border: 1px solid rgba(34, 197, 94, 0.3);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
+        .gallery-card {
+          border-radius: 18px;
+          padding: 22px;
+          border: 1px dashed #e2ccb0;
+          background: #fff9ef;
+          text-align: center;
+          color: #9a3412;
+          font-weight: 600;
         }
         .footer {
+          margin-top: 60px;
           display: flex;
           justify-content: space-between;
           flex-wrap: wrap;
           gap: 12px;
-          color: var(--muted);
-          border-top: 1px solid var(--stroke);
-          padding-top: 20px;
+          color: #6b7280;
           font-size: 13px;
+          position: relative;
+          z-index: 1;
         }
-        .fade-in {
-          opacity: 0;
-          animation: fadeUp 0.9s ease forwards;
-        }
-        .fade-in:nth-child(2) {
-          animation-delay: 0.1s;
-        }
-        .fade-in:nth-child(3) {
-          animation-delay: 0.2s;
-        }
-        @keyframes fadeUp {
-          to {
-            opacity: 1;
-            transform: translateY(0);
+        @media (max-width: 900px) {
+          .hero {
+            flex-direction: column;
+            align-items: flex-start;
           }
-          from {
-            opacity: 0;
-            transform: translateY(16px);
+          .book {
+            grid-template-columns: 1fr;
           }
-        }
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(8%);
-          }
-        }
-        @media (max-width: 860px) {
-          .nav {
-            display: none;
+          .progress {
+            text-align: left;
           }
         }
       `}</style>
