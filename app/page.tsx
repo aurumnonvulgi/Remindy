@@ -169,6 +169,14 @@ export default function Home() {
   >(null);
   const [tradeRevealed, setTradeRevealed] = useState(false);
   const [revealCount, setRevealCount] = useState(50);
+  const [maxProfitPoint, setMaxProfitPoint] = useState<{
+    pct: number;
+    price: number;
+  } | null>(null);
+  const [minProfitPoint, setMinProfitPoint] = useState<{
+    pct: number;
+    price: number;
+  } | null>(null);
   const [tradeHistory, setTradeHistory] = useState<
     Array<{
       id: string;
@@ -455,6 +463,12 @@ export default function Home() {
     currentPrice && entryPrice
       ? ((currentPrice - entryPrice) / entryPrice) * 100
       : null;
+  const directionalPct =
+    pctChange !== null && tradeSelection
+      ? tradeSelection === "short"
+        ? -pctChange
+        : pctChange
+      : null;
   const windowRange = useMemo(() => {
     if (!candles.length) {
       return null;
@@ -508,6 +522,8 @@ export default function Home() {
     setTradeRevealed(false);
     setRevealCount(50);
     setTradeAnchor(null);
+    setMaxProfitPoint(null);
+    setMinProfitPoint(null);
   }, [tradeAsset, tradeSeed]);
 
   useEffect(() => {
@@ -641,15 +657,35 @@ export default function Home() {
         close: candle.close,
       }))
     );
-    chartRef.current?.timeScale().fitContent();
-  }, [visibleCandles]);
+    if (!tradeRevealed) {
+      chartRef.current?.timeScale().fitContent();
+    }
+  }, [tradeRevealed, visibleCandles]);
+
+  useEffect(() => {
+    if (directionalPct === null || currentPrice === null) {
+      return;
+    }
+    setMaxProfitPoint((current) => {
+      if (!current || directionalPct > current.pct) {
+        return { pct: directionalPct, price: currentPrice };
+      }
+      return current;
+    });
+    setMinProfitPoint((current) => {
+      if (!current || directionalPct < current.pct) {
+        return { pct: directionalPct, price: currentPrice };
+      }
+      return current;
+    });
+  }, [currentPrice, directionalPct]);
 
   useEffect(() => {
     if (!tradeRevealed || !chartRef.current || candles.length < 75) {
       return;
     }
     const zoomEndIndex = 74;
-    const zoomStartIndex = Math.max(0, zoomEndIndex - 15);
+    const zoomStartIndex = Math.max(0, zoomEndIndex - 19);
     chartRef.current.timeScale().setVisibleRange({
       from: candles[zoomStartIndex].time as UTCTimestamp,
       to: candles[zoomEndIndex].time as UTCTimestamp,
@@ -1045,17 +1081,17 @@ export default function Home() {
               <span className="rounded-full bg-slate-900 px-3 py-1 text-white">
                 {tradeTimeframe}
               </span>
-              {tradeSelection && pctChange !== null ? (
+              {tradeSelection && directionalPct !== null ? (
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    pctChange >= 0
+                    directionalPct >= 0
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-rose-100 text-rose-700"
                   }`}
                 >
-                  {pctChange >= 0 ? "+" : ""}
-                  {pctChange.toFixed(2)}%{" "}
-                  {pctChange >= 0 ? "up" : "down"}
+                  {directionalPct >= 0 ? "+" : ""}
+                  {directionalPct.toFixed(2)}%{" "}
+                  {directionalPct >= 0 ? "up" : "down"}
                 </span>
               ) : null}
             </div>
@@ -1071,18 +1107,33 @@ export default function Home() {
                 </div>
               )}
             </div>
-            {tradeSelection && pctChange !== null ? (
-              <div className="mt-3 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            {tradeSelection && directionalPct !== null ? (
+              <div className="mt-3 grid gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 sm:grid-cols-3">
                 <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
                   Live P/L
                 </span>
                 <span
                   className={`text-lg ${
-                    pctChange >= 0 ? "text-emerald-600" : "text-rose-600"
+                    directionalPct >= 0 ? "text-emerald-600" : "text-rose-600"
                   }`}
                 >
-                  {pctChange >= 0 ? "+" : ""}
-                  {pctChange.toFixed(2)}%
+                  Now {directionalPct >= 0 ? "+" : ""}
+                  {directionalPct.toFixed(2)}% @ {currentPrice?.toFixed(2)}
+                </span>
+                <span className="text-xs text-slate-500 sm:text-right">
+                  High{" "}
+                  {maxProfitPoint
+                    ? `${maxProfitPoint.pct >= 0 ? "+" : ""}${maxProfitPoint.pct.toFixed(
+                        2
+                      )}% @ ${maxProfitPoint.price.toFixed(2)}`
+                    : "—"}
+                  <span className="mx-2 text-slate-300">|</span>
+                  Low{" "}
+                  {minProfitPoint
+                    ? `${minProfitPoint.pct >= 0 ? "+" : ""}${minProfitPoint.pct.toFixed(
+                        2
+                      )}% @ ${minProfitPoint.price.toFixed(2)}`
+                    : "—"}
                 </span>
               </div>
             ) : null}
