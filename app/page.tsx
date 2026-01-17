@@ -395,8 +395,8 @@ export default function Home() {
 
           {showFeedback && (
             <div className="feedback">
-              <div className={selected === current.answer ? "good" : "bad"}>
-                {selected === current.answer
+              <div className={selected === shuffled.answerIndex ? "good" : "bad"}>
+                {selected === shuffled.answerIndex
                   ? "¡Respuesta correcta!"
                   : "Ups, esta vez no."}
               </div>
