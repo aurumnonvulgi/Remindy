@@ -19,7 +19,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Jalisco es hogar del mariachi y de sones que reflejan orgullo regional y fiesta popular.",
     orchestraTie:
-      "La orquesta interpreta sones y arreglos tradicionales para difundir la esencia jalisciense en cada concierto.",
+      "La Orquesta Típica de Jalisco lleva repertorio tradicional a escuelas primarias, secundarias y preparatorias.",
   },
   {
     state: "Veracruz",
@@ -29,7 +29,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Veracruz es cuna del son jarocho, con jarana y requinto que invitan al zapateado.",
     orchestraTie:
-      "La orquesta incorpora sones de la costa para compartir la diversidad rítmica de México.",
+      "Ha sido invitada a escenarios internacionales para difundir la música mexicana y a sus compositores.",
   },
   {
     state: "Sinaloa",
@@ -39,7 +39,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Sinaloa es reconocido por sus bandas y la fuerza de sus metales.",
     orchestraTie:
-      "Los arreglos de banda en la orquesta acercan esta energía al público de todas las edades.",
+      "Su misión incluye preservar sones y ritmos regionales para nuevas generaciones.",
   },
   {
     state: "Nuevo León",
@@ -49,7 +49,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el norte destacan el acordeón y los corridos del estilo norteño.",
     orchestraTie:
-      "La orquesta adapta melodías norteñas para mostrar la identidad de la región.",
+      "Promueve la identidad cultural en comunidades rurales y urbanas con conciertos gratuitos.",
   },
   {
     state: "Oaxaca",
@@ -59,7 +59,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Oaxaca resguarda sones y danzas del Istmo con gran riqueza melódica.",
     orchestraTie:
-      "Estos sones se convierten en puentes culturales en el repertorio de la orquesta.",
+      "Colabora con instituciones educativas para acercar la música típica al aula.",
   },
   {
     state: "Chiapas",
@@ -69,7 +69,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La marimba es emblema chiapaneco y acompaña celebraciones tradicionales.",
     orchestraTie:
-      "Incluir marimba en la orquesta resalta la calidez del sur del país.",
+      "Integra arreglos didácticos que explican la historia de cada región musical.",
   },
   {
     state: "Yucatán",
@@ -79,7 +79,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Yucatán es conocido por su trova íntima y melodías suaves.",
     orchestraTie:
-      "La orquesta realza la trova con arreglos que dialogan con cuerdas y alientos.",
+      "Representa a Jalisco en festivales nacionales como embajadora cultural.",
   },
   {
     state: "Guerrero",
@@ -89,7 +89,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Las chilenas guerrerenses mezclan ritmos costeños con alegría comunitaria.",
     orchestraTie:
-      "Presentar chilenas en escena ayuda a difundir la cultura de la costa del Pacífico.",
+      "Difunde el patrimonio musical mexicano mediante giras por distintos estados.",
   },
   {
     state: "Michoacán",
@@ -99,7 +99,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La pirekua es un canto tradicional purépecha con profunda carga emotiva.",
     orchestraTie:
-      "La orquesta honra estas tradiciones al integrarlas en su repertorio nacional.",
+      "Conecta a jóvenes músicos con tradiciones ancestrales a través de talleres.",
   },
   {
     state: "Puebla",
@@ -109,7 +109,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Puebla conserva huapangos que dialogan con voces y cuerdas.",
     orchestraTie:
-      "La orquesta reinterpreta huapangos para mostrar la riqueza del centro del país.",
+      "En cada presentación comparte relatos sobre los orígenes de los géneros regionales.",
   },
   {
     state: "Hidalgo",
@@ -119,7 +119,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Hidalgo forma parte de la Huasteca, donde florece el son huasteco.",
     orchestraTie:
-      "El son huasteco aporta virtuosismo y color al programa de la orquesta.",
+      "Mantiene vivo el repertorio popular con arreglos actuales y respetuosos.",
   },
   {
     state: "Coahuila",
@@ -129,7 +129,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el norte, el acordeón guía polkas y corridos fronterizos.",
     orchestraTie:
-      "La orquesta adapta polkas norteñas para rendir homenaje a esa energía.",
+      "Lleva conciertos a plazas públicas para fortalecer el tejido social.",
   },
   {
     state: "Tabasco",
@@ -139,7 +139,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Tabasco vibra con cumbias y ritmos tropicales que invitan a bailar.",
     orchestraTie:
-      "Los arreglos tropicales permiten a la orquesta conectar con públicos diversos.",
+      "Su trabajo destaca la diversidad sonora del país en un solo escenario.",
   },
   {
     state: "Baja California",
@@ -149,7 +149,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La frontera mezcla sonidos norteños con nuevas fusiones urbanas.",
     orchestraTie:
-      "La orquesta reconoce esta mezcla como parte viva del México contemporáneo.",
+      "Rinde homenaje a compositores locales de cada región que visita.",
   },
   {
     state: "Tamaulipas",
@@ -159,7 +159,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Las polkas han inspirado a generaciones en el noreste mexicano.",
     orchestraTie:
-      "Incluir polkas en conciertos celebra la herencia del noreste en el país.",
+      "Ha acompañado celebraciones cívicas impulsando el orgullo por la música mexicana.",
   },
   {
     state: "Querétaro",
@@ -169,7 +169,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el centro se disfrutan danzones y bailes de salón con elegancia.",
     orchestraTie:
-      "La orquesta reimagina danzones con arreglos sinfónicos y tradicionales.",
+      "Participa en encuentros culturales que unen tradición y nuevas audiencias.",
   },
   {
     state: "Ciudad de México",
@@ -179,7 +179,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "El danzón sigue vivo en la capital, acompañando tardes y noches de baile.",
     orchestraTie:
-      "Interpretar danzones conecta a la orquesta con la memoria musical de la ciudad.",
+      "Conserva instrumentos típicos en diálogo con cuerdas y alientos clásicos.",
   },
   {
     state: "Nayarit",
@@ -189,17 +189,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Nayarit comparte sonidos costeños que celebran la vida junto al mar.",
     orchestraTie:
-      "La orquesta rescata ritmos costeños para un recorrido musical nacional.",
-  },
-  {
-    state: "Colima",
-    question: "¿Qué carácter tienen las fiestas musicales en Colima?",
-    options: ["Alegres y festivas", "Silenciosas", "Solemnes", "Minimalistas"],
-    answer: 0,
-    blurb:
-      "Colima es tierra de festividades con música que acompaña tradiciones locales.",
-    orchestraTie:
-      "Los programas de la orquesta recuerdan estas celebraciones en cada función.",
+      "Motiva a las juventudes a conocer su herencia musical con programas escolares.",
   },
   {
     state: "Chihuahua",
@@ -209,7 +199,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En Chihuahua los corridos y polkas del norte son parte esencial del paisaje.",
     orchestraTie:
-      "La orquesta adapta estas melodías para representar al norte en sus giras.",
+      "Comparte repertorio de distintos estados para crear puentes culturales.",
   },
   {
     state: "Sonora",
@@ -219,7 +209,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Sonora vibra con ritmos norteños y letras que narran la vida del desierto.",
     orchestraTie:
-      "La orquesta lleva ese espíritu al escenario con arreglos llenos de energía.",
+      "Difunde música tradicional en eventos comunitarios y organizaciones privadas.",
   },
   {
     state: "Morelos",
@@ -229,7 +219,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Morelos es tierra de fiestas con danzón y música de salón.",
     orchestraTie:
-      "Estos ritmos son parte del mosaico cultural que la orquesta preserva.",
+      "Su presencia en ferias y festivales refuerza la continuidad de las tradiciones.",
   },
   {
     state: "Zacatecas",
@@ -239,7 +229,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Zacatecas tiene tradición de bandas que acompañan celebraciones locales.",
     orchestraTie:
-      "La orquesta integra esos sones para mostrar la diversidad del centro-norte.",
+      "Impulsa el reconocimiento de las raíces mexicanas a través del sonido típico.",
   },
   {
     state: "San Luis Potosí",
@@ -249,7 +239,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "San Luis Potosí comparte la riqueza del son huasteco.",
     orchestraTie:
-      "Interpretar sones huastecos recuerda el valor de esta tradición en México.",
+      "Cada concierto es una invitación a conocer la riqueza musical de México.",
   },
   {
     state: "Campeche",
@@ -259,7 +249,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Campeche combina herencias mayas con celebraciones de sabor costeño.",
     orchestraTie:
-      "La orquesta suma estos colores para representar al sureste del país.",
+      "Ha llevado la cultura mexicana a foros internacionales con orgullo y disciplina.",
   },
   {
     state: "Durango",
@@ -269,7 +259,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Durango conserva polkas y corridos que cuentan historias regionales.",
     orchestraTie:
-      "La orquesta lleva esas historias a nuevos públicos en México y el mundo.",
+      "Su labor demuestra que la música típica sigue viva y en constante evolución.",
   },
 ];
 
