@@ -534,6 +534,33 @@ export default function Home() {
       setTradeLoading(true);
       setTradeError(null);
       try {
+        if (!tradeAnchor) {
+          const anchorParams = new URLSearchParams({
+            asset: tradeAsset,
+            timeframe: "1h",
+          });
+          const anchorResponse = await fetch(
+            `/api/alpha?${anchorParams.toString()}`
+          );
+          const anchorPayload = (await anchorResponse.json()) as CandleResponse & {
+            error?: string;
+          };
+          if (!anchorResponse.ok) {
+            throw new Error(anchorPayload?.error || "Failed to load anchor data.");
+          }
+          if (!anchorPayload.candles?.length) {
+            throw new Error("No anchor candles returned.");
+          }
+          const latestAnchor =
+            anchorPayload.candles[anchorPayload.candles.length - 1];
+          if (latestAnchor?.time) {
+            setTradeAnchor(latestAnchor.time);
+          }
+          if (isActive) {
+            setTradeLoading(false);
+          }
+          return;
+        }
         const params = new URLSearchParams({
           asset: tradeAsset,
           timeframe: tradeTimeframe,
@@ -553,10 +580,6 @@ export default function Home() {
         }
         if (isActive) {
           setApiCandles(payload.candles);
-          const latest = payload.candles[payload.candles.length - 1];
-          if (latest?.time) {
-            setTradeAnchor((current) => current ?? latest.time);
-          }
         }
       } catch (error) {
         if (isActive) {
