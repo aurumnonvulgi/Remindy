@@ -137,6 +137,39 @@ const SLIDES = [
   },
 ];
 
+const MENU_GROUPS = [
+  {
+    title: "Historia",
+    links: [
+      { label: "Origen en 1979", href: "#section-1" },
+      { label: "Fundación e impulso", href: "#section-2" },
+      { label: "Nombre e identidad", href: "#section-3" },
+    ],
+  },
+  {
+    title: "Tradición",
+    links: [
+      { label: "Plaza de Armas", href: "#section-4" },
+      { label: "Gira permanente", href: "#section-5" },
+    ],
+  },
+  {
+    title: "Música",
+    links: [
+      { label: "Instrumentos clásicos", href: "#section-6" },
+      { label: "Instrumentos típicos", href: "#section-7" },
+      { label: "Repertorio", href: "#section-8" },
+    ],
+  },
+  {
+    title: "Dirección",
+    links: [
+      { label: "Directores", href: "#section-9" },
+      { label: "Vigencia", href: "#section-10" },
+    ],
+  },
+];
+
 export default function Home() {
   return (
     <main className="stage">
@@ -174,11 +207,32 @@ export default function Home() {
             </div>
           </div>
           <nav className="menu">
-            {SLIDES.map((slide, index) => (
-              <a key={slide.title} href={`#section-${index}`}>
-                {slide.title}
-              </a>
-            ))}
+            <div className="menu-item">
+              <button type="button" className="menu-trigger">
+                Explorar
+              </button>
+              <div className="mega">
+                {MENU_GROUPS.map((group) => (
+                  <div key={group.title} className="mega-group">
+                    <span>{group.title}</span>
+                    {group.links.map((link) => (
+                      <a key={link.label} href={link.href}>
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <a className="menu-link" href="#section-4">
+              Tradición
+            </a>
+            <a className="menu-link" href="#section-8">
+              Repertorio
+            </a>
+            <a className="menu-link" href="#section-10">
+              Vigencia
+            </a>
           </nav>
         </header>
 
@@ -410,9 +464,63 @@ export default function Home() {
           font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 0.2em;
+          align-items: center;
+          position: relative;
         }
-        .menu a {
+        .menu a,
+        .menu-trigger {
           color: #92400e;
+          text-decoration: none;
+        }
+        .menu-trigger {
+          background: transparent;
+          border: 1px solid rgba(217, 119, 6, 0.35);
+          border-radius: 999px;
+          padding: 8px 14px;
+          cursor: pointer;
+          font-size: 12px;
+          letter-spacing: 0.2em;
+        }
+        .menu-item {
+          position: relative;
+        }
+        .mega {
+          position: absolute;
+          top: 120%;
+          right: 0;
+          background: rgba(255, 248, 235, 0.98);
+          border: 1px solid rgba(217, 119, 6, 0.2);
+          border-radius: 18px;
+          padding: 18px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(180px, 1fr));
+          gap: 16px;
+          box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+          opacity: 0;
+          pointer-events: none;
+          transform: translateY(8px);
+          transition: opacity 0.2s ease, transform 0.2s ease;
+          z-index: 10;
+        }
+        .menu-item:hover .mega,
+        .menu-item:focus-within .mega {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translateY(0);
+        }
+        .mega-group span {
+          display: block;
+          font-weight: 700;
+          color: #b45309;
+          margin-bottom: 6px;
+        }
+        .mega-group a {
+          display: block;
+          font-size: 12px;
+          letter-spacing: 0.1em;
+          text-transform: none;
+          color: #4b5563;
+          margin: 6px 0;
         }
         .hero {
           display: grid;
