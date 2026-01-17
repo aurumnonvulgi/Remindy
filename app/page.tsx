@@ -1107,33 +1107,44 @@ export default function Home() {
               )}
             </div>
             {tradeSelection && directionalPct !== null ? (
-              <div className="mt-3 grid gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 sm:grid-cols-3">
-                <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                  Live P/L
-                </span>
-                <span
-                  className={`text-lg ${
-                    directionalPct >= 0 ? "text-emerald-600" : "text-rose-600"
-                  }`}
-                >
-                  Now {directionalPct >= 0 ? "+" : ""}
-                  {directionalPct.toFixed(2)}% @ {currentPrice?.toFixed(2)}
-                </span>
-                <span className="text-xs text-slate-500 sm:text-right">
-                  High{" "}
-                  {finalProfitExtremes
-                    ? `${finalProfitExtremes.max.pct >= 0 ? "+" : ""}${finalProfitExtremes.max.pct.toFixed(
-                        2
-                      )}% @ ${finalProfitExtremes.max.price.toFixed(2)}`
-                    : "—"}
-                  <span className="mx-2 text-slate-300">|</span>
-                  Low{" "}
-                  {finalProfitExtremes
-                    ? `${finalProfitExtremes.min.pct >= 0 ? "+" : ""}${finalProfitExtremes.min.pct.toFixed(
-                        2
-                      )}% @ ${finalProfitExtremes.min.price.toFixed(2)}`
-                    : "—"}
-                </span>
+              <div className="mt-3 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-700 sm:grid-cols-3">
+                <div className="flex flex-col gap-1 text-center">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                    Live P/L
+                  </span>
+                  <span
+                    className={`text-2xl ${
+                      directionalPct >= 0 ? "text-emerald-600" : "text-rose-600"
+                    }`}
+                  >
+                    {directionalPct >= 0 ? "+" : ""}
+                    {directionalPct.toFixed(2)}% @ {currentPrice?.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1 text-center">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                    High
+                  </span>
+                  <span className="text-2xl text-emerald-600">
+                    {finalProfitExtremes
+                      ? `${finalProfitExtremes.max.pct >= 0 ? "+" : ""}${finalProfitExtremes.max.pct.toFixed(
+                          2
+                        )}% @ ${finalProfitExtremes.max.price.toFixed(2)}`
+                      : "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1 text-center">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                    Low
+                  </span>
+                  <span className="text-2xl text-rose-600">
+                    {finalProfitExtremes
+                      ? `${finalProfitExtremes.min.pct >= 0 ? "+" : ""}${finalProfitExtremes.min.pct.toFixed(
+                          2
+                        )}% @ ${finalProfitExtremes.min.price.toFixed(2)}`
+                      : "—"}
+                  </span>
+                </div>
               </div>
             ) : null}
             <p className="mt-3 text-xs text-slate-500">
