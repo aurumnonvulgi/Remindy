@@ -752,14 +752,17 @@ export default function Home() {
     if (!series) {
       return;
     }
+    const markerSeries = series as unknown as {
+      setMarkers: (markers: Array<unknown>) => void;
+    };
     if (!tradeSelection || !entryCandle) {
-      series.setMarkers([]);
+      markerSeries.setMarkers([]);
       entryMarkerRef.current = null;
       return;
     }
     if (entryMarkerRef.current !== entryCandle.time) {
       entryMarkerRef.current = entryCandle.time;
-      series.setMarkers([
+      markerSeries.setMarkers([
         {
           time: entryCandle.time as UTCTimestamp,
           position: "inBar",
