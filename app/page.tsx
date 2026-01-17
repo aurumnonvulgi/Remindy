@@ -396,24 +396,26 @@ export default function Home() {
               );
             })}
           </div>
-
-          {showFeedback && (
-            <div className="feedback">
-              <div className={selected === shuffled.answerIndex ? "good" : "bad"}>
-                {selected === shuffled.answerIndex
-                  ? "¡Respuesta correcta!"
-                  : "Ups, esta vez no."}
-              </div>
-              <p>
-                {selected === shuffled.answerIndex ? current.orchestraTie : explanation}
-              </p>
-              <button className="next" onClick={nextStep}>
-                {isLast ? "Reiniciar" : "Siguiente"}
-              </button>
-            </div>
-          )}
         </div>
       </section>
+
+      {showFeedback && (
+        <div className="feedback-overlay" role="dialog" aria-modal="true">
+          <div className="feedback-modal">
+            <div className={selected === shuffled.answerIndex ? "good" : "bad"}>
+              {selected === shuffled.answerIndex
+                ? "¡Respuesta correcta!"
+                : "Ups, esta vez no."}
+            </div>
+            <p>
+              {selected === shuffled.answerIndex ? current.orchestraTie : explanation}
+            </p>
+            <button className="next" onClick={nextStep}>
+              {isLast ? "Reiniciar" : "Siguiente"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <footer className="footer">
         <span>Orquesta Típica de Jalisco · México, rescate y tradición</span>
@@ -579,23 +581,35 @@ export default function Home() {
           background: #fee2e2;
           border-color: #ef4444;
         }
-        .feedback {
-          margin-top: 24px;
-          padding: 20px;
-          border-radius: 20px;
-          background: #fef3c7;
+        .feedback-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
+          display: grid;
+          place-items: center;
+          z-index: 10;
+          padding: 24px;
+        }
+        .feedback-modal {
+          background: #fffaf2;
+          border-radius: 24px;
+          padding: clamp(20px, 3vw, 28px);
+          max-width: 560px;
+          width: 100%;
           display: grid;
           gap: 12px;
+          box-shadow: 0 26px 50px rgba(15, 23, 42, 0.2);
+          border: 1px solid rgba(244, 211, 94, 0.5);
         }
-        .feedback .good {
+        .feedback-modal .good {
           font-weight: 700;
           color: #15803d;
         }
-        .feedback .bad {
+        .feedback-modal .bad {
           font-weight: 700;
           color: #b91c1c;
         }
-        .feedback p {
+        .feedback-modal p {
           margin: 0;
           color: #4b5563;
           line-height: 1.6;
