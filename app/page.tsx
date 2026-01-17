@@ -263,11 +263,36 @@ const QUIZ_QUESTIONS = [
   },
 ];
 
+const createRng = (seed: number) => {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let t = Math.imul(value ^ (value >>> 15), value | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const shuffleOptions = (options: string[], seed: number, answer: number) => {
+  const entries = options.map((option, idx) => ({ option, idx }));
+  const rng = createRng(seed);
+  for (let i = entries.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [entries[i], entries[j]] = [entries[j], entries[i]];
+  }
+  const answerIndex = entries.findIndex((entry) => entry.idx === answer);
+  return {
+    options: entries.map((entry) => entry.option),
+    answerIndex,
+  };
+};
+
 export default function Home() {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [seed] = useState(() => Math.floor(Math.random() * 1_000_000_000));
 
   const current = QUIZ_QUESTIONS[index];
   const isLast = index === QUIZ_QUESTIONS.length - 1;
@@ -276,11 +301,15 @@ export default function Home() {
     () => IMAGE_POOL[index % IMAGE_POOL.length],
     [index]
   );
+  const shuffled = useMemo(
+    () => shuffleOptions(current.options, seed + index, current.answer),
+    [current, index, seed]
+  );
 
   const handleAnswer = (option: number) => {
     if (selected !== null) return;
     setSelected(option);
-    const correct = option === current.answer;
+    const correct = option === shuffled.answerIndex;
     if (correct) {
       setScore((prev) => prev + 1);
     }
@@ -346,9 +375,10 @@ export default function Home() {
           </div>
 
           <div className="options">
-            {current.options.map((option, idx) => {
-              const isCorrect = selected !== null && idx === current.answer;
-              const isWrong = selected === idx && idx !== current.answer;
+            {shuffled.options.map((option, idx) => {
+              const isCorrect =
+                selected !== null && idx === shuffled.answerIndex;
+              const isWrong = selected === idx && idx !== shuffled.answerIndex;
               return (
                 <button
                   key={`${option}-${idx}`}
