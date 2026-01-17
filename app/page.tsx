@@ -6,6 +6,7 @@ import {
   createChart,
   CrosshairMode,
   CandlestickSeries,
+  type UTCTimestamp,
   type IChartApi,
   type ISeriesApi,
 } from "lightweight-charts";
@@ -56,7 +57,7 @@ const pickWindowStart = (seed: number, maxStart: number) => {
 };
 
 type Candle = {
-  time: number;
+  time: UTCTimestamp;
   open: number;
   close: number;
   high: number;
@@ -548,7 +549,7 @@ export default function Home() {
     }
     seriesRef.current.setData(
       visibleCandles.map((candle) => ({
-        time: candle.time,
+        time: candle.time as UTCTimestamp,
         open: candle.open,
         high: candle.high,
         low: candle.low,
