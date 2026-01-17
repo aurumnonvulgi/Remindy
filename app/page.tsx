@@ -163,6 +163,8 @@ export default function Home() {
   const [tradeAsset, setTradeAsset] = useState("BTCUSD");
   const [tradeTimeframe, setTradeTimeframe] = useState("1h");
   const [tradeSeed, setTradeSeed] = useState(1);
+  const [leverageEnabled, setLeverageEnabled] = useState(false);
+  const [leverage, setLeverage] = useState(5);
   const [tradeAnchor, setTradeAnchor] = useState<number | null>(null);
   const [tradeSelection, setTradeSelection] = useState<
     "long" | "short" | null
@@ -467,6 +469,9 @@ export default function Home() {
         ? -pctChange
         : pctChange
       : null;
+  const leverageFactor = leverageEnabled ? leverage : 1;
+  const leveragedPct =
+    directionalPct !== null ? directionalPct * leverageFactor : null;
   const windowRange = useMemo(() => {
     if (!candles.length) {
       return null;
@@ -1181,7 +1186,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-            {tradeSelection && directionalPct !== null ? (
+            {tradeSelection && leveragedPct !== null ? (
               <div className="mt-3 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-700 sm:grid-cols-3">
                 <div className="flex flex-col gap-1 text-center">
                   <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
@@ -1189,12 +1194,17 @@ export default function Home() {
                   </span>
                   <span
                     className={`text-2xl ${
-                      directionalPct >= 0 ? "text-emerald-600" : "text-rose-600"
+                      leveragedPct >= 0 ? "text-emerald-600" : "text-rose-600"
                     }`}
                   >
-                    {directionalPct >= 0 ? "+" : ""}
-                    {directionalPct.toFixed(2)}% @ {currentPrice?.toFixed(2)}
+                    {leveragedPct >= 0 ? "+" : ""}
+                    {leveragedPct.toFixed(2)}% @ {currentPrice?.toFixed(2)}
                   </span>
+                  {leverageEnabled ? (
+                    <span className="text-xs text-slate-400">
+                      Leverage x{leverage}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-1 text-center">
                   <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
@@ -1202,7 +1212,9 @@ export default function Home() {
                   </span>
                   <span className="text-2xl text-emerald-600">
                     {finalProfitExtremes
-                      ? `${finalProfitExtremes.max.pct >= 0 ? "+" : ""}${finalProfitExtremes.max.pct.toFixed(
+                      ? `${finalProfitExtremes.max.pct * leverageFactor >= 0 ? "+" : ""}${(
+                          finalProfitExtremes.max.pct * leverageFactor
+                        ).toFixed(
                           2
                         )}% @ ${finalProfitExtremes.max.price.toFixed(2)}`
                       : "—"}
@@ -1214,7 +1226,9 @@ export default function Home() {
                   </span>
                   <span className="text-2xl text-rose-600">
                     {finalProfitExtremes
-                      ? `${finalProfitExtremes.min.pct >= 0 ? "+" : ""}${finalProfitExtremes.min.pct.toFixed(
+                      ? `${finalProfitExtremes.min.pct * leverageFactor >= 0 ? "+" : ""}${(
+                          finalProfitExtremes.min.pct * leverageFactor
+                        ).toFixed(
                           2
                         )}% @ ${finalProfitExtremes.min.price.toFixed(2)}`
                       : "—"}
@@ -1322,6 +1336,51 @@ export default function Home() {
                   {tradeExit.hitTarget ? " (target hit)" : " (candle 75)"}
                 </div>
               ) : null}
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Leverage
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setLeverageEnabled((current) => !current)}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    leverageEnabled
+                      ? "bg-slate-900 text-white"
+                      : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                  }`}
+                >
+                  {leverageEnabled ? "On" : "Off"}
+                </button>
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <input
+                  type="range"
+                  min={1}
+                  max={100}
+                  step={1}
+                  value={leverage}
+                  onChange={(event) =>
+                    setLeverage(Math.max(1, Math.min(100, Number(event.target.value))))
+                  }
+                  className="h-2 w-full cursor-pointer accent-slate-900"
+                />
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={leverage}
+                  onChange={(event) =>
+                    setLeverage(Math.max(1, Math.min(100, Number(event.target.value || 1))))
+                  }
+                  className="w-16 rounded-xl border border-slate-200 px-2 py-1 text-sm text-slate-700"
+                />
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Set leverage between 1–100.
+              </p>
             </div>
           </div>
         </div>
