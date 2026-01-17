@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 const SLIDES = [
   {
     layout: "center",
@@ -170,7 +172,96 @@ const MENU_GROUPS = [
   },
 ];
 
+const QUIZ_QUESTIONS = [
+  {
+    question: "¿Cuál de estos pueblos es reconocido por su alfarería y artesanías?",
+    options: ["Tlaquepaque", "Mazamitla", "Tequila", "Tapalpa"],
+    answer: 0,
+  },
+  {
+    question: "¿Qué pueblo es famoso por la bebida que lleva su nombre?",
+    options: ["Lagos de Moreno", "Tequila", "Mascota", "Chapala"],
+    answer: 1,
+  },
+  {
+    question: "¿Dónde encuentras bosques de pino y arquitectura de montaña?",
+    options: ["Mazamitla", "Puerto Vallarta", "Ameca", "Ocotlán"],
+    answer: 0,
+  },
+  {
+    question: "¿Qué pueblo es conocido por su laguna y malecón?",
+    options: ["Chapala", "Arandas", "Zapotlán el Grande", "Colotlán"],
+    answer: 0,
+  },
+  {
+    question: "¿Cuál es famoso por su basílica y peregrinaciones?",
+    options: ["San Juan de los Lagos", "Teuchitlán", "Cocula", "Sayula"],
+    answer: 0,
+  },
+  {
+    question: "¿Dónde puedes visitar los Guachimontones?",
+    options: ["Teuchitlán", "Talpa de Allende", "Autlán", "Etzatlán"],
+    answer: 0,
+  },
+  {
+    question: "¿Qué pueblo destaca por romerías y tradiciones religiosas?",
+    options: ["Talpa de Allende", "Jalostotitlán", "Zacoalco", "Atemajac"],
+    answer: 0,
+  },
+  {
+    question: "¿Cuál es un pueblo mágico conocido por sus calles empedradas?",
+    options: ["Tapalpa", "El Salto", "Zapotiltic", "Degollado"],
+    answer: 0,
+  },
+  {
+    question: "¿Qué pueblo resalta por su arquitectura colonial en Los Altos?",
+    options: ["Lagos de Moreno", "Jocotepec", "Amatitán", "Tonila"],
+    answer: 0,
+  },
+  {
+    question: "¿Dónde hay paisajes serranos y cascadas cercanas?",
+    options: ["Mascota", "Zapotlanejo", "Acatlán", "Atoyac"],
+    answer: 0,
+  },
+];
+
 export default function Home() {
+  const [barVisible, setBarVisible] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [showResult, setShowResult] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setBarVisible(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const current = QUIZ_QUESTIONS[quizIndex];
+  const handleAnswer = (option: number) => {
+    if (selected !== null) return;
+    setSelected(option);
+    if (option === current.answer) {
+      setScore((prev) => prev + 1);
+    }
+    window.setTimeout(() => {
+      if (quizIndex + 1 < QUIZ_QUESTIONS.length) {
+        setQuizIndex((prev) => prev + 1);
+        setSelected(null);
+      } else {
+        setShowResult(true);
+      }
+    }, 650);
+  };
+
+  const resetQuiz = () => {
+    setQuizIndex(0);
+    setScore(0);
+    setSelected(null);
+    setShowResult(false);
+  };
+
   return (
     <main className="stage">
       <section className="intro">
@@ -311,6 +402,70 @@ export default function Home() {
           <span>Actualizado · 2026</span>
         </footer>
       </div>
+
+      <div className={`quiz-bar ${barVisible ? "show" : ""}`}>
+        <p>Que tanto conoces los pueblos de Jalisco? Tomo un corto examen!</p>
+        <button
+          type="button"
+          onClick={() => {
+            setQuizOpen(true);
+            resetQuiz();
+          }}
+        >
+          Iniciar quiz
+        </button>
+      </div>
+
+      {quizOpen && (
+        <div className="quiz-overlay" role="dialog" aria-modal="true">
+          <div className="quiz-card">
+            <button
+              type="button"
+              className="quiz-close"
+              onClick={() => setQuizOpen(false)}
+            >
+              Cerrar
+            </button>
+            {!showResult ? (
+              <>
+                <span className="quiz-step">
+                  Pregunta {quizIndex + 1} de {QUIZ_QUESTIONS.length}
+                </span>
+                <h3>{current.question}</h3>
+                <div className="quiz-options">
+                  {current.options.map((option, index) => {
+                    const isCorrect = selected === index && index === current.answer;
+                    const isWrong = selected === index && index !== current.answer;
+                    return (
+                      <button
+                        type="button"
+                        key={option}
+                        onClick={() => handleAnswer(index)}
+                        className={`quiz-option ${isCorrect ? "correct" : ""} ${
+                          isWrong ? "wrong" : ""
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="quiz-result">
+                <h3>Resultado final</h3>
+                <p>
+                  Obtuviste {score} de {QUIZ_QUESTIONS.length} respuestas
+                  correctas.
+                </p>
+                <button type="button" onClick={resetQuiz}>
+                  Intentar de nuevo
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;600&display=swap");
@@ -627,6 +782,104 @@ export default function Home() {
           font-size: 14px;
           color: #6b7280;
         }
+        .quiz-bar {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: -30%;
+          height: 22vh;
+          background: rgba(74, 42, 24, 0.96);
+          color: #fff7ed;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          padding: 20px clamp(20px, 4vw, 80px);
+          transition: transform 0.6s ease;
+          transform: translateY(0);
+          z-index: 4;
+        }
+        .quiz-bar.show {
+          transform: translateY(-22vh);
+        }
+        .quiz-bar p {
+          font-size: clamp(1rem, 2vw, 1.4rem);
+          margin: 0;
+          max-width: 70%;
+        }
+        .quiz-bar button {
+          background: #fbbf24;
+          border: none;
+          border-radius: 999px;
+          padding: 12px 20px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .quiz-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.65);
+          display: grid;
+          place-items: center;
+          z-index: 6;
+        }
+        .quiz-card {
+          background: #fffaf2;
+          border-radius: 24px;
+          padding: 28px;
+          width: min(520px, 92vw);
+          box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+          position: relative;
+        }
+        .quiz-close {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          background: transparent;
+          border: none;
+          color: #9ca3af;
+          cursor: pointer;
+        }
+        .quiz-step {
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
+          font-size: 12px;
+          color: #b45309;
+        }
+        .quiz-options {
+          margin-top: 18px;
+          display: grid;
+          gap: 10px;
+        }
+        .quiz-option {
+          border: 1px solid rgba(217, 119, 6, 0.3);
+          border-radius: 14px;
+          padding: 12px 16px;
+          background: #fff7ed;
+          text-align: left;
+          cursor: pointer;
+          font-weight: 600;
+        }
+        .quiz-option.correct {
+          background: #dcfce7;
+          border-color: #22c55e;
+        }
+        .quiz-option.wrong {
+          background: #fee2e2;
+          border-color: #ef4444;
+        }
+        .quiz-result h3 {
+          margin-top: 0;
+        }
+        .quiz-result button {
+          margin-top: 14px;
+          border: none;
+          border-radius: 999px;
+          padding: 10px 16px;
+          background: #92400e;
+          color: #fff7ed;
+          cursor: pointer;
+        }
         h1 {
           font-family: "Fraunces", serif;
           font-size: clamp(2.4rem, 4vw, 3.8rem);
@@ -722,6 +975,15 @@ export default function Home() {
           }
           .menu {
             display: none;
+          }
+          .quiz-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            height: auto;
+            bottom: -40%;
+          }
+          .quiz-bar.show {
+            transform: translateY(-40%);
           }
         }
       `}</style>
