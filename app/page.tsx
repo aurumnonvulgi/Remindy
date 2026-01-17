@@ -19,7 +19,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Jalisco es hogar del mariachi y de sones que reflejan orgullo regional y fiesta popular.",
     orchestraTie:
-      "La Orquesta Típica de Jalisco lleva repertorio tradicional a escuelas primarias, secundarias y preparatorias.",
+      "La Orquesta Típica de Jalisco lleva repertorio tradicional a escuelas primarias, secundarias y preparatorias, conectando a estudiantes con la música de su región.",
   },
   {
     state: "Veracruz",
@@ -29,7 +29,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Veracruz es cuna del son jarocho, con jarana y requinto que invitan al zapateado.",
     orchestraTie:
-      "Ha sido invitada a escenarios internacionales para difundir la música mexicana y a sus compositores.",
+      "La Orquesta Típica de Jalisco ha sido invitada a escenarios internacionales para difundir la música mexicana y a sus compositores ante nuevas audiencias.",
   },
   {
     state: "Sinaloa",
@@ -39,7 +39,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Sinaloa es reconocido por sus bandas y la fuerza de sus metales.",
     orchestraTie:
-      "Su misión incluye preservar sones y ritmos regionales para nuevas generaciones.",
+      "La Orquesta Típica de Jalisco preserva sones y ritmos regionales para que las nuevas generaciones los reconozcan y los mantengan vivos.",
   },
   {
     state: "Nuevo León",
@@ -49,7 +49,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el norte destacan el acordeón y los corridos del estilo norteño.",
     orchestraTie:
-      "Promueve la identidad cultural en comunidades rurales y urbanas con conciertos gratuitos.",
+      "La Orquesta Típica de Jalisco fortalece la identidad cultural en comunidades rurales y urbanas mediante conciertos gratuitos y accesibles.",
   },
   {
     state: "Oaxaca",
@@ -59,7 +59,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Oaxaca resguarda sones y danzas del Istmo con gran riqueza melódica.",
     orchestraTie:
-      "Colabora con instituciones educativas para acercar la música típica al aula.",
+      "La Orquesta Típica de Jalisco colabora con instituciones educativas para acercar la música típica al aula y despertar curiosidad artística.",
   },
   {
     state: "Chiapas",
@@ -69,7 +69,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La marimba es emblema chiapaneco y acompaña celebraciones tradicionales.",
     orchestraTie:
-      "Integra arreglos didácticos que explican la historia de cada región musical.",
+      "La Orquesta Típica de Jalisco diseña arreglos didácticos que explican la historia de cada región musical y su contexto social.",
   },
   {
     state: "Yucatán",
@@ -79,7 +79,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Yucatán es conocido por su trova íntima y melodías suaves.",
     orchestraTie:
-      "Representa a Jalisco en festivales nacionales como embajadora cultural.",
+      "La Orquesta Típica de Jalisco representa a Jalisco en festivales nacionales como embajadora cultural y símbolo de tradición.",
   },
   {
     state: "Guerrero",
@@ -89,7 +89,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Las chilenas guerrerenses mezclan ritmos costeños con alegría comunitaria.",
     orchestraTie:
-      "Difunde el patrimonio musical mexicano mediante giras por distintos estados.",
+      "La Orquesta Típica de Jalisco difunde el patrimonio musical mexicano mediante giras que conectan distintos estados del país.",
   },
   {
     state: "Michoacán",
@@ -99,7 +99,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La pirekua es un canto tradicional purépecha con profunda carga emotiva.",
     orchestraTie:
-      "Conecta a jóvenes músicos con tradiciones ancestrales a través de talleres.",
+      "La Orquesta Típica de Jalisco impulsa talleres y actividades formativas que vinculan a jóvenes músicos con tradiciones ancestrales.",
   },
   {
     state: "Puebla",
@@ -109,7 +109,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Puebla conserva huapangos que dialogan con voces y cuerdas.",
     orchestraTie:
-      "En cada presentación comparte relatos sobre los orígenes de los géneros regionales.",
+      "La Orquesta Típica de Jalisco comparte relatos sobre los orígenes de los géneros regionales para dar sentido a cada interpretación.",
   },
   {
     state: "Hidalgo",
@@ -119,7 +119,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Hidalgo forma parte de la Huasteca, donde florece el son huasteco.",
     orchestraTie:
-      "Mantiene vivo el repertorio popular con arreglos actuales y respetuosos.",
+      "La Orquesta Típica de Jalisco mantiene vivo el repertorio popular con arreglos actuales y respetuosos del legado tradicional.",
   },
   {
     state: "Coahuila",
@@ -129,7 +129,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el norte, el acordeón guía polkas y corridos fronterizos.",
     orchestraTie:
-      "Lleva conciertos a plazas públicas para fortalecer el tejido social.",
+      "La Orquesta Típica de Jalisco ofrece conciertos en plazas públicas para fortalecer el tejido social y el orgullo comunitario.",
   },
   {
     state: "Tabasco",
@@ -139,7 +139,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Tabasco vibra con cumbias y ritmos tropicales que invitan a bailar.",
     orchestraTie:
-      "Su trabajo destaca la diversidad sonora del país en un solo escenario.",
+      "La Orquesta Típica de Jalisco destaca la diversidad sonora del país en un solo escenario, celebrando la riqueza regional.",
   },
   {
     state: "Baja California",
@@ -149,7 +149,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "La frontera mezcla sonidos norteños con nuevas fusiones urbanas.",
     orchestraTie:
-      "Rinde homenaje a compositores locales de cada región que visita.",
+      "La Orquesta Típica de Jalisco rinde homenaje a compositores locales de cada región que visita, reconociendo su aporte histórico.",
   },
   {
     state: "Tamaulipas",
@@ -159,7 +159,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Las polkas han inspirado a generaciones en el noreste mexicano.",
     orchestraTie:
-      "Ha acompañado celebraciones cívicas impulsando el orgullo por la música mexicana.",
+      "La Orquesta Típica de Jalisco acompaña actos cívicos y celebraciones para impulsar el orgullo por la música mexicana.",
   },
   {
     state: "Querétaro",
@@ -169,7 +169,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En el centro se disfrutan danzones y bailes de salón con elegancia.",
     orchestraTie:
-      "Participa en encuentros culturales que unen tradición y nuevas audiencias.",
+      "La Orquesta Típica de Jalisco participa en encuentros culturales que unen tradición y nuevas audiencias en distintas ciudades.",
   },
   {
     state: "Ciudad de México",
@@ -179,7 +179,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "El danzón sigue vivo en la capital, acompañando tardes y noches de baile.",
     orchestraTie:
-      "Conserva instrumentos típicos en diálogo con cuerdas y alientos clásicos.",
+      "La Orquesta Típica de Jalisco preserva instrumentos típicos en diálogo con cuerdas y alientos clásicos para un sonido único.",
   },
   {
     state: "Nayarit",
@@ -189,7 +189,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Nayarit comparte sonidos costeños que celebran la vida junto al mar.",
     orchestraTie:
-      "Motiva a las juventudes a conocer su herencia musical con programas escolares.",
+      "La Orquesta Típica de Jalisco motiva a las juventudes a conocer su herencia musical con programas escolares y conciertos guiados.",
   },
   {
     state: "Chihuahua",
@@ -199,7 +199,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "En Chihuahua los corridos y polkas del norte son parte esencial del paisaje.",
     orchestraTie:
-      "Comparte repertorio de distintos estados para crear puentes culturales.",
+      "La Orquesta Típica de Jalisco crea puentes culturales al compartir repertorio de distintos estados en un mismo programa.",
   },
   {
     state: "Sonora",
@@ -209,7 +209,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Sonora vibra con ritmos norteños y letras que narran la vida del desierto.",
     orchestraTie:
-      "Difunde música tradicional en eventos comunitarios y organizaciones privadas.",
+      "La Orquesta Típica de Jalisco visita organizaciones privadas y comunitarias para llevar música tradicional a nuevos espacios.",
   },
   {
     state: "Morelos",
@@ -219,7 +219,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Morelos es tierra de fiestas con danzón y música de salón.",
     orchestraTie:
-      "Su presencia en ferias y festivales refuerza la continuidad de las tradiciones.",
+      "La Orquesta Típica de Jalisco sostiene la continuidad de las tradiciones en ferias y festivales con presentaciones memorables.",
   },
   {
     state: "Zacatecas",
@@ -229,7 +229,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Zacatecas tiene tradición de bandas que acompañan celebraciones locales.",
     orchestraTie:
-      "Impulsa el reconocimiento de las raíces mexicanas a través del sonido típico.",
+      "La Orquesta Típica de Jalisco impulsa el reconocimiento de las raíces mexicanas a través del sonido típico y la memoria colectiva.",
   },
   {
     state: "San Luis Potosí",
@@ -239,7 +239,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "San Luis Potosí comparte la riqueza del son huasteco.",
     orchestraTie:
-      "Cada concierto es una invitación a conocer la riqueza musical de México.",
+      "La Orquesta Típica de Jalisco invita a conocer la riqueza musical de México con repertorios que cruzan regiones y estilos.",
   },
   {
     state: "Campeche",
@@ -249,7 +249,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Campeche combina herencias mayas con celebraciones de sabor costeño.",
     orchestraTie:
-      "Ha llevado la cultura mexicana a foros internacionales con orgullo y disciplina.",
+      "La Orquesta Típica de Jalisco ha llevado la cultura mexicana a foros internacionales con orgullo, disciplina y excelencia artística.",
   },
   {
     state: "Durango",
@@ -259,7 +259,7 @@ const QUIZ_QUESTIONS = [
     blurb:
       "Durango conserva polkas y corridos que cuentan historias regionales.",
     orchestraTie:
-      "Su labor demuestra que la música típica sigue viva y en constante evolución.",
+      "La Orquesta Típica de Jalisco demuestra que la música típica sigue viva, dialogando con el presente sin perder su esencia.",
   },
 ];
 
@@ -305,6 +305,8 @@ export default function Home() {
     () => shuffleOptions(current.options, seed + index, current.answer),
     [current, index, seed]
   );
+  const correctOption = current.options[current.answer];
+  const explanation = `La Orquesta Típica de Jalisco explica que la respuesta correcta es "${correctOption}". ${current.blurb} Con este contexto, la orquesta refuerza el conocimiento de los estilos regionales y su difusión en México y el mundo.`;
 
   const handleAnswer = (option: number) => {
     if (selected !== null) return;
@@ -400,7 +402,9 @@ export default function Home() {
                   ? "¡Respuesta correcta!"
                   : "Ups, esta vez no."}
               </div>
-              <p>{current.orchestraTie}</p>
+              <p>
+                {selected === shuffled.answerIndex ? current.orchestraTie : explanation}
+              </p>
               <button className="next" onClick={nextStep}>
                 {isLast ? "Reiniciar" : "Siguiente"}
               </button>
