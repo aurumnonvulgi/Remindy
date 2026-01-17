@@ -75,6 +75,7 @@ const PAGES = [
     subtitle: "Legado musical",
     body: [
       "Entre los directores que han participado y aportado grandes joyas a la Orquesta se encuentran Juan de la Peña y Flores, Francisco Hernández García, Antonio Cordero, Martín Gordo López, Salvador Arreola N., Cirilo Santana Lomelí, Pedro Macías Limón, José Luis Núñez Melchor, y actualmente el maestro, J. Ramón Becerra Caro.",
+      "Director actual: René Nuño.",
     ],
   },
   {
@@ -177,9 +178,17 @@ export default function Home() {
           <p>Espacios reservados para imágenes de la orquesta.</p>
         </div>
         <div className="gallery-grid">
-          {Array.from({ length: 6 }).map((_, index) => (
+          <figure className="gallery-card featured">
+            <img
+              src="https://scontent-ber1-1.xx.fbcdn.net/v/t39.30808-6/497269944_1279581257501678_7493600283487259354_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=8kongWUvDzgQ7kNvwGH7Qpt&_nc_oc=AdmOi8j7SNflePt0ojIyDFlMPshvA3tnIryxbQ2cWTXCUf65OkGYZCgoUR-2KcaPOAw&_nc_zt=23&_nc_ht=scontent-ber1-1.xx&_nc_gid=aR2BSHL4n6wD13Ugq4pR-g&oh=00_AfrHWjYenmVU5wMO89FJbFNkD8DZaJPSJpB2t2t-U7uObg&oe=69711E2F"
+              alt="Orquesta Típica de Jalisco"
+              loading="lazy"
+            />
+            <figcaption>Director actual: René Nuño</figcaption>
+          </figure>
+          {Array.from({ length: 5 }).map((_, index) => (
             <div className="gallery-card" key={`gallery-${index}`}>
-              <span>Imagen {index + 1}</span>
+              <span>Imagen {index + 2}</span>
             </div>
           ))}
         </div>
@@ -409,6 +418,19 @@ export default function Home() {
           text-align: center;
           color: #9a3412;
           font-weight: 600;
+          display: grid;
+          gap: 12px;
+        }
+        .gallery-card img {
+          width: 100%;
+          height: 240px;
+          object-fit: cover;
+          border-radius: 14px;
+          border: 1px solid #f1e2c8;
+        }
+        .gallery-card figcaption {
+          font-size: 13px;
+          color: #6b7280;
         }
         .footer {
           margin-top: 60px;
