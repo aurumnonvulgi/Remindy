@@ -2,6 +2,7 @@
 
 const SLIDES = [
   {
+    layout: "center",
     title: "Orquesta Típica del Estado",
     subtitle: "Orquesta Típica de Jalisco",
     body: [
@@ -9,9 +10,10 @@ const SLIDES = [
       "La Orquesta Típica representa identidad, memoria colectiva y un repertorio que celebra a México.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/colorful-illustration-guitar-sombrero-cacti-flowers-sun-yellow-background_150234-133870.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "split-left",
     title: "Origen en 1979",
     subtitle: "Convocatoria a músicos",
     body: [
@@ -22,6 +24,7 @@ const SLIDES = [
       "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "split-right",
     title: "Fundación e impulso",
     subtitle: "Bellas Artes · Gobierno de Jalisco",
     body: [
@@ -32,6 +35,7 @@ const SLIDES = [
       "https://img.freepik.com/free-vector/hand-drawn-mexican-culture-illustration_52683-90594.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "stack",
     title: "Nombre e identidad",
     subtitle: "De Guadalajara a Jalisco",
     body: [
@@ -42,6 +46,7 @@ const SLIDES = [
       "https://img.freepik.com/free-vector/mexican-bunting-collection-theme_23-2148470253.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "quote",
     title: "Tradición viva",
     subtitle: "Plaza de Armas",
     body: [
@@ -52,6 +57,7 @@ const SLIDES = [
       "https://img.freepik.com/premium-vector/colorful-illustration-desert-scene-with-guitar-cacti-sun-flowers-clouds_150234-134780.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "split-left",
     title: "Gira permanente",
     subtitle: "Jalisco y México",
     body: [
@@ -62,6 +68,7 @@ const SLIDES = [
       "https://img.freepik.com/premium-vector/geometric-illustration-colorful-stylized-desert-scene-with-building-mountains-cactuses-sunset_150234-134770.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "split-right",
     title: "Instrumentos clásicos",
     subtitle: "Base sinfónica",
     body: [
@@ -72,16 +79,21 @@ const SLIDES = [
       "https://img.freepik.com/premium-vector/flat-design-colorful-mexican-background_135595-18349.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "collage",
     title: "Instrumentos típicos",
     subtitle: "Timbre tradicional",
     body: [
       "El carácter típico lo aportan el salterio, bandolón, mandolinas, arpa, guitarra, vihuela y marimba.",
       "Son el sello sonoro que distingue a la orquesta en cada presentación.",
     ],
-    image:
-      "https://img.freepik.com/premium-vector/flat-design-colorful-mexican-background_135595-18353.jpg?semt=ais_hybrid&w=740&q=80",
+    images: [
+      "https://img.freepik.com/free-vector/mexican-celebration-with-cactus-with-mustache-hat-as-icon-mexican-culture_24908-60784.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/hola-quote-with-sun-print_92289-2567.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
+    ],
   },
   {
+    layout: "center",
     title: "Repertorio",
     subtitle: "México, rescate y tradición",
     body: [
@@ -92,6 +104,7 @@ const SLIDES = [
       "https://img.freepik.com/premium-vector/colorful-geometric-illustration-mexican-landscape-with-cactuses-flowers-sombrero-building-with-striped-roof_150234-132898.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "split-right",
     title: "Directores",
     subtitle: "Legado musical",
     body: [
@@ -102,6 +115,7 @@ const SLIDES = [
       "https://img.freepik.com/free-vector/flat-mexican-map-background-with-elements_23-2147750147.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
+    layout: "stack",
     title: "Vigencia",
     subtitle: "Orgullo jalisciense",
     body: [
@@ -109,7 +123,17 @@ const SLIDES = [
       "Jalisco conserva esta joya desde 1979 gracias al desempeño de sus integrantes y al amor por la música tradicional.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/mexican-culture-cartoon_24640-52898.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    layout: "center",
+    title: "México en escena",
+    subtitle: "Rescate y tradición",
+    body: [
+      "La Orquesta Típica mantiene vigente la música tradicional mexicana y la comparte con nuevas generaciones.",
+    ],
+    image:
+      "https://img.freepik.com/free-vector/mexico-flat-icon_1284-12524.jpg?semt=ais_hybrid&w=740&q=80",
   },
 ];
 
@@ -117,23 +141,32 @@ export default function Home() {
   return (
     <main className="stage">
       <section className="intro">
-        <div className="intro-map" aria-hidden="true">
-          <span className="map-highlight" />
-          <span className="map-highlight second" />
+        <div className="intro-strip" aria-hidden="true">
+          {[
+            "https://img.freepik.com/free-vector/mexican-celebration-with-cactus-with-mustache-hat-as-icon-mexican-culture_24908-60784.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/premium-vector/geometric-illustration-colorful-stylized-desert-scene-with-building-mountains-cactuses-sunset_150234-134770.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/free-vector/hand-drawn-postage-stam-set_23-2150517613.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/free-vector/flat-design-elements-collection-brazilian-festas-juninas-celebrations_23-2150382120.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/premium-vector/colorful-geometric-illustration-desert-landscape-with-cacti-flowers-pyramid_150234-134280.jpg?semt=ais_hybrid&w=740&q=80",
+          ].map((src, index) => (
+            <div className="strip-tile" key={`strip-${index}`}>
+              <img src={src} alt="Motivo cultural" loading="lazy" />
+            </div>
+          ))}
         </div>
-        <div className="sombrero" aria-hidden="true">
+        <div className="sombrero ride" aria-hidden="true">
           <span className="sombrero-top" />
           <span className="sombrero-brim" />
         </div>
         <div className="intro-text">
           <p>Orquesta Típica del Estado</p>
-          <h1>Jalisco en movimiento</h1>
+          <h1 className="intro-title">Orquesta Típica de Jalisco</h1>
         </div>
       </section>
 
       <section className="story">
         {SLIDES.map((slide) => (
-          <section key={slide.title} className="panel">
+          <section key={slide.title} className={`panel layout-${slide.layout}`}>
             <div className="overlay" />
             <div className="content">
               <p className="subtitle">{slide.subtitle}</p>
@@ -146,7 +179,18 @@ export default function Home() {
               <span className="tag">Orquesta Típica del Estado</span>
             </div>
             <figure className="panel-media">
-              <img src={slide.image} alt={slide.title} loading="lazy" />
+              {slide.images ? (
+                slide.images.map((image, index) => (
+                  <img
+                    key={`${slide.title}-img-${index}`}
+                    src={image}
+                    alt={`${slide.title} ${index + 1}`}
+                    loading="lazy"
+                  />
+                ))
+              ) : (
+                <img src={slide.image} alt={slide.title} loading="lazy" />
+              )}
               <figcaption>Orquesta Típica de Jalisco</figcaption>
             </figure>
           </section>
@@ -175,38 +219,46 @@ export default function Home() {
           inset: 0;
           display: grid;
           place-items: center;
-          background: radial-gradient(circle at top, #ffd59a 0%, #f5f2ee 40%, #d5e9ff 100%);
+          background: linear-gradient(180deg, #4a2a18 0%, #6b3b1f 55%, #4a2a18 100%);
           z-index: 5;
           animation: intro-hide 0.8s ease forwards;
-          animation-delay: 3.4s;
+          animation-delay: 5s;
         }
-        .intro-map {
-          width: min(320px, 70vw);
-          height: min(420px, 80vh);
-          border-radius: 48% 52% 50% 50%;
-          background: linear-gradient(160deg, rgba(22, 101, 52, 0.2), rgba(21, 128, 61, 0.6));
-          border: 2px solid rgba(16, 185, 129, 0.5);
-          box-shadow: 0 30px 60px rgba(30, 64, 175, 0.2);
-          position: relative;
-        }
-        .map-highlight {
+        .intro-strip {
           position: absolute;
-          inset: 18% 30% 52% 34%;
-          border-radius: 999px;
-          background: rgba(251, 191, 36, 0.5);
-          filter: blur(10px);
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 20vh;
+          display: grid;
+          grid-auto-flow: column;
+          grid-auto-columns: minmax(160px, 1fr);
+          gap: 8px;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(6px);
         }
-        .map-highlight.second {
-          inset: 52% 24% 22% 40%;
-          background: rgba(244, 63, 94, 0.4);
+        .strip-tile {
+          border-radius: 18px;
+          overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.08);
+        }
+        .strip-tile img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         .sombrero {
           position: absolute;
           width: 120px;
           height: 60px;
-          left: calc(50% - 60px);
-          top: -10%;
-          animation: sombrero-travel 3.2s ease-in-out forwards;
+          left: -10%;
+          top: 25%;
+          z-index: 2;
+        }
+        .sombrero.ride {
+          animation: sombrero-sweep 3.4s ease-in-out forwards;
         }
         .sombrero-top {
           position: absolute;
@@ -230,17 +282,25 @@ export default function Home() {
         }
         .intro-text {
           position: absolute;
-          bottom: 12%;
+          top: 24%;
           text-align: center;
-          color: #1f2937;
+          color: #fef3c7;
           font-family: "Fraunces", serif;
           animation: intro-text 0.8s ease forwards;
-          animation-delay: 0.8s;
+          animation-delay: 0.4s;
           opacity: 0;
         }
         .intro-text h1 {
           margin: 6px 0 0;
-          font-size: clamp(2.2rem, 4vw, 3.4rem);
+          font-size: clamp(2.2rem, 4vw, 3.6rem);
+        }
+        .intro-title {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          border-right: 2px solid rgba(254, 243, 199, 0.9);
+          width: 0;
+          animation: type-title 3.2s steps(32, end) forwards;
         }
         .story {
           height: 100vh;
@@ -248,7 +308,7 @@ export default function Home() {
           scroll-snap-type: y mandatory;
           opacity: 0;
           animation: story-show 0.8s ease forwards;
-          animation-delay: 3.6s;
+          animation-delay: 5.2s;
         }
         .panel {
           position: relative;
@@ -261,6 +321,53 @@ export default function Home() {
           scroll-snap-align: start;
           isolation: isolate;
           animation: panel-rise 1.2s ease both;
+        }
+        .layout-center {
+          text-align: center;
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+        .layout-center .content {
+          text-align: center;
+        }
+        .layout-center .panel-media {
+          max-width: 720px;
+        }
+        .layout-split-left .content {
+          order: 1;
+        }
+        .layout-split-left .panel-media {
+          order: 2;
+        }
+        .layout-split-right .content {
+          order: 2;
+        }
+        .layout-split-right .panel-media {
+          order: 1;
+        }
+        .layout-stack {
+          grid-template-columns: 1fr;
+        }
+        .layout-stack .panel-media {
+          max-width: 820px;
+          justify-self: end;
+        }
+        .layout-quote .content {
+          background: rgba(15, 23, 42, 0.68);
+          border-left: 6px solid #f59e0b;
+        }
+        .layout-quote .body {
+          font-size: 20px;
+        }
+        .layout-collage {
+          grid-template-columns: 1fr;
+        }
+        .layout-collage .panel-media {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .layout-collage .panel-media img {
+          height: 260px;
         }
         .overlay {
           position: absolute;
@@ -334,12 +441,17 @@ export default function Home() {
           letter-spacing: 0.2em;
           text-transform: uppercase;
         }
-        @keyframes sombrero-travel {
+        @keyframes sombrero-sweep {
           0% {
-            transform: translateY(-20%) rotate(-8deg);
+            transform: translateX(-10%) rotate(-6deg);
           }
           100% {
-            transform: translateY(130vh) rotate(8deg);
+            transform: translateX(120vw) rotate(6deg);
+          }
+        }
+        @keyframes type-title {
+          to {
+            width: 100%;
           }
         }
         @keyframes intro-text {
@@ -387,6 +499,9 @@ export default function Home() {
         @media (max-width: 700px) {
           .content {
             text-align: center;
+          }
+          .intro-strip {
+            grid-auto-columns: minmax(120px, 1fr);
           }
         }
       `}</style>
