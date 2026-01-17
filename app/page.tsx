@@ -5,6 +5,7 @@ import {
   ColorType,
   createChart,
   CrosshairMode,
+  addCandlestickSeries,
   type IChartApi,
   type ISeriesApi,
 } from "lightweight-charts";
@@ -512,7 +513,7 @@ export default function Home() {
       },
       height: 220,
     });
-    const series = chart.addCandlestickSeries({
+    const series = addCandlestickSeries(chart, {
       upColor: "#34d399",
       downColor: "#fb7185",
       borderUpColor: "#34d399",
