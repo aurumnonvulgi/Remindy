@@ -12,7 +12,7 @@ const SLIDES = [
       "La Orquesta Típica representa identidad, memoria colectiva y un repertorio que celebra a México.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
   },
   {
     layout: "split-left",
@@ -34,7 +34,7 @@ const SLIDES = [
       "En ese periodo, el Lic. José López Portillo era Presidente de la República. El primer director fue el maestro Juan de la Peña y Flores.",
     ],
     image:
-      "https://img.freepik.com/free-vector/hand-drawn-mexican-culture-illustration_52683-90594.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "stack",
@@ -45,7 +45,7 @@ const SLIDES = [
       "Se cambió a Orquesta Típica de Jalisco para difundir la cultura y tradiciones del estado que representa.",
     ],
     image:
-      "https://img.freepik.com/free-vector/mexican-bunting-collection-theme_23-2148470253.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "quote",
@@ -56,7 +56,7 @@ const SLIDES = [
       "Interpreta 10 melodías y cierra con una fracción del son popular “Guadalajara”, de Pepe Guízar.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/colorful-illustration-desert-scene-with-guitar-cacti-sun-flowers-clouds_150234-134780.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "split-left",
@@ -67,7 +67,7 @@ const SLIDES = [
       "También ha llevado la música y tradiciones mexicanas a otros estados de la República.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/geometric-illustration-colorful-stylized-desert-scene-with-building-mountains-cactuses-sunset_150234-134770.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "split-right",
@@ -78,7 +78,7 @@ const SLIDES = [
       "Alientos metales: trompetas, trombones y percusiones como timbal y platillo.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/flat-design-colorful-mexican-background_135595-18349.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "collage",
@@ -89,8 +89,8 @@ const SLIDES = [
       "Son el sello sonoro que distingue a la orquesta en cada presentación.",
     ],
     images: [
-      "https://img.freepik.com/free-vector/mexican-celebration-with-cactus-with-mustache-hat-as-icon-mexican-culture_24908-60784.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://img.freepik.com/premium-vector/hola-quote-with-sun-print_92289-2567.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
       "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
     ],
   },
@@ -103,7 +103,7 @@ const SLIDES = [
       "Valses, danzas, canciones rancheras y corridos llenan el escenario con identidad mexicana.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-mexican-landscape-with-cactuses-flowers-sombrero-building-with-striped-roof_150234-132898.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "split-right",
@@ -114,7 +114,7 @@ const SLIDES = [
       "Director actual: René Nuño.",
     ],
     image:
-      "https://img.freepik.com/free-vector/flat-mexican-map-background-with-elements_23-2147750147.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "stack",
@@ -125,7 +125,7 @@ const SLIDES = [
       "Jalisco conserva esta joya desde 1979 gracias al desempeño de sus integrantes y al amor por la música tradicional.",
     ],
     image:
-      "https://img.freepik.com/premium-vector/mexican-culture-cartoon_24640-52898.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     layout: "center",
@@ -135,7 +135,7 @@ const SLIDES = [
       "La Orquesta Típica mantiene vigente la música tradicional mexicana y la comparte con nuevas generaciones.",
     ],
     image:
-      "https://img.freepik.com/free-vector/mexico-flat-icon_1284-12524.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
   },
 ];
 
@@ -267,11 +267,11 @@ export default function Home() {
       <section className="intro">
         <div className="intro-strip" aria-hidden="true">
           {[
-            "https://img.freepik.com/free-vector/mexican-celebration-with-cactus-with-mustache-hat-as-icon-mexican-culture_24908-60784.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/premium-vector/geometric-illustration-colorful-stylized-desert-scene-with-building-mountains-cactuses-sunset_150234-134770.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/free-vector/hand-drawn-postage-stam-set_23-2150517613.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/free-vector/flat-design-elements-collection-brazilian-festas-juninas-celebrations_23-2150382120.jpg?semt=ais_hybrid&w=740&q=80",
-            "https://img.freepik.com/premium-vector/colorful-geometric-illustration-desert-landscape-with-cacti-flowers-pyramid_150234-134280.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
+            "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
+            "https://img.freepik.com/free-vector/mexican-map-with-cultural-elements_23-2147733686.jpg?semt=ais_hybrid&w=740&q=80",
           ].map((src, index) => (
             <div className="strip-tile" key={`strip-${index}`}>
               <img src={src} alt="Motivo cultural" loading="lazy" />
@@ -345,9 +345,9 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="hero-card">
+            <div className="hero-card">
             <img
-              src="https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80"
+              src="https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg"
               alt="Escena cultural mexicana"
               loading="lazy"
             />
