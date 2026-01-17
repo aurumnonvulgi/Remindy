@@ -648,8 +648,8 @@ export default function Home() {
     if (!tradeRevealed || !chartRef.current || candles.length < 75) {
       return;
     }
-    const zoomStartIndex = 40;
     const zoomEndIndex = 74;
+    const zoomStartIndex = Math.max(0, zoomEndIndex - 15);
     chartRef.current.timeScale().setVisibleRange({
       from: candles[zoomStartIndex].time as UTCTimestamp,
       to: candles[zoomEndIndex].time as UTCTimestamp,
