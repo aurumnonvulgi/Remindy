@@ -191,6 +191,8 @@ export default function Home() {
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const priceLineRef = useRef<IPriceLine | null>(null);
+  const currentPriceLineRef = useRef<IPriceLine | null>(null);
+  const entryVerticalRef = useRef<HTMLDivElement | null>(null);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -716,6 +718,79 @@ export default function Home() {
     });
   }, [entryCandle, entryPrice, tradeSelection]);
 
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) {
+      return;
+    }
+    if (!tradeSelection || currentPrice === null) {
+      if (currentPriceLineRef.current) {
+        series.removePriceLine(currentPriceLineRef.current);
+        currentPriceLineRef.current = null;
+      }
+      return;
+    }
+    if (currentPriceLineRef.current) {
+      series.removePriceLine(currentPriceLineRef.current);
+    }
+    currentPriceLineRef.current = series.createPriceLine({
+      price: currentPrice,
+      color: "#ef4444",
+      lineWidth: 2,
+      lineStyle: LineStyle.Solid,
+      axisLabelVisible: true,
+      title: "Now",
+    });
+  }, [currentPrice, tradeSelection]);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    const container = chartContainerRef.current;
+    if (!chart || !container || !entryCandle || !tradeSelection) {
+      if (entryVerticalRef.current) {
+        entryVerticalRef.current.remove();
+        entryVerticalRef.current = null;
+      }
+      return;
+    }
+    if (!entryVerticalRef.current) {
+      const line = document.createElement("div");
+      line.style.position = "absolute";
+      line.style.top = "0";
+      line.style.bottom = "0";
+      line.style.width = "2px";
+      line.style.background = "#2563eb";
+      line.style.opacity = "0.85";
+      line.style.pointerEvents = "none";
+      container.appendChild(line);
+      entryVerticalRef.current = line;
+    }
+    const updatePosition = () => {
+      const x = chart
+        .timeScale()
+        .timeToCoordinate(entryCandle.time as UTCTimestamp);
+      if (x === null || !entryVerticalRef.current) {
+        return;
+      }
+      entryVerticalRef.current.style.transform = `translateX(${Math.round(
+        x
+      )}px)`;
+    };
+    updatePosition();
+    const handleResize = () => updatePosition();
+    const handleRangeChange = () => updatePosition();
+    chart.timeScale().subscribeVisibleTimeRangeChange(handleRangeChange);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.timeScale().unsubscribeVisibleTimeRangeChange(handleRangeChange);
+      if (entryVerticalRef.current) {
+        entryVerticalRef.current.remove();
+        entryVerticalRef.current = null;
+      }
+    };
+  }, [entryCandle, tradeSelection]);
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
       <details className="mx-auto w-full max-w-5xl rounded-[28px] border border-white/70 bg-white/70 p-4 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
@@ -1095,7 +1170,7 @@ export default function Home() {
               ) : null}
             </div>
             <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-white">
-              <div ref={chartContainerRef} />
+              <div ref={chartContainerRef} className="relative" />
               {(tradeLoading || tradeError || !hasEnoughCandles) && (
                 <div className="border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
                   {tradeLoading
