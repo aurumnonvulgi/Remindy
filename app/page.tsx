@@ -342,7 +342,10 @@ export default function Home() {
           </p>
         </div>
         <div className="hero-image">
-          <img src={IMAGE_POOL[0]} alt="Orquesta Típica de Jalisco" />
+          <img
+            src="https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg"
+            alt="Orquesta Típica de Jalisco"
+          />
         </div>
       </header>
 
