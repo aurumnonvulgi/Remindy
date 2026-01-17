@@ -645,6 +645,18 @@ export default function Home() {
   }, [visibleCandles]);
 
   useEffect(() => {
+    if (!tradeRevealed || !chartRef.current || candles.length < 75) {
+      return;
+    }
+    const zoomStartIndex = 40;
+    const zoomEndIndex = 74;
+    chartRef.current.timeScale().setVisibleRange({
+      from: candles[zoomStartIndex].time as UTCTimestamp,
+      to: candles[zoomEndIndex].time as UTCTimestamp,
+    });
+  }, [candles, tradeRevealed]);
+
+  useEffect(() => {
     const series = seriesRef.current;
     if (!series) {
       return;
@@ -1059,6 +1071,21 @@ export default function Home() {
                 </div>
               )}
             </div>
+            {tradeSelection && pctChange !== null ? (
+              <div className="mt-3 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Live P/L
+                </span>
+                <span
+                  className={`text-lg ${
+                    pctChange >= 0 ? "text-emerald-600" : "text-rose-600"
+                  }`}
+                >
+                  {pctChange >= 0 ? "+" : ""}
+                  {pctChange.toFixed(2)}%
+                </span>
+              </div>
+            ) : null}
             <p className="mt-3 text-xs text-slate-500">
               Showing {Math.min(revealCount, 50)} candles first. Your entry is
               the close of candle 50; we first look for a 1.2% profit target
