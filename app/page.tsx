@@ -169,13 +169,9 @@ export default function Home() {
   >(null);
   const [tradeRevealed, setTradeRevealed] = useState(false);
   const [revealCount, setRevealCount] = useState(50);
-  const [maxProfitPoint, setMaxProfitPoint] = useState<{
-    pct: number;
-    price: number;
-  } | null>(null);
-  const [minProfitPoint, setMinProfitPoint] = useState<{
-    pct: number;
-    price: number;
+  const [finalProfitExtremes, setFinalProfitExtremes] = useState<{
+    max: { pct: number; price: number };
+    min: { pct: number; price: number };
   } | null>(null);
   const [tradeHistory, setTradeHistory] = useState<
     Array<{
@@ -522,8 +518,7 @@ export default function Home() {
     setTradeRevealed(false);
     setRevealCount(50);
     setTradeAnchor(null);
-    setMaxProfitPoint(null);
-    setMinProfitPoint(null);
+    setFinalProfitExtremes(null);
   }, [tradeAsset, tradeSeed]);
 
   useEffect(() => {
@@ -663,29 +658,33 @@ export default function Home() {
   }, [tradeRevealed, visibleCandles]);
 
   useEffect(() => {
-    if (directionalPct === null || currentPrice === null) {
+    if (!tradeSelection || !entryCandle || revealCount < 75) {
       return;
     }
-    setMaxProfitPoint((current) => {
-      if (!current || directionalPct > current.pct) {
-        return { pct: directionalPct, price: currentPrice };
-      }
-      return current;
+    const windowCandles = candles.slice(49, 75);
+    if (!windowCandles.length) {
+      return;
+    }
+    const results = windowCandles.map((candle) => {
+      const rawPct = ((candle.close - entryPrice) / entryPrice) * 100;
+      const pct = tradeSelection === "short" ? -rawPct : rawPct;
+      return { pct, price: candle.close };
     });
-    setMinProfitPoint((current) => {
-      if (!current || directionalPct < current.pct) {
-        return { pct: directionalPct, price: currentPrice };
-      }
-      return current;
-    });
-  }, [currentPrice, directionalPct]);
+    const max = results.reduce((best, point) =>
+      point.pct > best.pct ? point : best
+    );
+    const min = results.reduce((best, point) =>
+      point.pct < best.pct ? point : best
+    );
+    setFinalProfitExtremes({ max, min });
+  }, [candles, entryCandle, entryPrice, revealCount, tradeSelection]);
 
   useEffect(() => {
     if (!tradeRevealed || !chartRef.current || candles.length < 75) {
       return;
     }
     const zoomEndIndex = 74;
-    const zoomStartIndex = Math.max(0, zoomEndIndex - 19);
+    const zoomStartIndex = Math.max(0, zoomEndIndex - 59);
     chartRef.current.timeScale().setVisibleRange({
       from: candles[zoomStartIndex].time as UTCTimestamp,
       to: candles[zoomEndIndex].time as UTCTimestamp,
@@ -1122,17 +1121,17 @@ export default function Home() {
                 </span>
                 <span className="text-xs text-slate-500 sm:text-right">
                   High{" "}
-                  {maxProfitPoint
-                    ? `${maxProfitPoint.pct >= 0 ? "+" : ""}${maxProfitPoint.pct.toFixed(
+                  {finalProfitExtremes
+                    ? `${finalProfitExtremes.max.pct >= 0 ? "+" : ""}${finalProfitExtremes.max.pct.toFixed(
                         2
-                      )}% @ ${maxProfitPoint.price.toFixed(2)}`
+                      )}% @ ${finalProfitExtremes.max.price.toFixed(2)}`
                     : "—"}
                   <span className="mx-2 text-slate-300">|</span>
                   Low{" "}
-                  {minProfitPoint
-                    ? `${minProfitPoint.pct >= 0 ? "+" : ""}${minProfitPoint.pct.toFixed(
+                  {finalProfitExtremes
+                    ? `${finalProfitExtremes.min.pct >= 0 ? "+" : ""}${finalProfitExtremes.min.pct.toFixed(
                         2
-                      )}% @ ${minProfitPoint.price.toFixed(2)}`
+                      )}% @ ${finalProfitExtremes.min.price.toFixed(2)}`
                     : "—"}
                 </span>
               </div>
