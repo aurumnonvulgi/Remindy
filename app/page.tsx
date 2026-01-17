@@ -295,49 +295,68 @@ export default function Home() {
         .stage {
           position: relative;
           border-radius: 28px;
-          background: radial-gradient(circle at top, #1f2937, #0b0f1a 65%);
+          background: radial-gradient(circle at 20% 20%, #2b3345, #0b0f1a 65%);
           height: 420px;
           overflow: hidden;
-          border: 1px solid rgba(148, 163, 184, 0.2);
+          border: 1px solid rgba(148, 163, 184, 0.25);
+          perspective: 1000px;
+          box-shadow: inset 0 0 120px rgba(15, 23, 42, 0.6),
+            0 24px 60px rgba(15, 23, 42, 0.4);
         }
         .gallows {
           position: absolute;
           inset: 0;
+          transform-style: preserve-3d;
         }
         .beam {
           position: absolute;
           width: 240px;
           height: 12px;
-          background: #374151;
+          background: linear-gradient(90deg, #7c4a1f, #a16207, #6b3f1f);
           top: 80px;
           left: 120px;
+          border-radius: 6px;
+          box-shadow: 0 10px 16px rgba(15, 23, 42, 0.4);
+          transform: translateZ(18px);
+        }
+        .beam::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent);
           border-radius: 6px;
         }
         .post {
           position: absolute;
           width: 14px;
           height: 240px;
-          background: #374151;
+          background: linear-gradient(180deg, #8b5a2b, #5b3a1c);
           top: 80px;
           left: 120px;
           border-radius: 6px;
+          box-shadow: 0 12px 20px rgba(15, 23, 42, 0.45);
+          transform: translateZ(18px);
         }
         .base {
           position: absolute;
           width: 200px;
           height: 16px;
-          background: #1f2937;
+          background: linear-gradient(90deg, #3f2a1a, #1f2937);
           bottom: 90px;
           left: 80px;
           border-radius: 8px;
+          box-shadow: 0 18px 24px rgba(15, 23, 42, 0.5);
+          transform: translateZ(6px);
         }
         .rope {
           position: absolute;
           width: 4px;
           height: 80px;
-          background: #cbd5f5;
+          background: linear-gradient(180deg, #f8fafc, #94a3b8);
           top: 92px;
           left: 350px;
+          box-shadow: 0 6px 12px rgba(15, 23, 42, 0.4);
+          transform: translateZ(18px);
         }
         .figure {
           position: absolute;
@@ -345,6 +364,7 @@ export default function Home() {
           left: 320px;
           width: 140px;
           height: 220px;
+          transform: translateZ(16px);
         }
         .head {
           position: absolute;
@@ -352,11 +372,13 @@ export default function Home() {
           height: 60px;
           border-radius: 50%;
           border: 4px solid #f97316;
+          background: radial-gradient(circle at 30% 30%, #fbbf24, #f97316);
           top: 0;
           left: 40px;
           opacity: 0.1;
           transform: scale(0.8);
           transition: all 0.3s ease;
+          box-shadow: 0 12px 18px rgba(15, 23, 42, 0.5);
         }
         .head.on {
           opacity: 1;
@@ -366,11 +388,12 @@ export default function Home() {
           position: absolute;
           width: 8px;
           height: 90px;
-          background: #f97316;
+          background: linear-gradient(180deg, #fb923c, #f97316);
           top: 64px;
           left: 66px;
           opacity: 0.1;
           transition: opacity 0.3s ease;
+          box-shadow: 0 8px 14px rgba(15, 23, 42, 0.45);
         }
         .torso.on {
           opacity: 1;
@@ -380,9 +403,10 @@ export default function Home() {
           position: absolute;
           width: 70px;
           height: 8px;
-          background: #f97316;
+          background: linear-gradient(90deg, #fb923c, #f97316);
           opacity: 0.1;
           transition: opacity 0.3s ease, transform 0.3s ease;
+          box-shadow: 0 8px 12px rgba(15, 23, 42, 0.45);
         }
         .arm.left {
           top: 90px;
