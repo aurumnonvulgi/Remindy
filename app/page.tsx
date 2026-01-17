@@ -137,7 +137,7 @@ const PHRASES: Phrase[] = [
 ];
 
 const ACCENTS = ["#ff7a59", "#ffc53d", "#5eead4", "#60a5fa"];
-const TRADE_TIMEFRAMES = ["5m", "15m", "1h", "6h", "1d"] as const;
+const TRADE_TIMEFRAMES = ["5m", "15m", "1h", "4h", "6h", "1d"] as const;
 
 export default function Home() {
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -195,6 +195,7 @@ export default function Home() {
   const priceLineRef = useRef<IPriceLine | null>(null);
   const currentPriceLineRef = useRef<IPriceLine | null>(null);
   const entryVerticalRef = useRef<HTMLDivElement | null>(null);
+  const entryMarkerRef = useRef<number | null>(null);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -745,6 +746,30 @@ export default function Home() {
       title: "Entry",
     });
   }, [entryCandle, entryPrice, tradeSelection]);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) {
+      return;
+    }
+    if (!tradeSelection || !entryCandle) {
+      series.setMarkers([]);
+      entryMarkerRef.current = null;
+      return;
+    }
+    if (entryMarkerRef.current !== entryCandle.time) {
+      entryMarkerRef.current = entryCandle.time;
+      series.setMarkers([
+        {
+          time: entryCandle.time as UTCTimestamp,
+          position: "inBar",
+          color: "#2563eb",
+          shape: "circle",
+          text: "Entry",
+        },
+      ]);
+    }
+  }, [entryCandle, tradeSelection]);
 
   useEffect(() => {
     const series = seriesRef.current;
