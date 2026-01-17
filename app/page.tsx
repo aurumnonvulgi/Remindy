@@ -1,3 +1,5 @@
+"use client";
+
 const SLIDES = [
   {
     title: "Orquesta Típica del Estado",
