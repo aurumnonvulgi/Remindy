@@ -4,50 +4,112 @@ const SLIDES = [
   {
     title: "Orquesta Típica del Estado",
     subtitle: "Orquesta Típica de Jalisco",
-    body:
+    body: [
       "Desde 1979, una tradición viva que lleva la música popular mexicana a cada rincón de Jalisco.",
+      "La Orquesta Típica representa identidad, memoria colectiva y un repertorio que celebra a México.",
+    ],
     image:
       "https://img.freepik.com/premium-vector/colorful-illustration-guitar-sombrero-cacti-flowers-sun-yellow-background_150234-133870.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
     title: "Origen en 1979",
-    subtitle: "Teatro Degollado · Palacio de Gobierno",
-    body:
-      "El 14 de agosto comenzaron los ensayos. El 15 de septiembre se realizó el concierto inaugural.",
-    image:
-      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-mexican-landscape-with-cactuses-flowers-sombrero-building-with-striped-roof_150234-132898.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    title: "Tradición en la Plaza de Armas",
-    subtitle: "Miércoles y viernes · 18:30 hrs",
-    body:
-      "Diez melodías por concierto y la rúbrica de “Guadalajara” para cerrar cada tarde.",
-    image:
-      "https://img.freepik.com/premium-vector/colorful-illustration-desert-scene-with-guitar-cacti-sun-flowers-clouds_150234-134780.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    title: "Instrumentos clásicos y típicos",
-    subtitle: "Sinfónica + tradición",
-    body:
-      "Violines, alientos y percusiones se mezclan con salterio, bandolón, arpa, vihuela y marimba.",
-    image:
-      "https://img.freepik.com/free-vector/hand-drawn-mexican-culture-illustration_52683-90594.jpg?semt=ais_hybrid&w=740&q=80",
-  },
-  {
-    title: "Repertorio mexicano",
-    subtitle: "México, rescate y tradición",
-    body:
-      "Sones, polkas, huapangos, pasosdobles, boleros, valses y corridos.",
+    subtitle: "Convocatoria a músicos",
+    body: [
+      "En 1979, el departamento de Bellas Artes del gobierno del Estado de Jalisco lanzó una convocatoria para formar la Orquesta Típica de Guadalajara.",
+      "El 14 de agosto comenzaron los ensayos en el Teatro Degollado; el 15 de septiembre se realizó el concierto inaugural en Palacio de Gobierno.",
+    ],
     image:
       "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Vigencia y futuro",
-    subtitle: "Director actual: René Nuño",
-    body:
-      "Una orquesta joven en esencia, heredera de la pasión de sus fundadores.",
+    title: "Fundación e impulso",
+    subtitle: "Bellas Artes · Gobierno de Jalisco",
+    body: [
+      "Fue fundada por el departamento de Bellas Artes, con el Lic. Flavio Romero de Velasco como gobernador constitucional y principal impulsor.",
+      "En ese periodo, el Lic. José López Portillo era Presidente de la República. El primer director fue el maestro Juan de la Peña y Flores.",
+    ],
     image:
-      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-desert-landscape-with-cacti-flowers-pyramid_150234-134280.jpg?semt=ais_hybrid&w=740&q=80",
+      "https://img.freepik.com/free-vector/hand-drawn-mexican-culture-illustration_52683-90594.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Nombre e identidad",
+    subtitle: "De Guadalajara a Jalisco",
+    body: [
+      "Al inicio fue “de Guadalajara” para ser reconocida en cualquier parte del mundo.",
+      "Se cambió a Orquesta Típica de Jalisco para difundir la cultura y tradiciones del estado que representa.",
+    ],
+    image:
+      "https://img.freepik.com/free-vector/mexican-bunting-collection-theme_23-2148470253.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Tradición viva",
+    subtitle: "Plaza de Armas",
+    body: [
+      "Por tradición, se presenta todos los miércoles y viernes a las 18:30 horas en el quiosco de la Plaza de Armas de Guadalajara.",
+      "Interpreta 10 melodías y cierra con una fracción del son popular “Guadalajara”, de Pepe Guízar.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/colorful-illustration-desert-scene-with-guitar-cacti-sun-flowers-clouds_150234-134780.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Gira permanente",
+    subtitle: "Jalisco y México",
+    body: [
+      "Es la agrupación que más viaja al interior del estado: ha recorrido todos los municipios con gran éxito y aceptación del público.",
+      "También ha llevado la música y tradiciones mexicanas a otros estados de la República.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/geometric-illustration-colorful-stylized-desert-scene-with-building-mountains-cactuses-sunset_150234-134770.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Instrumentos clásicos",
+    subtitle: "Base sinfónica",
+    body: [
+      "Violines, viola, violonchelos y contrabajos; alientos madera: flautas, oboes y clarinetes.",
+      "Alientos metales: trompetas, trombones y percusiones como timbal y platillo.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/flat-design-colorful-mexican-background_135595-18349.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Instrumentos típicos",
+    subtitle: "Timbre tradicional",
+    body: [
+      "El carácter típico lo aportan el salterio, bandolón, mandolinas, arpa, guitarra, vihuela y marimba.",
+      "Son el sello sonoro que distingue a la orquesta en cada presentación.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/flat-design-colorful-mexican-background_135595-18353.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Repertorio",
+    subtitle: "México, rescate y tradición",
+    body: [
+      "Sones, polkas, huapangos, pasosdobles, marchas, boleros, fantasías, mosaicos y popurríes.",
+      "Valses, danzas, canciones rancheras y corridos llenan el escenario con identidad mexicana.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-mexican-landscape-with-cactuses-flowers-sombrero-building-with-striped-roof_150234-132898.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Directores",
+    subtitle: "Legado musical",
+    body: [
+      "Juan de la Peña y Flores, Francisco Hernández García, Antonio Cordero, Martín Gordo López, Salvador Arreola N., Cirilo Santana Lomelí, Pedro Macías Limón, José Luis Núñez Melchor.",
+      "Director actual: René Nuño.",
+    ],
+    image:
+      "https://img.freepik.com/free-vector/flat-mexican-map-background-with-elements_23-2147750147.jpg?semt=ais_hybrid&w=740&q=80",
+  },
+  {
+    title: "Vigencia",
+    subtitle: "Orgullo jalisciense",
+    body: [
+      "La tradición de las Orquestas Típicas en México ha disminuido en los últimos 50 años.",
+      "Jalisco conserva esta joya desde 1979 gracias al desempeño de sus integrantes y al amor por la música tradicional.",
+    ],
+    image:
+      "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   },
 ];
 
@@ -64,7 +126,11 @@ export default function Home() {
           <div className="content">
             <p className="subtitle">{slide.subtitle}</p>
             <h1>{slide.title}</h1>
-            <p className="body">{slide.body}</p>
+            <div className="body">
+              {slide.body.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
             <span className="tag">Orquesta Típica del Estado</span>
           </div>
         </section>
@@ -98,6 +164,8 @@ export default function Home() {
           background-position: center;
           background-repeat: no-repeat;
           scroll-snap-align: start;
+          isolation: isolate;
+          animation: panel-rise 1.2s ease both;
         }
         .overlay {
           position: absolute;
@@ -107,6 +175,7 @@ export default function Home() {
             rgba(7, 7, 7, 0.7),
             rgba(7, 7, 7, 0.35)
           );
+          mix-blend-mode: multiply;
         }
         .content {
           position: relative;
@@ -119,6 +188,7 @@ export default function Home() {
           color: #f8fafc;
           backdrop-filter: blur(10px);
           text-align: left;
+          animation: float-in 1.4s ease both;
         }
         h1 {
           font-family: "Fraunces", serif;
@@ -135,8 +205,10 @@ export default function Home() {
         .body {
           font-size: 18px;
           line-height: 1.7;
-          margin: 0 0 20px;
           color: #f8fafc;
+        }
+        .body p {
+          margin: 0 0 16px;
         }
         .tag {
           display: inline-flex;
@@ -148,6 +220,26 @@ export default function Home() {
           font-size: 13px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
+        }
+        @keyframes panel-rise {
+          from {
+            opacity: 0;
+            transform: scale(1.02);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes float-in {
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         @media (max-width: 700px) {
           .content {
