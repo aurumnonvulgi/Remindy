@@ -161,6 +161,7 @@ export default function Home() {
   const [tradeAsset, setTradeAsset] = useState("BTCUSD");
   const [tradeTimeframe, setTradeTimeframe] = useState("1h");
   const [tradeSeed, setTradeSeed] = useState(1);
+  const [tradeAnchor, setTradeAnchor] = useState<number | null>(null);
   const [tradeSelection, setTradeSelection] = useState<
     "long" | "short" | null
   >(null);
@@ -496,7 +497,8 @@ export default function Home() {
     setTradeSelection(null);
     setTradeRevealed(false);
     setRevealCount(50);
-  }, [tradeAsset, tradeTimeframe, tradeSeed]);
+    setTradeAnchor(null);
+  }, [tradeAsset, tradeSeed]);
 
   useEffect(() => {
     let isActive = true;
@@ -508,6 +510,9 @@ export default function Home() {
           asset: tradeAsset,
           timeframe: tradeTimeframe,
         });
+        if (tradeAnchor) {
+          params.set("anchor", String(tradeAnchor));
+        }
         const response = await fetch(`/api/alpha?${params.toString()}`);
         const payload = (await response.json()) as CandleResponse & {
           error?: string;
@@ -520,6 +525,10 @@ export default function Home() {
         }
         if (isActive) {
           setApiCandles(payload.candles);
+          const latest = payload.candles[payload.candles.length - 1];
+          if (latest?.time) {
+            setTradeAnchor((current) => current ?? latest.time);
+          }
         }
       } catch (error) {
         if (isActive) {
@@ -538,7 +547,7 @@ export default function Home() {
     return () => {
       isActive = false;
     };
-  }, [tradeAsset, tradeTimeframe]);
+  }, [tradeAsset, tradeTimeframe, tradeAnchor]);
 
   useEffect(() => {
     if (!tradeRevealed) {

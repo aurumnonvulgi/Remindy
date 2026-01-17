@@ -55,6 +55,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const asset = searchParams.get("asset") || "BTCUSD";
   const timeframe = searchParams.get("timeframe") || "1h";
+  const anchor = searchParams.get("anchor");
   const symbol = assetMap[asset] || assetMap.BTCUSD;
 
   if (!intervalMap[timeframe]) {
@@ -73,6 +74,17 @@ export async function GET(request: Request) {
   const params = new URLSearchParams({
     granularity: String(intervalMap[timeframe]),
   });
+  if (anchor) {
+    const anchorSeconds = Number(anchor);
+    if (Number.isFinite(anchorSeconds) && anchorSeconds > 0) {
+      const anchorDate = new Date(anchorSeconds * 1000);
+      const startDate = new Date(
+        anchorDate.getTime() - intervalMap[timeframe] * 300 * 1000
+      );
+      params.set("end", anchorDate.toISOString());
+      params.set("start", startDate.toISOString());
+    }
+  }
 
   const response = await fetch(`${API_BASE}/${symbol}/candles?${params}`, {
     headers: { Accept: "application/json" },
