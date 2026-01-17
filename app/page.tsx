@@ -6,9 +6,11 @@ import {
   createChart,
   CrosshairMode,
   CandlestickSeries,
+  LineStyle,
   type UTCTimestamp,
   type IChartApi,
   type ISeriesApi,
+  type IPriceLine,
 } from "lightweight-charts";
 
 type Phrase = {
@@ -184,6 +186,7 @@ export default function Home() {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const priceLineRef = useRef<IPriceLine | null>(null);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -445,6 +448,13 @@ export default function Home() {
       : null;
 
   const visibleCandles = candles.slice(0, Math.min(revealCount, 75));
+  const currentPrice = visibleCandles.length
+    ? visibleCandles[visibleCandles.length - 1].close
+    : null;
+  const pctChange =
+    currentPrice && entryPrice
+      ? ((currentPrice - entryPrice) / entryPrice) * 100
+      : null;
   const windowRange = useMemo(() => {
     if (!candles.length) {
       return null;
@@ -633,6 +643,31 @@ export default function Home() {
     );
     chartRef.current?.timeScale().fitContent();
   }, [visibleCandles]);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) {
+      return;
+    }
+    if (!tradeSelection || !entryCandle) {
+      if (priceLineRef.current) {
+        series.removePriceLine(priceLineRef.current);
+        priceLineRef.current = null;
+      }
+      return;
+    }
+    if (priceLineRef.current) {
+      series.removePriceLine(priceLineRef.current);
+    }
+    priceLineRef.current = series.createPriceLine({
+      price: entryPrice,
+      color: "#2563eb",
+      lineWidth: 2,
+      lineStyle: LineStyle.Solid,
+      axisLabelVisible: true,
+      title: "Entry",
+    });
+  }, [entryCandle, entryPrice, tradeSelection]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -998,6 +1033,19 @@ export default function Home() {
               <span className="rounded-full bg-slate-900 px-3 py-1 text-white">
                 {tradeTimeframe}
               </span>
+              {tradeSelection && pctChange !== null ? (
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    pctChange >= 0
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  {pctChange >= 0 ? "+" : ""}
+                  {pctChange.toFixed(2)}%{" "}
+                  {pctChange >= 0 ? "up" : "down"}
+                </span>
+              ) : null}
             </div>
             <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-white">
               <div ref={chartContainerRef} />
