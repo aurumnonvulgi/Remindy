@@ -748,29 +748,12 @@ export default function Home() {
   }, [entryCandle, entryPrice, tradeSelection]);
 
   useEffect(() => {
-    const series = seriesRef.current;
-    if (!series) {
-      return;
-    }
-    const markerSeries = series as unknown as {
-      setMarkers: (markers: Array<unknown>) => void;
-    };
     if (!tradeSelection || !entryCandle) {
-      markerSeries.setMarkers([]);
       entryMarkerRef.current = null;
       return;
     }
     if (entryMarkerRef.current !== entryCandle.time) {
       entryMarkerRef.current = entryCandle.time;
-      markerSeries.setMarkers([
-        {
-          time: entryCandle.time as UTCTimestamp,
-          position: "inBar",
-          color: "#2563eb",
-          shape: "circle",
-          text: "Entry",
-        },
-      ]);
     }
   }, [entryCandle, tradeSelection]);
 
