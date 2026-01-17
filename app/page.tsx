@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ColorType,
+  createChart,
+  CrosshairMode,
+  type IChartApi,
+  type ISeriesApi,
+} from "lightweight-charts";
 
 type Phrase = {
   zh: string;
@@ -48,6 +55,7 @@ const pickWindowStart = (seed: number, maxStart: number) => {
 };
 
 type Candle = {
+  time: number;
   open: number;
   close: number;
   high: number;
@@ -168,6 +176,9 @@ export default function Home() {
   const [apiCandles, setApiCandles] = useState<Candle[]>([]);
   const [tradeLoading, setTradeLoading] = useState(false);
   const [tradeError, setTradeError] = useState<string | null>(null);
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
   const phrase = PHRASES[phraseIndex];
   const accent = useMemo(
@@ -398,17 +409,6 @@ export default function Home() {
   const visibleCandles = tradeRevealed
     ? candles.slice(0, 75)
     : candles.slice(0, 50);
-  const candleRange = useMemo(() => {
-    if (!visibleCandles.length) {
-      return { high: 1, low: 0 };
-    }
-    const highs = visibleCandles.map((candle) => candle.high);
-    const lows = visibleCandles.map((candle) => candle.low);
-    return {
-      high: Math.max(...highs, 1),
-      low: Math.min(...lows, 0),
-    };
-  }, [visibleCandles]);
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
@@ -487,6 +487,75 @@ export default function Home() {
       isActive = false;
     };
   }, [tradeAsset, tradeTimeframe]);
+
+  useEffect(() => {
+    if (!chartContainerRef.current || chartRef.current) {
+      return;
+    }
+    const chart = createChart(chartContainerRef.current, {
+      layout: {
+        background: { type: ColorType.Solid, color: "white" },
+        textColor: "#0f172a",
+      },
+      grid: {
+        vertLines: { color: "#e2e8f0" },
+        horzLines: { color: "#e2e8f0" },
+      },
+      crosshair: {
+        mode: CrosshairMode.Normal,
+      },
+      timeScale: {
+        borderColor: "#e2e8f0",
+      },
+      rightPriceScale: {
+        borderColor: "#e2e8f0",
+      },
+      height: 220,
+    });
+    const series = chart.addCandlestickSeries({
+      upColor: "#34d399",
+      downColor: "#fb7185",
+      borderUpColor: "#34d399",
+      borderDownColor: "#fb7185",
+      wickUpColor: "#4ade80",
+      wickDownColor: "#f43f5e",
+    });
+    chartRef.current = chart;
+    seriesRef.current = series;
+    const handleResize = () => {
+      if (chartContainerRef.current) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!seriesRef.current) {
+      return;
+    }
+    if (!visibleCandles.length) {
+      seriesRef.current.setData([]);
+      return;
+    }
+    seriesRef.current.setData(
+      visibleCandles.map((candle) => ({
+        time: candle.time,
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+      }))
+    );
+    chartRef.current?.timeScale().fitContent();
+  }, [visibleCandles]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
@@ -853,53 +922,16 @@ export default function Home() {
                 {tradeTimeframe}
               </span>
             </div>
-            <div className="mt-4 flex h-56 items-end gap-1 overflow-hidden rounded-2xl bg-slate-900/5 p-3">
-              {tradeLoading ? (
-                <p className="text-sm text-slate-500">Loading candles…</p>
-              ) : tradeError ? (
-                <p className="text-sm text-rose-600">{tradeError}</p>
-              ) : !hasEnoughCandles ? (
-                <p className="text-sm text-slate-500">
-                  Not enough candles returned for this selection.
-                </p>
-              ) : (
-                visibleCandles.map((candle, index) => {
-                  const range = candleRange.high - candleRange.low || 1;
-                  const highPos =
-                    ((candleRange.high - candle.high) / range) * 100;
-                  const lowPos =
-                    ((candleRange.high - candle.low) / range) * 100;
-                  const openPos =
-                    ((candleRange.high - candle.open) / range) * 100;
-                  const closePos =
-                    ((candleRange.high - candle.close) / range) * 100;
-                  const bodyTop = Math.min(openPos, closePos);
-                  const bodyBottom = Math.max(openPos, closePos);
-                  const isUp = candle.close >= candle.open;
-                  return (
-                    <div
-                      key={`${tradeConfigKey}-${index}`}
-                      className="relative h-full flex-1"
-                    >
-                      <div
-                        className="absolute left-1/2 w-[2px] -translate-x-1/2 rounded-full bg-slate-400"
-                        style={{
-                          top: `${highPos}%`,
-                          height: `${Math.max(4, lowPos - highPos)}%`,
-                        }}
-                      />
-                      <div
-                        className={`absolute left-1/2 w-[10px] -translate-x-1/2 rounded-md ${
-                          isUp ? "bg-emerald-400" : "bg-rose-400"
-                        }`}
-                        style={{
-                          top: `${bodyTop}%`,
-                          height: `${Math.max(6, bodyBottom - bodyTop)}%`,
-                        }}
-                      />
-                    </div>
-                  );
-                })
+            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-white">
+              <div ref={chartContainerRef} />
+              {(tradeLoading || tradeError || !hasEnoughCandles) && (
+                <div className="border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                  {tradeLoading
+                    ? "Loading candles…"
+                    : tradeError
+                    ? tradeError
+                    : "Not enough candles returned for this selection."}
+                </div>
               )}
             </div>
             <p className="mt-3 text-xs text-slate-500">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 type Candle = {
+  time: number;
   open: number;
   close: number;
   high: number;
@@ -37,14 +38,15 @@ const parseKlines = (rows: unknown[]): Candle[] =>
       if (!Array.isArray(row)) {
         return null;
       }
+      const time = Number(row[0]);
       const low = Number(row[1]);
       const high = Number(row[2]);
       const open = Number(row[3]);
       const close = Number(row[4]);
-      if (![open, high, low, close].every((v) => Number.isFinite(v))) {
+      if (![time, open, high, low, close].every((v) => Number.isFinite(v))) {
         return null;
       }
-      return { open, high, low, close };
+      return { time, open, high, low, close };
     })
     .filter((item): item is Candle => Boolean(item))
     .reverse();
