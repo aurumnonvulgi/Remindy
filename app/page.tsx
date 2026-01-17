@@ -1,604 +1,483 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const AGENCY = {
-  name: "Say Yes Travel Agency",
-  phone: "510-329-8786",
-  email: "sayyes@gmail.com",
+type Phrase = {
+  zh: string;
+  pinyin: string;
+  en: string;
 };
 
-const COUNTRIES = [
-  {
-    id: "japan",
-    name: "Japón",
-    color: "#f97316",
-    packages: [
-      {
-        title: "Disney Cruise Asia — Todo Incluido",
-        subtitle: "Tokyo · Osaka · Yokohama",
-        summary:
-          "Crucero Disney, vuelos, hoteles 4★, traslados y entradas a parques.",
-        includes: [
-          "Vuelos ida y vuelta",
-          "Crucero Disney",
-          "Hoteles 4★",
-          "Traslados privados",
-          "Parques incluidos",
-        ],
-      },
-      {
-        title: "Ruta Imperial de Japón",
-        subtitle: "Kyoto · Nara · Tokyo",
-        summary:
-          "Templos, tren bala, hoteles boutique y experiencias culturales.",
-        includes: [
-          "Tren bala JR",
-          "Guías locales",
-          "Cena kaiseki",
-          "Hospedaje boutique",
-          "Pases culturales",
-        ],
-      },
-    ],
-  },
-  {
-    id: "greece",
-    name: "Grecia",
-    color: "#38bdf8",
-    packages: [
-      {
-        title: "Santorini & Atenas romántico",
-        subtitle: "Santorini · Atenas",
-        summary:
-          "Hoteles frente al mar, ferries rápidos y tours privados.",
-        includes: [
-          "Vuelos internacionales",
-          "Hotel con vista",
-          "Ferry rápido",
-          "Tour privado",
-          "Traslados",
-        ],
-      },
-    ],
-  },
-  {
-    id: "uae",
-    name: "Emiratos Árabes",
-    color: "#facc15",
-    packages: [
-      {
-        title: "Safari & Dubai",
-        subtitle: "Dubai · Abu Dhabi",
-        summary:
-          "Desierto, rascacielos, lujo y experiencias exclusivas.",
-        includes: [
-          "Hotel 5★",
-          "Safari en el desierto",
-          "City pass",
-          "Cena espectáculo",
-          "Traslados",
-        ],
-      },
-    ],
-  },
-  {
-    id: "mexico",
-    name: "México",
-    color: "#22c55e",
-    packages: [
-      {
-        title: "Aventura Maya Premium",
-        subtitle: "Cancún · Tulum · Chichén Itzá",
-        summary:
-          "Resort todo incluido, tours arqueológicos y cenotes privados.",
-        includes: [
-          "Resort 5★",
-          "Tours arqueológicos",
-          "Cenotes privados",
-          "Traslados VIP",
-          "Seguro de viaje",
-        ],
-      },
-    ],
-  },
-  {
-    id: "thailand",
-    name: "Tailandia",
-    color: "#ec4899",
-    packages: [
-      {
-        title: "Templos del Sudeste Asiático",
-        subtitle: "Bangkok · Ayutthaya",
-        summary:
-          "Templos legendarios, hoteles con encanto y guías expertos.",
-        includes: [
-          "Tours de templos",
-          "Guía bilingüe",
-          "Hoteles boutique",
-          "Experiencia gastronómica",
-          "Traslados internos",
-        ],
-      },
-    ],
-  },
-  {
-    id: "cambodia",
-    name: "Camboya",
-    color: "#a855f7",
-    packages: [
-      {
-        title: "Angkor & Cultura Khmer",
-        subtitle: "Siem Reap · Angkor",
-        summary:
-          "Templos sagrados, experiencias locales y alojamientos premium.",
-        includes: [
-          "Amanecer en Angkor",
-          "Tour gastronómico",
-          "Hotel boutique",
-          "Traslados",
-          "Guía cultural",
-        ],
-      },
-    ],
-  },
+type PinyinToken = {
+  word: string;
+  zh?: string;
+};
+
+const PHRASES: Phrase[] = [
+  { zh: "你好", pinyin: "Nǐ hǎo", en: "Hello" },
+  { zh: "谢谢", pinyin: "Xièxie", en: "Thank you" },
+  { zh: "不客气", pinyin: "Bú kèqì", en: "You're welcome" },
+  { zh: "对不起", pinyin: "Duìbuqǐ", en: "Sorry" },
+  { zh: "没关系", pinyin: "Méi guānxi", en: "It's okay" },
+  { zh: "请", pinyin: "Qǐng", en: "Please" },
+  { zh: "再见", pinyin: "Zàijiàn", en: "Goodbye" },
+  { zh: "我叫…", pinyin: "Wǒ jiào…", en: "My name is…" },
+  { zh: "你叫什么名字？", pinyin: "Nǐ jiào shénme míngzi?", en: "What's your name?" },
+  { zh: "很高兴认识你", pinyin: "Hěn gāoxìng rènshi nǐ", en: "Nice to meet you" },
+  { zh: "你会说英语吗？", pinyin: "Nǐ huì shuō Yīngyǔ ma?", en: "Do you speak English?" },
+  { zh: "我不懂", pinyin: "Wǒ bù dǒng", en: "I don't understand" },
+  { zh: "请慢一点", pinyin: "Qǐng màn yìdiǎn", en: "Please speak slower" },
+  { zh: "现在几点？", pinyin: "Xiànzài jǐ diǎn?", en: "What time is it?" },
+  { zh: "多少钱？", pinyin: "Duōshǎo qián?", en: "How much is it?" },
+  { zh: "我想要这个", pinyin: "Wǒ xiǎng yào zhège", en: "I want this" },
+  { zh: "可以吗？", pinyin: "Kěyǐ ma?", en: "Is it okay?" },
+  { zh: "没问题", pinyin: "Méi wèntí", en: "No problem" },
+  { zh: "我饿了", pinyin: "Wǒ è le", en: "I'm hungry" },
+  { zh: "我渴了", pinyin: "Wǒ kě le", en: "I'm thirsty" },
+  { zh: "厕所在哪里？", pinyin: "Cèsuǒ zài nǎlǐ?", en: "Where is the restroom?" },
+  { zh: "我迷路了", pinyin: "Wǒ mílù le", en: "I'm lost" },
+  { zh: "可以帮我吗？", pinyin: "Kěyǐ bāng wǒ ma?", en: "Can you help me?" },
+  { zh: "请给我菜单", pinyin: "Qǐng gěi wǒ càidān", en: "Menu, please" },
+  { zh: "不要", pinyin: "Bú yào", en: "No, thanks" },
+  { zh: "等等", pinyin: "Děng děng", en: "Wait a moment" },
+  { zh: "我喜欢这个", pinyin: "Wǒ xǐhuan zhège", en: "I like this" },
+  { zh: "今天天气怎么样？", pinyin: "Jīntiān tiānqì zěnmeyàng?", en: "How's the weather?" },
+  { zh: "我们走吧", pinyin: "Wǒmen zǒu ba", en: "Let's go" },
+  { zh: "请再说一遍", pinyin: "Qǐng zài shuō yí biàn", en: "Please say it again" },
+  { zh: "你在做什么？", pinyin: "Nǐ zài zuò shénme?", en: "What are you doing?" },
+  { zh: "我在路上", pinyin: "Wǒ zài lùshàng", en: "I'm on the way" },
+  { zh: "请坐", pinyin: "Qǐng zuò", en: "Please sit" },
+  { zh: "我明白了", pinyin: "Wǒ míngbái le", en: "I understand" },
+  { zh: "我不知道", pinyin: "Wǒ bù zhīdào", en: "I don't know" },
+  { zh: "可以便宜一点吗？", pinyin: "Kěyǐ piányi yìdiǎn ma?", en: "Can it be cheaper?" },
+  { zh: "你住哪儿？", pinyin: "Nǐ zhù nǎr?", en: "Where do you live?" },
+  { zh: "我住在这里", pinyin: "Wǒ zhù zài zhèlǐ", en: "I live here" },
+  { zh: "今天很忙", pinyin: "Jīntiān hěn máng", en: "I'm busy today" },
+  { zh: "你有时间吗？", pinyin: "Nǐ yǒu shíjiān ma?", en: "Do you have time?" },
+  { zh: "请帮我拍张照", pinyin: "Qǐng bāng wǒ pāi zhāng zhào", en: "Please take a photo for me" },
+  { zh: "我们去哪儿？", pinyin: "Wǒmen qù nǎr?", en: "Where are we going?" },
+  { zh: "我累了", pinyin: "Wǒ lèi le", en: "I'm tired" },
+  { zh: "我想休息", pinyin: "Wǒ xiǎng xiūxi", en: "I want to rest" },
+  { zh: "这很重要", pinyin: "Zhè hěn zhòngyào", en: "This is important" },
+  { zh: "祝你好运", pinyin: "Zhù nǐ hǎo yùn", en: "Good luck" },
+  { zh: "生日快乐", pinyin: "Shēngrì kuàilè", en: "Happy birthday" },
+  { zh: "我爱你", pinyin: "Wǒ ài nǐ", en: "I love you" },
+  { zh: "我想你", pinyin: "Wǒ xiǎng nǐ", en: "I miss you" },
+  { zh: "你很可爱", pinyin: "Nǐ hěn kě’ài", en: "You're very cute" },
+  { zh: "你真漂亮", pinyin: "Nǐ zhēn piàoliang", en: "You are beautiful" },
+  { zh: "你真帅", pinyin: "Nǐ zhēn shuài", en: "You are handsome" },
+  { zh: "我喜欢你", pinyin: "Wǒ xǐhuan nǐ", en: "I like you" },
+  { zh: "想和你在一起", pinyin: "Xiǎng hé nǐ zài yìqǐ", en: "I want to be with you" },
+  { zh: "你是我的", pinyin: "Nǐ shì wǒ de", en: "You are mine" },
+  { zh: "晚安", pinyin: "Wǎn’ān", en: "Good night" },
+  { zh: "早安", pinyin: "Zǎo’ān", en: "Good morning" },
+  { zh: "我们去约会吧", pinyin: "Wǒmen qù yuēhuì ba", en: "Let's go on a date" },
+  { zh: "我心动了", pinyin: "Wǒ xīndòng le", en: "My heart is moved" },
+  { zh: "你让我安心", pinyin: "Nǐ ràng wǒ ān xīn", en: "You make me feel safe" },
 ];
 
-const COUNTRY_LOOKUP = Object.fromEntries(
-  COUNTRIES.map((country) => [country.id, country])
-);
-
-type ViewState = {
-  x: number;
-  y: number;
-  scale: number;
-};
+const ACCENTS = ["#ff7a59", "#ffc53d", "#5eead4", "#60a5fa"];
 
 export default function Home() {
-  const [activeId, setActiveId] = useState("japan");
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [view, setView] = useState<ViewState>({ x: 0, y: 0, scale: 1 });
-  const dragRef = useRef<{ x: number; y: number } | null>(null);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [typedCount, setTypedCount] = useState(0);
+  const [revealLevel, setRevealLevel] = useState(4);
+  const [autoSpeak, setAutoSpeak] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [ttsError, setTtsError] = useState<string | null>(null);
+  const [speechRate, setSpeechRate] = useState(0.85);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceUri, setVoiceUri] = useState("");
+  const [replaySeed, setReplaySeed] = useState(0);
+  const lastSpokenRef = useRef<string>("");
+  const speakLockRef = useRef(false);
+  const autoSpokenIndexRef = useRef<number | null>(null);
 
-  const activeCountry = COUNTRY_LOOKUP[activeId];
+  const phrase = PHRASES[phraseIndex];
+  const accent = useMemo(
+    () => ACCENTS[phraseIndex % ACCENTS.length],
+    [phraseIndex]
+  );
+  const revealDelay = useMemo(() => {
+    const delays = [70, 130, 220, 360, 550, 800];
+    return delays[Math.min(Math.max(revealLevel - 1, 0), delays.length - 1)];
+  }, [revealLevel]);
 
-  const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
-    event.preventDefault();
-    setView((prev) => {
-      const nextScale = Math.min(
-        2.2,
-        Math.max(0.7, prev.scale - event.deltaY * 0.001)
-      );
-      return { ...prev, scale: nextScale };
-    });
-  };
+  const availableVoices = useMemo(
+    () =>
+      voices.filter(
+        (voice) =>
+          voice.lang.startsWith("zh") && !voice.lang.toLowerCase().includes("hk")
+      ),
+    [voices]
+  );
 
-  const handlePointerDown: React.PointerEventHandler<HTMLDivElement> = (event) => {
-    dragRef.current = {
-      x: event.clientX - view.x,
-      y: event.clientY - view.y,
-    };
-  };
-
-  const handlePointerMove: React.PointerEventHandler<HTMLDivElement> = (event) => {
-    if (!dragRef.current) return;
-    setView((prev) => ({
-      ...prev,
-      x: event.clientX - dragRef.current!.x,
-      y: event.clientY - dragRef.current!.y,
-    }));
-  };
-
-  const handlePointerUp = () => {
-    dragRef.current = null;
-  };
-
-  const resetView = () => {
-    setView({ x: 0, y: 0, scale: 1 });
-  };
-
-  const selectedLabel = useMemo(() => {
-    if (hoveredId && COUNTRY_LOOKUP[hoveredId]) {
-      return COUNTRY_LOOKUP[hoveredId].name;
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) {
+      return;
     }
-    return activeCountry.name;
-  }, [hoveredId, activeCountry.name]);
+    const loadVoices = () => {
+      const available = window.speechSynthesis.getVoices();
+      if (!available.length) {
+        return;
+      }
+      setVoices(available);
+      const preferred = available.find((voice) =>
+        voice.lang.startsWith("zh")
+      );
+      setVoiceUri((current) => current || preferred?.voiceURI || "");
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    setTypedCount(0);
+    autoSpokenIndexRef.current = null;
+    if (!phrase) {
+      return;
+    }
+    const interval = window.setInterval(() => {
+      setTypedCount((current) => {
+        if (current >= phrase.zh.length) {
+          window.clearInterval(interval);
+          return current;
+        }
+        return current + 1;
+      });
+    }, revealDelay);
+    return () => window.clearInterval(interval);
+  }, [phraseIndex, phrase?.zh, revealDelay, replaySeed]);
+
+  const speakText = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) {
+      setTtsError("Speech is not supported on this device.");
+      return;
+    }
+    setTtsError(null);
+    if (speakLockRef.current && lastSpokenRef.current === text) {
+      return;
+    }
+    speakLockRef.current = true;
+    setIsSpeaking(true);
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const selected = voiceUri
+      ? voices.find((voice) => voice.voiceURI === voiceUri)
+      : undefined;
+    utterance.lang = selected?.lang || "zh-CN";
+    utterance.rate = Number(speechRate.toFixed(2));
+    if (selected) {
+      utterance.voice = selected;
+    }
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      speakLockRef.current = false;
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      speakLockRef.current = false;
+    };
+    lastSpokenRef.current = text;
+    window.speechSynthesis.speak(utterance);
+  }, [speechRate, voiceUri, voices]);
+
+  const speakPhrase = useCallback(() => {
+    speakText(phrase.zh);
+  }, [phrase?.zh, speakText]);
+
+  useEffect(() => {
+    if (
+      autoSpeak &&
+      typedCount >= phrase.zh.length &&
+      autoSpokenIndexRef.current !== phraseIndex
+    ) {
+      autoSpokenIndexRef.current = phraseIndex;
+      speakPhrase();
+    }
+  }, [autoSpeak, typedCount, phrase?.zh, speakPhrase, phraseIndex]);
+
+  const handleNext = useCallback(() => {
+    setPhraseIndex((current) => (current + 1) % PHRASES.length);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setPhraseIndex((current) =>
+      current === 0 ? PHRASES.length - 1 : current - 1
+    );
+  }, []);
+
+  const revealInstantly = useCallback(() => {
+    setTypedCount(phrase.zh.length);
+  }, [phrase?.zh]);
+
+  const replayReveal = useCallback(() => {
+    setTypedCount(0);
+    setReplaySeed((current) => current + 1);
+  }, []);
+
+  const typedText = phrase.zh.slice(0, typedCount);
+  const isComplete = typedCount >= phrase.zh.length;
+  const pinyinWords = useMemo(
+    () => phrase.pinyin.split(" ").filter(Boolean),
+    [phrase.pinyin]
+  );
+  const pinyinTokens = useMemo<PinyinToken[]>(() => {
+    const hanChars = Array.from(
+      phrase.zh.replace(/[^\p{Script=Han}…]/gu, "")
+    );
+    if (pinyinWords.length === hanChars.length) {
+      return pinyinWords.map((word, index) => ({
+        word,
+        zh: hanChars[index],
+      }));
+    }
+    return pinyinWords.map((word) => ({ word }));
+  }, [phrase.zh, pinyinWords]);
 
   return (
-    <main className="page">
-      <header className="header">
-        <div>
-          <p className="eyebrow">{AGENCY.name}</p>
-          <h1>Viajes curados por expertos en destinos inolvidables</h1>
-          <p className="lead">
-            Explora el mapa, elige un país y descubre paquetes completos con vuelos,
-            hoteles, transporte y experiencias.
-          </p>
-        </div>
-        <div className="contact">
-          <span>📞 {AGENCY.phone}</span>
-          <span>✉️ {AGENCY.email}</span>
-        </div>
-      </header>
-
-      <section className="experience">
-        <div className="map-panel">
-          <div className="map-header">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7d6_0%,_#ffe6ef_35%,_#d8f3ff_70%,_#f6f7ff_100%)] px-6 py-10 text-slate-900">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+        <header className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 text-xl shadow-sm">
+              🐼
+            </span>
             <div>
-              <p className="eyebrow">Mapa interactivo</p>
-              <h2>Ruta musical del mundo</h2>
-              <p className="hint">
-                Arrastra para mover y usa scroll para acercar o alejar.
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                Daily Mandarin
               </p>
-            </div>
-            <div className="map-actions">
-              <span className="active">{selectedLabel}</span>
-              <button onClick={resetView}>Reiniciar vista</button>
+              <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+                Mandarin by EN
+              </h1>
             </div>
           </div>
+        </header>
 
-          <div
-            className="map-frame"
-            onWheel={handleWheel}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-          >
+        <main className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/80 p-8 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.5)] backdrop-blur">
             <div
-              className="map-canvas"
-              style={{
-                transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
-              }}
-            >
-              <svg viewBox="0 0 1000 520" role="img" aria-label="Mapa del mundo">
-                <rect width="1000" height="520" fill="#eef2f7" rx="40" />
-                <path
-                  d="M60 140 Q180 70 320 140 L360 230 L280 300 L150 280 L90 220 Z"
-                  fill="#d9e5f2"
-                />
-                <path
-                  d="M380 130 L620 120 L760 200 L700 310 L480 330 L360 250 Z"
-                  fill="#d9e5f2"
-                />
-                <path
-                  d="M660 110 L920 120 L960 220 L880 320 L700 300 L640 200 Z"
-                  fill="#d9e5f2"
-                />
-                <path
-                  d="M520 330 L700 360 L740 460 L520 470 L460 380 Z"
-                  fill="#d9e5f2"
-                />
+              className="absolute -right-20 -top-20 h-48 w-48 rounded-full opacity-40"
+              style={{ background: accent }}
+            />
+            <div className="absolute bottom-[-80px] left-[-40px] h-40 w-40 rounded-full bg-slate-100/70" />
 
-                <g
-                  className={`country ${activeId === "mexico" ? "selected" : ""}`}
-                  onClick={() => setActiveId("mexico")}
-                  onMouseEnter={() => setHoveredId("mexico")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <path
-                    d="M200 260 L260 250 L300 280 L280 320 L220 320 L190 290 Z"
-                    fill={COUNTRY_LOOKUP.mexico.color}
-                  />
-                </g>
-                <g
-                  className={`country ${activeId === "japan" ? "selected" : ""}`}
-                  onClick={() => setActiveId("japan")}
-                  onMouseEnter={() => setHoveredId("japan")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <circle
-                    cx="820"
-                    cy="210"
-                    r="22"
-                    fill={COUNTRY_LOOKUP.japan.color}
-                  />
-                </g>
-                <g
-                  className={`country ${activeId === "greece" ? "selected" : ""}`}
-                  onClick={() => setActiveId("greece")}
-                  onMouseEnter={() => setHoveredId("greece")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <path
-                    d="M560 240 L590 230 L610 250 L590 270 L560 260 Z"
-                    fill={COUNTRY_LOOKUP.greece.color}
-                  />
-                </g>
-                <g
-                  className={`country ${activeId === "uae" ? "selected" : ""}`}
-                  onClick={() => setActiveId("uae")}
-                  onMouseEnter={() => setHoveredId("uae")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <circle cx="630" cy="290" r="16" fill={COUNTRY_LOOKUP.uae.color} />
-                </g>
-                <g
-                  className={`country ${activeId === "thailand" ? "selected" : ""}`}
-                  onClick={() => setActiveId("thailand")}
-                  onMouseEnter={() => setHoveredId("thailand")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <path
-                    d="M740 300 L770 310 L770 350 L740 340 Z"
-                    fill={COUNTRY_LOOKUP.thailand.color}
-                  />
-                </g>
-                <g
-                  className={`country ${activeId === "cambodia" ? "selected" : ""}`}
-                  onClick={() => setActiveId("cambodia")}
-                  onMouseEnter={() => setHoveredId("cambodia")}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <circle
-                    cx="780"
-                    cy="330"
-                    r="14"
-                    fill={COUNTRY_LOOKUP.cambodia.color}
-                  />
-                </g>
-              </svg>
-            </div>
-          </div>
-        </div>
+            <div className="relative flex flex-col gap-8">
+              <div className="flex items-center justify-between text-sm text-slate-500">
+                <span className="rounded-full bg-slate-100 px-3 py-1">
+                  Card {phraseIndex + 1} of {PHRASES.length}
+                </span>
+                <span className="rounded-full bg-slate-900 px-3 py-1 text-white">
+                  {autoSpeak ? "Auto-speak on" : "Auto-speak off"}
+                </span>
+              </div>
 
-        <aside className="details">
-          <div className="details-header">
-            <h3>{activeCountry.name}</h3>
-            <span className="pill">{activeCountry.packages.length} paquetes</span>
-          </div>
-          <p className="details-lead">
-            Paquetes diseñados para viajar sin estrés, con todo incluido y atención
-            personalizada.
-          </p>
+              <button
+                type="button"
+                onClick={revealInstantly}
+                className="group flex min-h-[220px] w-full flex-col items-center justify-center gap-4 rounded-[24px] border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-center transition hover:border-slate-300 hover:bg-white"
+              >
+                <span className="text-xs uppercase tracking-[0.4em] text-slate-400">
+                  Phrase
+                </span>
+                <span className="flex flex-wrap items-center justify-center gap-1 text-5xl font-semibold text-slate-900 sm:text-6xl">
+                  {Array.from(phrase.zh).map((char, index) => {
+                    const isVisible = index < typedCount;
+                    const isNew = index === typedCount - 1;
+                    return (
+                      <span
+                        key={`${char}-${index}-${replaySeed}`}
+                        className={`inline-block ${
+                          isVisible ? "opacity-100" : "opacity-0"
+                        } ${isNew ? "animate-reveal-burst" : ""}`}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                  {!isComplete && (
+                    <span className="ml-2 inline-block h-8 w-[2px] animate-pulse bg-slate-400" />
+                  )}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={replayReveal}
+                className="self-center rounded-full border border-dashed border-slate-300 bg-white px-5 py-2 text-xs font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
+              >
+                Replay strokes
+              </button>
 
-          <div className="package-list">
-            {activeCountry.packages.map((pkg) => (
-              <article key={pkg.title} className="package-card">
-                <div>
-                  <p className="package-subtitle">{pkg.subtitle}</p>
-                  <h4>{pkg.title}</h4>
-                  <p className="package-summary">{pkg.summary}</p>
+              <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr]">
+                <div className="rounded-[18px] bg-slate-900 px-5 py-4 text-left text-white">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                      Pinyin
+                    </p>
+                    <button
+                      type="button"
+                      onClick={speakPhrase}
+                      className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/25"
+                    >
+                      Play phrase
+                    </button>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {isComplete
+                      ? pinyinTokens.map((token, index) => (
+                          <button
+                            key={`${token.word}-${index}`}
+                            type="button"
+                            onClick={() =>
+                              speakText(token.zh ? token.zh : phrase.zh)
+                            }
+                            className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white transition hover:bg-white/20"
+                          >
+                            {token.word}
+                          </button>
+                        ))
+                      : "…"}
+                  </div>
+                  <p className="mt-2 text-xs text-white/70">
+                    Tap a word to hear it
+                  </p>
                 </div>
-                <ul>
-                  {pkg.includes.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </aside>
-      </section>
+                <div className="rounded-[18px] bg-white px-5 py-4 shadow-sm">
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                    Meaning
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">
+                    {isComplete ? phrase.en : "Revealing…"}
+                  </p>
+                </div>
+              </div>
 
-      <footer className="footer">
-        <div>
-          <strong>{AGENCY.name}</strong>
-          <p>Viaja con paquetes completos y asesoría experta.</p>
-        </div>
-        <div>
-          <p>📞 {AGENCY.phone}</p>
-          <p>✉️ {AGENCY.email}</p>
-        </div>
-      </footer>
+              {ttsError ? (
+                <p className="text-sm text-rose-600">{ttsError}</p>
+              ) : null}
 
-      <style jsx>{`
-        :global(body) {
-          margin: 0;
-          font-family: "Playfair Display", "Georgia", serif;
-          background: #f8f5f0;
-          color: #1f2933;
-        }
-        .page {
-          padding: 56px clamp(24px, 6vw, 90px) 72px;
-          display: grid;
-          gap: 48px;
-        }
-        .header {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-between;
-          gap: 24px;
-          align-items: flex-start;
-        }
-        .eyebrow {
-          text-transform: uppercase;
-          letter-spacing: 0.4em;
-          font-size: 12px;
-          color: #a16207;
-          margin: 0 0 12px;
-        }
-        h1 {
-          font-size: clamp(2.3rem, 4vw, 3.4rem);
-          margin: 0 0 16px;
-        }
-        .lead {
-          font-size: 18px;
-          line-height: 1.7;
-          margin: 0;
-          color: #4b5563;
-          max-width: 620px;
-        }
-        .contact {
-          display: grid;
-          gap: 8px;
-          font-weight: 600;
-          background: #ffffff;
-          padding: 16px 22px;
-          border-radius: 16px;
-          box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
-        }
-        .experience {
-          display: grid;
-          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-          gap: 32px;
-        }
-        .map-panel {
-          background: #fffdf8;
-          border-radius: 28px;
-          padding: 24px;
-          box-shadow: 0 24px 50px rgba(15, 23, 42, 0.12);
-        }
-        .map-header {
-          display: flex;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 16px;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-        h2 {
-          margin: 8px 0 4px;
-          font-size: 24px;
-        }
-        .hint {
-          margin: 0;
-          color: #6b7280;
-        }
-        .map-actions {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .map-actions button {
-          border: none;
-          background: #1f2933;
-          color: #fff7ed;
-          padding: 8px 14px;
-          border-radius: 999px;
-          cursor: pointer;
-        }
-        .map-actions .active {
-          padding: 6px 12px;
-          border-radius: 999px;
-          background: #fef3c7;
-          color: #a16207;
-          font-weight: 600;
-        }
-        .map-frame {
-          background: #f1f5f9;
-          border-radius: 22px;
-          height: 420px;
-          overflow: hidden;
-          position: relative;
-          touch-action: none;
-        }
-        .map-canvas {
-          width: 100%;
-          height: 100%;
-          transform-origin: center;
-          display: grid;
-          place-items: center;
-        }
-        svg {
-          width: 100%;
-          height: 100%;
-        }
-        .country {
-          cursor: pointer;
-          transition: transform 0.2s ease;
-        }
-        .country:hover {
-          transform: scale(1.04);
-        }
-        .country.selected {
-          filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.35));
-        }
-        .details {
-          background: #ffffff;
-          border-radius: 28px;
-          padding: 24px;
-          box-shadow: 0 24px 50px rgba(15, 23, 42, 0.12);
-          display: grid;
-          gap: 18px;
-        }
-        .details-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 12px;
-        }
-        h3 {
-          margin: 0;
-          font-size: 24px;
-        }
-        .pill {
-          background: #fef3c7;
-          color: #a16207;
-          padding: 6px 12px;
-          border-radius: 999px;
-          font-size: 12px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-        }
-        .details-lead {
-          margin: 0;
-          color: #6b7280;
-          line-height: 1.6;
-        }
-        .package-list {
-          display: grid;
-          gap: 16px;
-        }
-        .package-card {
-          border: 1px solid #f1f5f9;
-          border-radius: 18px;
-          padding: 16px;
-          display: grid;
-          gap: 12px;
-          background: #fffaf2;
-        }
-        .package-subtitle {
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          font-size: 11px;
-          color: #a16207;
-          margin: 0 0 4px;
-        }
-        h4 {
-          margin: 0;
-          font-size: 18px;
-        }
-        .package-summary {
-          margin: 0;
-          color: #4b5563;
-          line-height: 1.6;
-        }
-        ul {
-          margin: 0;
-          padding-left: 18px;
-          color: #4b5563;
-          display: grid;
-          gap: 6px;
-        }
-        .footer {
-          display: flex;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 20px;
-          font-size: 14px;
-          color: #4b5563;
-        }
-        .footer strong {
-          color: #1f2933;
-        }
-        @media (max-width: 920px) {
-          .experience {
-            grid-template-columns: 1fr;
-          }
-          .map-frame {
-            height: 360px;
-          }
-        }
-        @media (max-width: 640px) {
-          .page {
-            padding: 40px 20px 56px;
-          }
-          .map-frame {
-            height: 320px;
-          }
-        }
-      `}</style>
-    </main>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  className="rounded-2xl bg-rose-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-500"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={speakPhrase}
+                  className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                  style={{ background: accent }}
+                >
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
+                    {isSpeaking ? "⏺" : "▶"}
+                  </span>
+                  {isSpeaking ? "Speaking" : "Play audio"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="rounded-2xl bg-sky-400 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-500"
+                >
+                  Next
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setPhraseIndex(Math.floor(Math.random() * PHRASES.length))
+                }
+                className="mt-2 w-full rounded-2xl bg-amber-300 px-6 py-4 text-base font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-400"
+              >
+                Surprise me
+              </button>
+            </div>
+          </section>
+
+          <aside className="flex flex-col gap-6">
+            <details className="group rounded-[26px] bg-white/80 p-6 shadow-sm">
+              <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-semibold text-slate-900">
+                Controls
+                <span className="text-sm text-slate-400 transition group-open:rotate-180">
+                  ▼
+                </span>
+              </summary>
+              <div className="mt-4 flex flex-col gap-4 text-sm text-slate-600">
+                <label className="flex items-center justify-between gap-3">
+                  Reveal speed
+                  <input
+                    type="range"
+                    min={1}
+                    max={6}
+                    step={1}
+                    value={revealLevel}
+                    onChange={(event) =>
+                      setRevealLevel(Number(event.target.value))
+                    }
+                    className="w-36 accent-slate-900"
+                  />
+                </label>
+                <label className="flex items-center justify-between gap-3">
+                  Speech speed
+                  <input
+                    type="range"
+                    min={0.4}
+                    max={1.6}
+                    step={0.1}
+                    value={speechRate}
+                    onChange={(event) =>
+                      setSpeechRate(Number(event.target.value))
+                    }
+                    className="w-36 accent-slate-900"
+                  />
+                </label>
+                <p className="text-xs text-slate-500">
+                  Some voices ignore speed changes. Try another Chinese voice
+                  if you don&apos;t hear a difference.
+                </p>
+                <label className="flex items-center justify-between gap-3">
+                  Auto-speak
+                  <input
+                    type="checkbox"
+                    checked={autoSpeak}
+                    onChange={(event) => setAutoSpeak(event.target.checked)}
+                    className="h-5 w-5 accent-slate-900"
+                  />
+                </label>
+                <label className="flex flex-col gap-2 text-sm text-slate-600">
+                  Voice
+                  <select
+                    value={voiceUri}
+                    onChange={(event) => setVoiceUri(event.target.value)}
+                    className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    {availableVoices.map((voice) => (
+                      <option key={voice.voiceURI} value={voice.voiceURI}>
+                        {voice.name} ({voice.lang})
+                      </option>
+                    ))}
+                  </select>
+                  {availableVoices.length === 0 ? (
+                    <span className="text-xs text-rose-500">
+                      No Chinese voices available on this device.
+                    </span>
+                  ) : null}
+                </label>
+              </div>
+            </details>
+          </aside>
+        </main>
+        <footer className="pt-2 text-center text-xs font-semibold tracking-[0.5em] text-slate-400">
+          4AM4E
+        </footer>
+      </div>
+    </div>
   );
 }
