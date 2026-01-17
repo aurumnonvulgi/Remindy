@@ -1,458 +1,155 @@
-"use client";
-
-import { useMemo, useState } from "react";
-
-const PAGES = [
+const SLIDES = [
   {
-    title: "Portada",
+    title: "Orquesta Típica del Estado",
     subtitle: "Orquesta Típica de Jalisco",
-    body: [
-      "Orquesta Típica del Estado",
-      "Un recorrido por la historia, tradición y repertorio de una agrupación que mantiene viva la música popular mexicana desde 1979.",
-    ],
+    body:
+      "Desde 1979, una tradición viva que lleva la música popular mexicana a cada rincón de Jalisco.",
+    image:
+      "https://img.freepik.com/premium-vector/colorful-illustration-guitar-sombrero-cacti-flowers-sun-yellow-background_150234-133870.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Origen",
-    subtitle: "Convocatoria y primeros ensayos",
-    body: [
-      "En 1979, el departamento de Bellas Artes del gobierno del Estado de Jalisco lanzó una convocatoria a músicos ejecutantes de diversos instrumentos para formar la Orquesta Típica de Guadalajara.",
-      "De inmediato, el 14 de agosto de 1979 la nueva orquesta comenzó a ensayar en el Teatro Degollado y el 15 de septiembre de ese mismo año, con el Palacio de Gobierno como escenario, se efectuó el concierto inaugural.",
-    ],
+    title: "Origen en 1979",
+    subtitle: "Teatro Degollado · Palacio de Gobierno",
+    body:
+      "El 14 de agosto comenzaron los ensayos. El 15 de septiembre se realizó el concierto inaugural.",
+    image:
+      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-mexican-landscape-with-cactuses-flowers-sombrero-building-with-striped-roof_150234-132898.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Fundación",
-    subtitle: "Impulso institucional",
-    body: [
-      "Fue fundada por el entonces departamento de Bellas Artes del gobierno del Estado de Jalisco, siendo Gobernador Constitucional el Lic. Flavio Romero de Velasco, quien fuera su principal promotor e impulsor.",
-      "En ese mismo periodo fungía como Presidente de la República Mexicana el Lic. José López Portillo. Su primer director fue el maestro Juan de la Peña y Flores.",
-    ],
+    title: "Tradición en la Plaza de Armas",
+    subtitle: "Miércoles y viernes · 18:30 hrs",
+    body:
+      "Diez melodías por concierto y la rúbrica de “Guadalajara” para cerrar cada tarde.",
+    image:
+      "https://img.freepik.com/premium-vector/colorful-illustration-desert-scene-with-guitar-cacti-sun-flowers-clouds_150234-134780.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Identidad",
-    subtitle: "De Guadalajara a Jalisco",
-    body: [
-      "En sus orígenes fue nombrada “de Guadalajara” con la intención de que fuera reconocida en cualquier parte del mundo.",
-      "Sin embargo se cambió el título por Orquesta Típica de Jalisco para dar mayor difusión a la cultura y tradiciones del estado que representa esta importante agrupación.",
-    ],
+    title: "Instrumentos clásicos y típicos",
+    subtitle: "Sinfónica + tradición",
+    body:
+      "Violines, alientos y percusiones se mezclan con salterio, bandolón, arpa, vihuela y marimba.",
+    image:
+      "https://img.freepik.com/free-vector/hand-drawn-mexican-culture-illustration_52683-90594.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Tradición viva",
-    subtitle: "Plaza de Armas",
-    body: [
-      "La Orquesta Típica de Jalisco, por tradición desde su fundación, se presenta todos los miércoles y viernes a las 18:30 horas en el quiosco de la Plaza de Armas de Guadalajara, donde interpreta 10 melodías, y como rúbrica, una fracción del son popular “Guadalajara”, de Pepe Guízar, para deleitar al público.",
-    ],
-  },
-  {
-    title: "Gira permanente",
-    subtitle: "Todo Jalisco",
-    body: [
-      "Es la agrupación que más viaja al interior del estado, ha recorrido todos los municipios con gran éxito y aceptación del público, llevando la música y tradiciones mexicanas a cada rincón de Jalisco, así como a otros estados de la República Mexicana.",
-    ],
-  },
-  {
-    title: "Instrumentos clásicos",
-    subtitle: "Base sinfónica",
-    body: [
-      "En sus bases tiene los mismos instrumentos clásicos que una orquesta sinfónica, como son: violines, viola, violonchelos y contrabajos, alientos madera: flautas, oboes y clarinetes; alientos metales: trompetas, trombones y percusiones como el timbal, platillo.",
-    ],
-  },
-  {
-    title: "Instrumentos típicos",
-    subtitle: "Timbre tradicional",
-    body: [
-      "Lo que le da el carácter o timbre de típica son los instrumentos tradicionales como son: el salterio, bandolón, mandolinas, arpa, guitarra, vihuela y marimba.",
-    ],
-  },
-  {
-    title: "Repertorio",
+    title: "Repertorio mexicano",
     subtitle: "México, rescate y tradición",
-    body: [
-      "El repertorio de la Orquesta Típica está conformado principalmente por música popular mexicana, bajo el lema “México, rescate y tradición” e incluye sones, polkas, huapangos, pasosdobles, marchas, boleros, fantasías, mosaicos, popurríes, valses, danzas, canciones rancheras y corridos.",
-    ],
+    body:
+      "Sones, polkas, huapangos, pasosdobles, boleros, valses y corridos.",
+    image:
+      "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
   },
   {
-    title: "Directores",
-    subtitle: "Legado musical",
-    body: [
-      "Entre los directores que han participado y aportado grandes joyas a la Orquesta se encuentran Juan de la Peña y Flores, Francisco Hernández García, Antonio Cordero, Martín Gordo López, Salvador Arreola N., Cirilo Santana Lomelí, Pedro Macías Limón, José Luis Núñez Melchor, y actualmente el maestro, J. Ramón Becerra Caro.",
-      "Director actual: René Nuño.",
-    ],
-  },
-  {
-    title: "Vigencia",
-    subtitle: "Orgullo jalisciense",
-    body: [
-      "La tradición de las Orquestas Típicas en la República Mexicana ha disminuido notablemente en los últimos 50 años.",
-      "Afortunadamente, nuestro estado cuenta con la Orquesta Típica de Jalisco, que está vigente desde 1979, y que, gracias al desempeño de sus integrantes, nos permite disfrutar de la belleza de nuestra música tradicional mexicana.",
-      "Aunque la agrupación está integrada actualmente casi en su totalidad por jóvenes, siguen manteniendo el amor y la pasión en cada nota, heredados por los propios fundadores de la Orquesta Típica.",
-    ],
+    title: "Vigencia y futuro",
+    subtitle: "Director actual: René Nuño",
+    body:
+      "Una orquesta joven en esencia, heredera de la pasión de sus fundadores.",
+    image:
+      "https://img.freepik.com/premium-vector/colorful-geometric-illustration-desert-landscape-with-cacti-flowers-pyramid_150234-134280.jpg?semt=ais_hybrid&w=740&q=80",
   },
 ];
 
 export default function Home() {
-  const [pageIndex, setPageIndex] = useState(0);
-  const page = PAGES[pageIndex];
-  const progress = useMemo(
-    () => ((pageIndex + 1) / PAGES.length) * 100,
-    [pageIndex]
-  );
-
   return (
-    <main className="library">
-      <div className="ambient glow-one" aria-hidden="true" />
-      <div className="ambient glow-two" aria-hidden="true" />
-
-      <header className="hero">
-        <div>
-          <p className="eyebrow">Libro interactivo</p>
-          <h1>Orquesta Típica del Estado</h1>
-          <p className="subtitle">Orquesta Típica de Jalisco</p>
-        </div>
-        <div className="progress">
-          <span>Página {pageIndex + 1} de {PAGES.length}</span>
-          <div className="progress-bar">
-            <span style={{ width: `${progress}%` }} />
+    <main className="story">
+      {SLIDES.map((slide) => (
+        <section
+          key={slide.title}
+          className="panel"
+          style={{ backgroundImage: `url(${slide.image})` }}
+        >
+          <div className="overlay" />
+          <div className="content">
+            <p className="subtitle">{slide.subtitle}</p>
+            <h1>{slide.title}</h1>
+            <p className="body">{slide.body}</p>
+            <span className="tag">Orquesta Típica del Estado</span>
           </div>
-        </div>
-      </header>
-
-      <section className="book">
-        <aside className="toc">
-          <h2>Capítulos</h2>
-          <ol>
-            {PAGES.map((entry, index) => (
-              <li key={entry.title}>
-                <button
-                  type="button"
-                  onClick={() => setPageIndex(index)}
-                  className={index === pageIndex ? "active" : ""}
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <strong>{entry.title}</strong>
-                    <em>{entry.subtitle}</em>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </aside>
-
-        <article className="page">
-          <div className="page-header">
-            <p className="page-number">Capítulo {pageIndex + 1}</p>
-            <h2>{page.title}</h2>
-            <p className="page-subtitle">{page.subtitle}</p>
-          </div>
-
-          <div className="page-body">
-            {page.body.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-
-          <div className="page-footer">
-            <button
-              type="button"
-              onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-              disabled={pageIndex === 0}
-            >
-              ← Página anterior
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setPageIndex((prev) => Math.min(prev + 1, PAGES.length - 1))
-              }
-              disabled={pageIndex === PAGES.length - 1}
-            >
-              Página siguiente →
-            </button>
-          </div>
-        </article>
-      </section>
-
-      <section className="gallery">
-        <div className="gallery-header">
-          <h3>Galería visual</h3>
-          <p>Espacios reservados para imágenes de la orquesta.</p>
-        </div>
-        <div className="gallery-grid">
-          <figure className="gallery-card featured">
-            <img
-              src="https://scontent-ber1-1.xx.fbcdn.net/v/t39.30808-6/497269944_1279581257501678_7493600283487259354_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=8kongWUvDzgQ7kNvwGH7Qpt&_nc_oc=AdmOi8j7SNflePt0ojIyDFlMPshvA3tnIryxbQ2cWTXCUf65OkGYZCgoUR-2KcaPOAw&_nc_zt=23&_nc_ht=scontent-ber1-1.xx&_nc_gid=aR2BSHL4n6wD13Ugq4pR-g&oh=00_AfrHWjYenmVU5wMO89FJbFNkD8DZaJPSJpB2t2t-U7uObg&oe=69711E2F"
-              alt="Orquesta Típica de Jalisco"
-              loading="lazy"
-            />
-            <figcaption>Director actual: René Nuño</figcaption>
-          </figure>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div className="gallery-card" key={`gallery-${index}`}>
-              <span>Imagen {index + 2}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="footer">
-        <p>
-          Libro interactivo de la Orquesta Típica del Estado. Diseñado para
-          compartir tradición, historia y música mexicana.
-        </p>
-        <span>Actualizado · 2026</span>
-      </footer>
+        </section>
+      ))}
 
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;600&display=swap");
         :root {
           color-scheme: light;
-        }
-        body {
-          margin: 0;
-          background: #f6efe4;
-          color: #1f2937;
-          font-family: "Manrope", sans-serif;
         }
         * {
           box-sizing: border-box;
         }
-        .library {
-          min-height: 100vh;
-          padding: 40px clamp(20px, 4vw, 80px) 60px;
+        body {
+          margin: 0;
+          background: #050505;
+          font-family: "Manrope", sans-serif;
+        }
+        .story {
+          height: 100vh;
+          overflow-y: auto;
+          scroll-snap-type: y mandatory;
+        }
+        .panel {
           position: relative;
-          overflow: hidden;
+          min-height: 100vh;
+          display: grid;
+          place-items: center;
+          padding: 24px;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          scroll-snap-align: start;
         }
-        .ambient {
+        .overlay {
           position: absolute;
-          border-radius: 50%;
-          filter: blur(70px);
-          opacity: 0.4;
-          z-index: 0;
+          inset: 0;
+          background: linear-gradient(
+            120deg,
+            rgba(7, 7, 7, 0.7),
+            rgba(7, 7, 7, 0.35)
+          );
         }
-        .glow-one {
-          width: 320px;
-          height: 320px;
-          background: rgba(239, 68, 68, 0.2);
-          top: -80px;
-          left: -60px;
-        }
-        .glow-two {
-          width: 420px;
-          height: 420px;
-          background: rgba(59, 130, 246, 0.15);
-          bottom: -140px;
-          right: -100px;
-        }
-        .hero {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          gap: 24px;
+        .content {
           position: relative;
           z-index: 1;
-        }
-        .eyebrow {
-          text-transform: uppercase;
-          letter-spacing: 0.4em;
-          font-size: 12px;
-          color: #b45309;
-          margin: 0;
+          max-width: 720px;
+          padding: clamp(24px, 4vw, 48px);
+          border-radius: 28px;
+          background: rgba(8, 8, 8, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #f8fafc;
+          backdrop-filter: blur(10px);
+          text-align: left;
         }
         h1 {
-          font-family: "Cormorant Garamond", serif;
-          font-size: clamp(2.6rem, 4vw, 4rem);
-          margin: 8px 0 6px;
+          font-family: "Fraunces", serif;
+          font-size: clamp(2.4rem, 4vw, 3.8rem);
+          margin: 10px 0 14px;
         }
         .subtitle {
-          font-size: 18px;
-          margin: 0;
-          color: #6b7280;
-        }
-        .progress {
-          text-align: right;
-          font-size: 14px;
-          color: #6b7280;
-          min-width: 180px;
-        }
-        .progress-bar {
-          margin-top: 8px;
-          background: #e5e7eb;
-          border-radius: 999px;
-          height: 6px;
-          overflow: hidden;
-        }
-        .progress-bar span {
-          display: block;
-          height: 100%;
-          background: linear-gradient(90deg, #b45309, #f59e0b);
-        }
-        .book {
-          margin-top: 40px;
-          display: grid;
-          grid-template-columns: minmax(220px, 1fr) minmax(320px, 2.3fr);
-          gap: 28px;
-          position: relative;
-          z-index: 1;
-        }
-        .toc {
-          background: #fdf7ed;
-          border-radius: 20px;
-          padding: 24px;
-          border: 1px solid #f1e2c8;
-          box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
-        }
-        .toc h2 {
-          margin-top: 0;
-          font-family: "Cormorant Garamond", serif;
-        }
-        .toc ol {
-          list-style: none;
-          padding: 0;
-          margin: 20px 0 0;
-          display: grid;
-          gap: 10px;
-        }
-        .toc button {
-          width: 100%;
-          text-align: left;
-          border: none;
-          background: transparent;
-          display: flex;
-          gap: 12px;
-          padding: 10px 12px;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-        .toc button span {
-          font-weight: 600;
-          color: #b45309;
-        }
-        .toc button em {
-          display: block;
-          font-style: normal;
-          font-size: 12px;
-          color: #9ca3af;
-        }
-        .toc button.active,
-        .toc button:hover {
-          background: rgba(251, 191, 36, 0.18);
-        }
-        .page {
-          background: #fffaf2;
-          border-radius: 26px;
-          padding: 32px;
-          border: 1px solid #f1e2c8;
-          box-shadow: 0 24px 40px rgba(15, 23, 42, 0.1);
-          display: flex;
-          flex-direction: column;
-          min-height: 420px;
-        }
-        .page-header h2 {
-          font-family: "Cormorant Garamond", serif;
-          font-size: 32px;
-          margin: 6px 0;
-        }
-        .page-number {
           text-transform: uppercase;
-          letter-spacing: 0.3em;
+          letter-spacing: 0.35em;
           font-size: 12px;
-          color: #b45309;
+          color: #fbbf24;
           margin: 0;
         }
-        .page-subtitle {
-          margin: 0;
-          color: #6b7280;
-        }
-        .page-body {
-          margin-top: 20px;
-          display: grid;
-          gap: 16px;
-          font-size: 17px;
+        .body {
+          font-size: 18px;
           line-height: 1.7;
+          margin: 0 0 20px;
+          color: #f8fafc;
         }
-        .page-footer {
-          margin-top: auto;
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-        }
-        .page-footer button {
+        .tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
           border-radius: 999px;
-          padding: 10px 18px;
-          border: 1px solid #e7d3aa;
-          background: #fff4dd;
-          cursor: pointer;
-          font-weight: 600;
-          color: #92400e;
-        }
-        .page-footer button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        .gallery {
-          margin-top: 50px;
-          position: relative;
-          z-index: 1;
-        }
-        .gallery-header h3 {
-          font-family: "Cormorant Garamond", serif;
-          margin: 0 0 6px;
-          font-size: 26px;
-        }
-        .gallery-header p {
-          margin: 0;
-          color: #6b7280;
-        }
-        .gallery-grid {
-          margin-top: 18px;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 16px;
-        }
-        .gallery-card {
-          border-radius: 18px;
-          padding: 22px;
-          border: 1px dashed #e2ccb0;
-          background: #fff9ef;
-          text-align: center;
-          color: #9a3412;
-          font-weight: 600;
-          display: grid;
-          gap: 12px;
-        }
-        .gallery-card img {
-          width: 100%;
-          height: 240px;
-          object-fit: cover;
-          border-radius: 14px;
-          border: 1px solid #f1e2c8;
-        }
-        .gallery-card figcaption {
+          border: 1px solid rgba(255, 255, 255, 0.2);
           font-size: 13px;
-          color: #6b7280;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
         }
-        .footer {
-          margin-top: 60px;
-          display: flex;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 12px;
-          color: #6b7280;
-          font-size: 13px;
-          position: relative;
-          z-index: 1;
-        }
-        @media (max-width: 900px) {
-          .hero {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .book {
-            grid-template-columns: 1fr;
-          }
-          .progress {
-            text-align: left;
+        @media (max-width: 700px) {
+          .content {
+            text-align: center;
           }
         }
       `}</style>
