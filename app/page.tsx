@@ -529,6 +529,7 @@ export default function Home() {
         }
         .visual img {
           width: 100%;
+          max-height: 260px;
           border-radius: 24px;
           object-fit: cover;
           box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
@@ -620,6 +621,25 @@ export default function Home() {
           }
           .hero {
             padding: 24px;
+          }
+          .quiz-card {
+            padding: 24px;
+          }
+          .quiz-body {
+            grid-template-columns: 1fr;
+          }
+          .visual img {
+            max-height: 200px;
+          }
+          .caption {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+          }
+          .question h3 {
+            font-size: 1.5rem;
+          }
+          .blurb {
+            font-size: 0.95rem;
           }
           .quiz-header {
             flex-direction: column;
