@@ -164,6 +164,7 @@ export default function Home() {
     "long" | "short" | null
   >(null);
   const [tradeRevealed, setTradeRevealed] = useState(false);
+  const [revealCount, setRevealCount] = useState(50);
   const [tradeHistory, setTradeHistory] = useState<
     Array<{
       id: string;
@@ -394,37 +395,72 @@ export default function Home() {
   );
   const hasEnoughCandles = candles.length >= 75;
   const entryCandle = candles[49];
-  const exitCandle = candles[74];
   const entryPrice = entryCandle?.close ?? 0;
-  const exitPrice = exitCandle?.close ?? 0;
+  const profitTarget = 0.012;
+  const findExit = useCallback(
+    (direction: "long" | "short") => {
+      if (!entryCandle) {
+        return null;
+      }
+      const target =
+        direction === "long"
+          ? entryPrice * (1 + profitTarget)
+          : entryPrice * (1 - profitTarget);
+      for (let i = 50; i <= 74; i += 1) {
+        const candle = candles[i];
+        if (!candle) {
+          break;
+        }
+        if (direction === "long" && candle.high >= target) {
+          return { exitIndex: i, exitPrice: target, hitTarget: true };
+        }
+        if (direction === "short" && candle.low <= target) {
+          return { exitIndex: i, exitPrice: target, hitTarget: true };
+        }
+      }
+      const fallback = candles[74];
+      return fallback
+        ? { exitIndex: 74, exitPrice: fallback.close, hitTarget: false }
+        : null;
+    },
+    [candles, entryCandle, entryPrice, profitTarget]
+  );
+  const tradeExit = useMemo(() => {
+    if (!tradeSelection || revealCount < 75) {
+      return null;
+    }
+    return findExit(tradeSelection);
+  }, [findExit, revealCount, tradeSelection]);
   const tradeOutcome =
-    tradeSelection && tradeRevealed
+    tradeExit && tradeSelection
       ? tradeSelection === "long"
-        ? exitPrice >= entryPrice
+        ? tradeExit.exitPrice >= entryPrice
           ? "win"
           : "loss"
-        : exitPrice <= entryPrice
+        : tradeExit.exitPrice <= entryPrice
         ? "win"
         : "loss"
       : null;
 
-  const visibleCandles = tradeRevealed
-    ? candles.slice(0, 75)
-    : candles.slice(0, 50);
+  const visibleCandles = candles.slice(0, Math.min(revealCount, 75));
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
-      if (!entryCandle || !exitCandle) {
+      if (!entryCandle) {
         return;
       }
       setTradeSelection(direction);
       setTradeRevealed(true);
+      const exitInfo = findExit(direction);
+      if (!exitInfo) {
+        return;
+      }
       const result =
         direction === "long"
-          ? exitPrice >= entryPrice
+          ? exitInfo.exitPrice >= entryPrice
             ? "win"
             : "loss"
-          : exitPrice <= entryPrice
+          : exitInfo.exitPrice <= entryPrice
           ? "win"
           : "loss";
       setTradeHistory((current) => [
@@ -434,18 +470,19 @@ export default function Home() {
           timeframe: tradeTimeframe,
           direction,
           entry: entryPrice,
-          exit: exitPrice,
+          exit: exitInfo.exitPrice,
           result,
         },
         ...current,
       ]);
     },
-    [entryCandle, entryPrice, exitPrice, tradeAsset, tradeConfigKey, tradeTimeframe]
+    [entryCandle, entryPrice, findExit, tradeAsset, tradeConfigKey, tradeTimeframe]
   );
 
   useEffect(() => {
     setTradeSelection(null);
     setTradeRevealed(false);
+    setRevealCount(50);
   }, [tradeAsset, tradeTimeframe, tradeSeed]);
 
   useEffect(() => {
@@ -489,6 +526,22 @@ export default function Home() {
       isActive = false;
     };
   }, [tradeAsset, tradeTimeframe]);
+
+  useEffect(() => {
+    if (!tradeRevealed) {
+      return;
+    }
+    const interval = window.setInterval(() => {
+      setRevealCount((current) => {
+        if (current >= 75) {
+          window.clearInterval(interval);
+          return current;
+        }
+        return current + 1;
+      });
+    }, 260);
+    return () => window.clearInterval(interval);
+  }, [tradeRevealed]);
 
   useEffect(() => {
     if (!chartContainerRef.current || chartRef.current) {
@@ -937,9 +990,10 @@ export default function Home() {
               )}
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              Showing {visibleCandles.length} candles. Choose long or short to
-              reveal the next 25. New round uses a different window from the
-              same data set.
+              Showing {Math.min(revealCount, 50)} candles first. Your entry is
+              the close of candle 50; we first look for a 1.2% profit target
+              between candles 50–75, otherwise we evaluate at candle 75. When
+              you pick long/short, the next 25 candles animate in.
             </p>
           </div>
 
@@ -1014,7 +1068,7 @@ export default function Home() {
                   Go Short
                 </button>
               </div>
-              {tradeRevealed && tradeOutcome ? (
+              {tradeRevealed && revealCount >= 75 && tradeOutcome && tradeExit ? (
                 <div
                   className={`mt-4 rounded-2xl px-4 py-3 text-sm font-semibold ${
                     tradeOutcome === "win"
@@ -1022,8 +1076,9 @@ export default function Home() {
                       : "bg-rose-100 text-rose-700"
                   }`}
                 >
-                  Result: {tradeOutcome.toUpperCase()} — Entry {entryPrice.toFixed(2)} → Exit{" "}
-                  {exitPrice.toFixed(2)}
+                  Result: {tradeOutcome.toUpperCase()} — Entry{" "}
+                  {entryPrice.toFixed(2)} → Exit {tradeExit.exitPrice.toFixed(2)}
+                  {tradeExit.hitTarget ? " (target hit)" : " (candle 75)"}
                 </div>
               ) : null}
             </div>
