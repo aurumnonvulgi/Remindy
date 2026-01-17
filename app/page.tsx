@@ -164,38 +164,99 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="story">
-        {SLIDES.map((slide) => (
-          <section key={slide.title} className={`panel layout-${slide.layout}`}>
-            <div className="overlay" />
-            <div className="content">
-              <p className="subtitle">{slide.subtitle}</p>
-              <h1>{slide.title}</h1>
-              <div className="body">
-                {slide.body.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-              <span className="tag">Orquesta Típica del Estado</span>
+      <div className="site">
+        <header className="site-header">
+          <div className="brand">
+            <span>OTJ</span>
+            <div>
+              <strong>Orquesta Típica de Jalisco</strong>
+              <em>Orquesta Típica del Estado</em>
             </div>
-            <figure className="panel-media">
+          </div>
+          <nav className="menu">
+            {SLIDES.map((slide, index) => (
+              <a key={slide.title} href={`#section-${index}`}>
+                {slide.title}
+              </a>
+            ))}
+          </nav>
+        </header>
+
+        <section className="hero">
+          <div className="hero-copy">
+            <p className="eyebrow">México · Rescate y tradición</p>
+            <h1>Orquesta Típica del Estado</h1>
+            <p className="lead">
+              Una institución cultural que lleva la música popular mexicana
+              desde 1979. Tradición, identidad y repertorio vivo en cada
+              presentación.
+            </p>
+            <div className="hero-actions">
+              <a className="cta" href="#section-0">
+                Explorar historia
+              </a>
+              <a className="cta ghost" href="#section-4">
+                Ver tradiciones
+              </a>
+            </div>
+          </div>
+          <div className="hero-card">
+            <img
+              src="https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80"
+              alt="Escena cultural mexicana"
+              loading="lazy"
+            />
+          </div>
+        </section>
+
+        {SLIDES.map((slide, index) => (
+          <section
+            key={slide.title}
+            id={`section-${index}`}
+            className={`content-section ${
+              index % 2 === 1 ? "reverse" : ""
+            }`}
+          >
+            <div className="section-text">
+              <p className="section-subtitle">{slide.subtitle}</p>
+              <h2>{slide.title}</h2>
+              {slide.body.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+              <span className="section-tag">
+                Orquesta Típica del Estado
+              </span>
+            </div>
+            <div className="section-media">
               {slide.images ? (
-                slide.images.map((image, index) => (
-                  <img
-                    key={`${slide.title}-img-${index}`}
-                    src={image}
-                    alt={`${slide.title} ${index + 1}`}
-                    loading="lazy"
-                  />
-                ))
+                <div className="media-grid">
+                  {slide.images.map((image, imageIndex) => (
+                    <img
+                      key={`${slide.title}-grid-${imageIndex}`}
+                      src={image}
+                      alt={`${slide.title} ${imageIndex + 1}`}
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
               ) : (
                 <img src={slide.image} alt={slide.title} loading="lazy" />
               )}
-              <figcaption>Orquesta Típica de Jalisco</figcaption>
-            </figure>
+            </div>
           </section>
         ))}
-      </section>
+
+        <footer className="footer">
+          <div>
+            <strong>Orquesta Típica de Jalisco</strong>
+            <p>
+              Tradición viva desde 1979. Miércoles y viernes 18:30 hrs, Plaza de
+              Armas, Guadalajara.
+            </p>
+          </div>
+          <span>Actualizado · 2026</span>
+        </footer>
+      </div>
 
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;600&display=swap");
@@ -302,112 +363,160 @@ export default function Home() {
           width: 0;
           animation: type-title 3.2s steps(32, end) forwards;
         }
-        .story {
-          height: 100vh;
-          overflow-y: auto;
-          scroll-snap-type: y mandatory;
+        .site {
           opacity: 0;
           animation: story-show 0.8s ease forwards;
           animation-delay: 5.2s;
+          background: radial-gradient(circle at top, #fff3d6 0%, #f7f2e8 45%, #e9f3ff 100%);
+          padding: 40px clamp(20px, 4vw, 80px) 80px;
         }
-        .panel {
-          position: relative;
-          min-height: 100vh;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        .site-header {
+          display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 36px;
-          padding: clamp(24px, 4vw, 80px);
-          scroll-snap-align: start;
-          isolation: isolate;
-          animation: panel-rise 1.2s ease both;
-        }
-        .layout-center {
-          text-align: center;
-          grid-template-columns: 1fr;
-          justify-items: center;
-        }
-        .layout-center .content {
-          text-align: center;
-        }
-        .layout-center .panel-media {
-          max-width: 720px;
-        }
-        .layout-split-left .content {
-          order: 1;
-        }
-        .layout-split-left .panel-media {
-          order: 2;
-        }
-        .layout-split-right .content {
-          order: 2;
-        }
-        .layout-split-right .panel-media {
-          order: 1;
-        }
-        .layout-stack {
-          grid-template-columns: 1fr;
-        }
-        .layout-stack .panel-media {
-          max-width: 820px;
-          justify-self: end;
-        }
-        .layout-quote .content {
-          background: rgba(15, 23, 42, 0.68);
-          border-left: 6px solid #f59e0b;
-        }
-        .layout-quote .body {
-          font-size: 20px;
-        }
-        .layout-collage {
-          grid-template-columns: 1fr;
-        }
-        .layout-collage .panel-media {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        }
-        .layout-collage .panel-media img {
-          height: 260px;
-        }
-        .overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(120deg, rgba(255, 248, 235, 0.85), rgba(233, 244, 255, 0.75));
-          mix-blend-mode: multiply;
-          z-index: 0;
-        }
-        .content {
-          position: relative;
-          z-index: 1;
-          max-width: 720px;
-          padding: clamp(24px, 4vw, 48px);
-          border-radius: 28px;
-          background: rgba(8, 8, 8, 0.55);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          color: #f8fafc;
+          gap: 24px;
+          position: sticky;
+          top: 0;
+          padding: 16px 0;
+          background: rgba(255, 244, 221, 0.9);
           backdrop-filter: blur(10px);
-          text-align: left;
-          animation: float-in 1.4s ease both;
+          z-index: 3;
         }
-        .panel-media {
-          position: relative;
-          z-index: 1;
-          margin: 0;
-          display: grid;
+        .brand {
+          display: flex;
           gap: 12px;
+          align-items: center;
         }
-        .panel-media img {
-          width: 100%;
-          height: min(60vh, 520px);
-          object-fit: cover;
-          border-radius: 28px;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+        .brand span {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          background: #f59e0b;
+          color: #4a2a18;
+          font-weight: 700;
         }
-        .panel-media figcaption {
+        .brand em {
+          display: block;
+          font-style: normal;
+          font-size: 12px;
+          color: #92400e;
+        }
+        .menu {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
           font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
+        }
+        .menu a {
+          color: #92400e;
+        }
+        .hero {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 32px;
+          align-items: center;
+          margin-top: 40px;
+        }
+        .hero h1 {
+          font-family: "Fraunces", serif;
+          font-size: clamp(2.6rem, 4vw, 3.6rem);
+          margin: 10px 0 12px;
+        }
+        .eyebrow {
+          text-transform: uppercase;
+          letter-spacing: 0.35em;
+          font-size: 12px;
+          color: #b45309;
+          margin: 0;
+        }
+        .lead {
+          font-size: 18px;
+          line-height: 1.7;
+          color: #6b7280;
+        }
+        .hero-actions {
+          display: flex;
+          gap: 12px;
+          margin-top: 20px;
+        }
+        .cta {
+          padding: 10px 18px;
+          border-radius: 999px;
+          background: #92400e;
+          color: #fff7ed;
+          text-decoration: none;
+          font-size: 14px;
+        }
+        .cta.ghost {
+          background: transparent;
+          border: 1px solid #d97706;
+          color: #92400e;
+        }
+        .hero-card img {
+          width: 100%;
+          border-radius: 24px;
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        }
+        .content-section {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 32px;
+          align-items: center;
+          padding: 48px 0;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .content-section.reverse .section-text {
+          order: 2;
+        }
+        .section-subtitle {
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          font-size: 12px;
+          color: #b45309;
+          margin: 0;
+        }
+        .section-text h2 {
+          font-family: "Fraunces", serif;
+          font-size: clamp(2rem, 3vw, 2.8rem);
+          margin: 10px 0 14px;
+        }
+        .section-text p {
+          margin: 0 0 14px;
+          line-height: 1.7;
+          color: #4b5563;
+        }
+        .section-tag {
+          display: inline-flex;
+          padding: 6px 12px;
+          border-radius: 999px;
+          border: 1px solid rgba(217, 119, 6, 0.4);
+          font-size: 12px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
+          color: #92400e;
+        }
+        .section-media img {
+          width: 100%;
+          border-radius: 20px;
+          object-fit: cover;
+          box-shadow: 0 16px 32px rgba(15, 23, 42, 0.2);
+        }
+        .media-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 12px;
+        }
+        .footer {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding-top: 32px;
+          font-size: 14px;
           color: #6b7280;
         }
         h1 {
@@ -497,11 +606,14 @@ export default function Home() {
           }
         }
         @media (max-width: 700px) {
-          .content {
-            text-align: center;
-          }
           .intro-strip {
             grid-auto-columns: minmax(120px, 1fr);
+          }
+          .hero-actions {
+            flex-direction: column;
+          }
+          .menu {
+            display: none;
           }
         }
       `}</style>
