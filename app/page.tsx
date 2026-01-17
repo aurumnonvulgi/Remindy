@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 const IMAGE_POOL = [
-  "https://blob.udgtv.com/images/2024/05/24/orquesta-tipica-de-jalisco--5.jpg",
   "https://img.freepik.com/premium-vector/mexican-pueblo-watercolor-paint-ilustration_791234-6850.jpg?semt=ais_hybrid&w=740&q=80",
   "https://img.freepik.com/premium-vector/vibrant-postcard-celebrating-beauty-mexico_886588-27991.jpg?semt=ais_hybrid&w=740&q=80",
   "https://img.freepik.com/free-vector/hand-drawn-latin-america-scene-illustration_52683-142374.jpg?semt=ais_hybrid&w=740&q=80",
