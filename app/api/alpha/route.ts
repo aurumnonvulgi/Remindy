@@ -27,9 +27,9 @@ const assetMap: Record<string, string> = {
 const intervalMap: Record<string, number> = {
   "5m": 300,
   "15m": 900,
-  "30m": 1800,
   "1h": 3600,
-  "4h": 14400,
+  "6h": 21600,
+  "1d": 86400,
 };
 
 const parseKlines = (rows: unknown[]): Candle[] =>

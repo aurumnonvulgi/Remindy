@@ -135,6 +135,7 @@ const PHRASES: Phrase[] = [
 ];
 
 const ACCENTS = ["#ff7a59", "#ffc53d", "#5eead4", "#60a5fa"];
+const TRADE_TIMEFRAMES = ["5m", "15m", "1h", "6h", "1d"] as const;
 
 export default function Home() {
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -443,6 +444,18 @@ export default function Home() {
       : null;
 
   const visibleCandles = candles.slice(0, Math.min(revealCount, 75));
+  const windowRange = useMemo(() => {
+    if (!candles.length) {
+      return null;
+    }
+    const start = candles[0];
+    const end = candles[Math.min(candles.length - 1, 74)];
+    return { start, end };
+  }, [candles]);
+  const formatWindowTime = useCallback(
+    (time: number) => new Date(time * 1000).toLocaleString(),
+    []
+  );
 
   const handleTradeSelect = useCallback(
     (direction: "long" | "short") => {
@@ -995,6 +1008,14 @@ export default function Home() {
               between candles 50–75, otherwise we evaluate at candle 75. When
               you pick long/short, the next 25 candles animate in.
             </p>
+            <p className="mt-2 text-xs text-slate-500">
+              Timeframe: {tradeTimeframe} · Window:{" "}
+              {windowRange
+                ? `${formatWindowTime(windowRange.start.time)} → ${formatWindowTime(
+                    windowRange.end.time
+                  )}`
+                : "—"}
+            </p>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -1029,7 +1050,7 @@ export default function Home() {
                 Timeframe
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["5m", "15m", "30m", "1h", "4h"].map((frame) => (
+                {TRADE_TIMEFRAMES.map((frame) => (
                   <button
                     key={frame}
                     type="button"
