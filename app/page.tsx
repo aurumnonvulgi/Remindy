@@ -12,11 +12,11 @@ const IMAGE_POOL = [
 const QUIZ_QUESTIONS = [
   {
     state: "Jalisco",
-    question: "¿Qué género musical es emblemático de Jalisco?",
+    question: "¿Qué estilo tradicional está ligado a Jalisco?",
     options: ["Mariachi", "Son jarocho", "Cumbia", "Danzón"],
     answer: 0,
     blurb:
-      "Jalisco es hogar del mariachi y de sones que reflejan orgullo regional y fiesta popular.",
+      "Jalisco dio origen a piezas como El Son de la Negra, Guadalajara, El Jarabe Tapatío y La Culebra.",
     orchestraTie:
       "La Orquesta Típica de Jalisco lleva repertorio tradicional a escuelas primarias, secundarias y preparatorias, conectando a estudiantes con la música de su región.",
   },
@@ -26,237 +26,237 @@ const QUIZ_QUESTIONS = [
     options: ["Son jarocho", "Banda", "Norteño", "Bolero ranchero"],
     answer: 0,
     blurb:
-      "Veracruz es cuna del son jarocho, con jarana y requinto que invitan al zapateado.",
+      "Veracruz dio nacimiento a piezas como La Bamba, El Tilingo Lingo, La Guacamaya y El Colás.",
     orchestraTie:
       "La Orquesta Típica de Jalisco ha sido invitada a escenarios internacionales para difundir la música mexicana y a sus compositores ante nuevas audiencias.",
   },
   {
     state: "Sinaloa",
-    question: "¿Qué género representa a Sinaloa?",
+    question: "¿Qué estilo tradicional está ligado a Sinaloa?",
     options: ["Banda", "Huapango", "Son huasteco", "Trova"],
     answer: 0,
     blurb:
-      "Sinaloa es reconocido por sus bandas y la fuerza de sus metales.",
+      "Sinaloa es reconocido por piezas como El Sinaloense, Mi Gusto Es, El Sauce y la Palma y La Culebra Sinaloense.",
     orchestraTie:
       "La Orquesta Típica de Jalisco preserva sones y ritmos regionales para que las nuevas generaciones los reconozcan y los mantengan vivos.",
   },
   {
     state: "Nuevo León",
-    question: "¿Qué estilo se asocia con el norte del país?",
+    question: "¿Qué estilo tradicional está ligado a Nuevo León?",
     options: ["Norteño", "Son jarocho", "Danzón", "Jarana yucateca"],
     answer: 0,
     blurb:
-      "En el norte destacan el acordeón y los corridos del estilo norteño.",
+      "Nuevo León popularizó piezas como El Cerro de la Silla, Monterrey, El Circo y Prenda del Alma.",
     orchestraTie:
       "La Orquesta Típica de Jalisco fortalece la identidad cultural en comunidades rurales y urbanas mediante conciertos gratuitos y accesibles.",
   },
   {
     state: "Oaxaca",
-    question: "¿Qué música tradicional suele vincularse a Oaxaca?",
+    question: "¿Qué estilo tradicional está ligado a Oaxaca?",
     options: ["Son istmeño", "Banda sinaloense", "Huapango", "Cumbia"],
     answer: 0,
     blurb:
-      "Oaxaca resguarda sones y danzas del Istmo con gran riqueza melódica.",
+      "Oaxaca es cuna de piezas como La Sandunga, La Llorona, La Martiniana y La Tortolita.",
     orchestraTie:
       "La Orquesta Típica de Jalisco colabora con instituciones educativas para acercar la música típica al aula y despertar curiosidad artística.",
   },
   {
     state: "Chiapas",
-    question: "¿Qué instrumento es símbolo musical de Chiapas?",
+    question: "¿Qué estilo tradicional está ligado a Chiapas?",
     options: ["Marimba", "Acordeón", "Saxofón", "Jarana"],
     answer: 0,
     blurb:
-      "La marimba es emblema chiapaneco y acompaña celebraciones tradicionales.",
+      "Chiapas es conocido por piezas como Las Chiapanecas, El Rascapetate, Mi Linda Chiapas y El Alcaraván.",
     orchestraTie:
       "La Orquesta Típica de Jalisco diseña arreglos didácticos que explican la historia de cada región musical y su contexto social.",
   },
   {
     state: "Yucatán",
-    question: "¿Qué género romántico es típico de Yucatán?",
+    question: "¿Qué estilo tradicional está ligado a Yucatán?",
     options: ["Trova yucateca", "Banda", "Son huasteco", "Norteño"],
     answer: 0,
     blurb:
-      "Yucatán es conocido por su trova íntima y melodías suaves.",
+      "Yucatán dio origen a piezas como Peregrina, Nunca, Flor de Azahar y Rayito de Sol.",
     orchestraTie:
       "La Orquesta Típica de Jalisco representa a Jalisco en festivales nacionales como embajadora cultural y símbolo de tradición.",
   },
   {
     state: "Guerrero",
-    question: "¿Qué tradición musical destaca en Guerrero?",
+    question: "¿Qué estilo tradicional está ligado a Guerrero?",
     options: ["Chilena", "Danzón", "Son jarocho", "Banda"],
     answer: 0,
     blurb:
-      "Las chilenas guerrerenses mezclan ritmos costeños con alegría comunitaria.",
+      "Guerrero es reconocido por piezas como La Sanmarqueña, El Toro Rabón, La Petenera y El Gustito.",
     orchestraTie:
       "La Orquesta Típica de Jalisco difunde el patrimonio musical mexicano mediante giras que conectan distintos estados del país.",
   },
   {
     state: "Michoacán",
-    question: "¿Qué música tradicional es conocida en Michoacán?",
+    question: "¿Qué estilo tradicional está ligado a Michoacán?",
     options: ["Pirekua", "Banda", "Norteño", "Cumbia"],
     answer: 0,
     blurb:
-      "La pirekua es un canto tradicional purépecha con profunda carga emotiva.",
+      "Michoacán es cuna de piezas como Flor de Canela, Noches de Michoacán, La Tarecua y La Golondrina.",
     orchestraTie:
       "La Orquesta Típica de Jalisco impulsa talleres y actividades formativas que vinculan a jóvenes músicos con tradiciones ancestrales.",
   },
   {
     state: "Puebla",
-    question: "¿Qué danza festiva es típica de Puebla?",
+    question: "¿Qué estilo tradicional está ligado a Puebla?",
     options: ["Huapango", "Danzón", "Son istmeño", "Chilena"],
     answer: 0,
     blurb:
-      "Puebla conserva huapangos que dialogan con voces y cuerdas.",
+      "Puebla popularizó piezas como El Ahualulco, El Querreque, La Rosa y El Caimán.",
     orchestraTie:
       "La Orquesta Típica de Jalisco comparte relatos sobre los orígenes de los géneros regionales para dar sentido a cada interpretación.",
   },
   {
     state: "Hidalgo",
-    question: "¿Qué región se asocia al son huasteco?",
+    question: "¿Qué estilo tradicional está ligado a Hidalgo?",
     options: ["La Huasteca", "La Mixteca", "La Tarahumara", "El Istmo"],
     answer: 0,
     blurb:
-      "Hidalgo forma parte de la Huasteca, donde florece el son huasteco.",
+      "Hidalgo es conocido por piezas como El Querreque, La Malagueña Huasteca, El Cielito Lindo Huasteco y La Azucena.",
     orchestraTie:
       "La Orquesta Típica de Jalisco mantiene vivo el repertorio popular con arreglos actuales y respetuosos del legado tradicional.",
   },
   {
     state: "Coahuila",
-    question: "¿Qué instrumento es clave en la música del norte?",
+    question: "¿Qué estilo tradicional está ligado a Coahuila?",
     options: ["Acordeón", "Arpa", "Ocarina", "Marimba"],
     answer: 0,
     blurb:
-      "En el norte, el acordeón guía polkas y corridos fronterizos.",
+      "Coahuila es identificado con piezas como La Varsoviana, El Soldado Raso, Jesusita en Chihuahua y El Pájaro Cu.",
     orchestraTie:
       "La Orquesta Típica de Jalisco ofrece conciertos en plazas públicas para fortalecer el tejido social y el orgullo comunitario.",
   },
   {
     state: "Tabasco",
-    question: "¿Qué ritmo suele escucharse en el sureste?",
+    question: "¿Qué estilo tradicional está ligado a Tabasco?",
     options: ["Cumbia", "Huapango", "Norteño", "Banda"],
     answer: 0,
     blurb:
-      "Tabasco vibra con cumbias y ritmos tropicales que invitan a bailar.",
+      "Tabasco es reconocido por piezas como El Tigre, La Choca, El Pochó y Vamos a Tabasco.",
     orchestraTie:
       "La Orquesta Típica de Jalisco destaca la diversidad sonora del país en un solo escenario, celebrando la riqueza regional.",
   },
   {
     state: "Baja California",
-    question: "¿Qué influencia musical es común en la frontera?",
+    question: "¿Qué estilo tradicional está ligado a Baja California?",
     options: ["Fusión norteña", "Danzón", "Trova", "Son istmeño"],
     answer: 0,
     blurb:
-      "La frontera mezcla sonidos norteños con nuevas fusiones urbanas.",
+      "Baja California es conocida por propuestas como Tijuana Makes Me Happy, Polaris, Norteña del Sur y Brown Cowboy.",
     orchestraTie:
       "La Orquesta Típica de Jalisco rinde homenaje a compositores locales de cada región que visita, reconociendo su aporte histórico.",
   },
   {
     state: "Tamaulipas",
-    question: "¿Qué ritmo es representativo del noreste?",
+    question: "¿Qué estilo tradicional está ligado a Tamaulipas?",
     options: ["Polka", "Son jarocho", "Chilena", "Trova"],
     answer: 0,
     blurb:
-      "Las polkas han inspirado a generaciones en el noreste mexicano.",
+      "Tamaulipas popularizó piezas como La Varsoviana, La Polka de la Nieve, Redova del Norte y El Chotis.",
     orchestraTie:
       "La Orquesta Típica de Jalisco acompaña actos cívicos y celebraciones para impulsar el orgullo por la música mexicana.",
   },
   {
     state: "Querétaro",
-    question: "¿Qué género es común en el centro del país?",
+    question: "¿Qué estilo tradicional está ligado a Querétaro?",
     options: ["Danzón", "Banda", "Norteño", "Chilena"],
     answer: 0,
     blurb:
-      "En el centro se disfrutan danzones y bailes de salón con elegancia.",
+      "Querétaro es asociado con piezas como Nereidas, Juárez, Salón México y Teléfono de Larga Distancia.",
     orchestraTie:
       "La Orquesta Típica de Jalisco participa en encuentros culturales que unen tradición y nuevas audiencias en distintas ciudades.",
   },
   {
     state: "Ciudad de México",
-    question: "¿Qué estilo musical destaca en plazas y salones capitalinos?",
+    question: "¿Qué estilo tradicional está ligado a Ciudad de México?",
     options: ["Danzón", "Banda", "Son istmeño", "Huapango"],
     answer: 0,
     blurb:
-      "El danzón sigue vivo en la capital, acompañando tardes y noches de baile.",
+      "La Ciudad de México es reconocida por piezas como Nereidas, Salón México, Juárez y El Danzón No. 2.",
     orchestraTie:
       "La Orquesta Típica de Jalisco preserva instrumentos típicos en diálogo con cuerdas y alientos clásicos para un sonido único.",
   },
   {
     state: "Nayarit",
-    question: "¿Qué ritmo tradicional se baila en la costa del Pacífico?",
+    question: "¿Qué estilo tradicional está ligado a Nayarit?",
     options: ["Cumbia", "Trova", "Norteño", "Pirekua"],
     answer: 0,
     blurb:
-      "Nayarit comparte sonidos costeños que celebran la vida junto al mar.",
+      "Nayarit es conocido por piezas como El Buey de la Barranca, La Culebra, El Pájaro Cu y El Gallito.",
     orchestraTie:
       "La Orquesta Típica de Jalisco motiva a las juventudes a conocer su herencia musical con programas escolares y conciertos guiados.",
   },
   {
     state: "Chihuahua",
-    question: "¿Qué instrumento suele acompañar corridos del norte?",
+    question: "¿Qué estilo tradicional está ligado a Chihuahua?",
     options: ["Acordeón", "Arpa", "Clavecín", "Flauta"],
     answer: 0,
     blurb:
-      "En Chihuahua los corridos y polkas del norte son parte esencial del paisaje.",
+      "Chihuahua popularizó piezas como Jesusita en Chihuahua, La Varsoviana, La Adelita y El Soldado Raso.",
     orchestraTie:
       "La Orquesta Típica de Jalisco crea puentes culturales al compartir repertorio de distintos estados en un mismo programa.",
   },
   {
     state: "Sonora",
-    question: "¿Qué música describe mejor el espíritu sonorense?",
+    question: "¿Qué estilo tradicional está ligado a Sonora?",
     options: ["Norteña", "Trova yucateca", "Son jarocho", "Danzón"],
     answer: 0,
     blurb:
-      "Sonora vibra con ritmos norteños y letras que narran la vida del desierto.",
+      "Sonora es reconocido por piezas como El Cachanilla, La Yaquesita, El Venado y El Caballito.",
     orchestraTie:
       "La Orquesta Típica de Jalisco visita organizaciones privadas y comunitarias para llevar música tradicional a nuevos espacios.",
   },
   {
     state: "Morelos",
-    question: "¿Qué ritmo social suele bailarse en Morelos?",
+    question: "¿Qué estilo tradicional está ligado a Morelos?",
     options: ["Danzón", "Banda", "Norteño", "Chilena"],
     answer: 0,
     blurb:
-      "Morelos es tierra de fiestas con danzón y música de salón.",
+      "Morelos es asociado con piezas como Nereidas, Salón México, Juárez y Danzón Morelense.",
     orchestraTie:
       "La Orquesta Típica de Jalisco sostiene la continuidad de las tradiciones en ferias y festivales con presentaciones memorables.",
   },
   {
     state: "Zacatecas",
-    question: "¿Qué estilo es frecuente en las bandas del centro-norte?",
+    question: "¿Qué estilo tradicional está ligado a Zacatecas?",
     options: ["Banda", "Trova", "Son jarocho", "Pirekua"],
     answer: 0,
     blurb:
-      "Zacatecas tiene tradición de bandas que acompañan celebraciones locales.",
+      "Zacatecas dio origen a piezas como Marcha de Zacatecas, El Herradero, La Tumba Vaquera y El Zacatecano.",
     orchestraTie:
       "La Orquesta Típica de Jalisco impulsa el reconocimiento de las raíces mexicanas a través del sonido típico y la memoria colectiva.",
   },
   {
     state: "San Luis Potosí",
-    question: "¿Qué región influye en su música tradicional?",
+    question: "¿Qué estilo tradicional está ligado a San Luis Potosí?",
     options: ["La Huasteca", "El Istmo", "La Península", "La Tarahumara"],
     answer: 0,
     blurb:
-      "San Luis Potosí comparte la riqueza del son huasteco.",
+      "San Luis Potosí es conocido por piezas como El Querreque, La Malagueña Huasteca, La Azucena y El Caimán.",
     orchestraTie:
       "La Orquesta Típica de Jalisco invita a conocer la riqueza musical de México con repertorios que cruzan regiones y estilos.",
   },
   {
     state: "Campeche",
-    question: "¿Qué ambiente define sus celebraciones?",
+    question: "¿Qué estilo tradicional está ligado a Campeche?",
     options: ["Costero y festivo", "Desértico", "Montañoso", "Nevado"],
     answer: 0,
     blurb:
-      "Campeche combina herencias mayas con celebraciones de sabor costeño.",
+      "Campeche es identificado con piezas como El Pavo, La Guaranducha, El Torito y El Grito del Mayab.",
     orchestraTie:
       "La Orquesta Típica de Jalisco ha llevado la cultura mexicana a foros internacionales con orgullo, disciplina y excelencia artística.",
   },
   {
     state: "Durango",
-    question: "¿Qué ritmo norteño puede escucharse en Durango?",
+    question: "¿Qué estilo tradicional está ligado a Durango?",
     options: ["Polka", "Trova", "Son istmeño", "Danzón"],
     answer: 0,
     blurb:
-      "Durango conserva polkas y corridos que cuentan historias regionales.",
+      "Durango popularizó piezas como La Varsoviana, Jesusita en Chihuahua, El Soldado Raso y La Polka de Durango.",
     orchestraTie:
       "La Orquesta Típica de Jalisco demuestra que la música típica sigue viva, dialogando con el presente sin perder su esencia.",
   },
