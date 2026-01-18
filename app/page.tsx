@@ -1,639 +1,586 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-const WORDS = [
-  "WONDERLAND",
-  "MIDNIGHT",
-  "SILVER",
-  "NEBULA",
-  "HORIZON",
-  "FIRESTORM",
-  "OBSIDIAN",
-  "THUNDER",
-  "ECLIPSE",
-  "PHANTOM",
-  "RAPTURE",
-  "VOYAGER",
-  "DREADNOUGHT",
-  "CATALYST",
-  "SPECTRUM",
-  "WHISPER",
-  "HUNTRESS",
-  "TITANIUM",
-  "VALKYRIE",
-  "FORGE",
-  "DOMINION",
-  "STARDUST",
-  "NOCTURNE",
-  "RAVEN",
-  "WILDFIRE",
-  "SABOTAGE",
-  "FRONTIER",
-  "SANCTUM",
-  "TRIUMPH",
-  "VANGUARD",
+const TABS = ["Home", "My Facility", "Estimate", "Supplies", "Account"] as const;
+
+const FACILITY_TYPES = [
+  "Office",
+  "Medical / Dental",
+  "School / Daycare",
+  "Retail",
+  "Warehouse / Industrial",
+  "Gym / Fitness",
+  "Restaurant / Food Facility",
+  "Apartment / HOA",
+  "Other",
 ];
 
-const LIMBS = [
-  "head",
-  "torso",
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
+const FREQUENCIES = ["Daily", "2x Week", "Weekly", "Monthly"];
+
+const AREA_TEMPLATES = [
+  "Bathrooms",
+  "Kitchens / Break Rooms",
+  "Offices / Cubicles",
+  "Conference Rooms",
+  "Lobby / Reception",
+  "Hallways",
+  "Stairs / Elevators",
+  "Storage Rooms",
+  "Classrooms",
+  "Exam Rooms",
+  "Showers / Locker Rooms",
+  "Loading Dock",
+  "Floor Care Zones",
 ];
 
-const PUNISHMENTS = [
+const TASK_LIBRARY = {
+  Bathrooms: [
+    "Restock toilet paper",
+    "Restock paper towels",
+    "Refill soap",
+    "Clean mirrors",
+    "Disinfect sinks",
+    "Disinfect toilets/urinals",
+    "Mop floor",
+    "Empty trash",
+    "Detail edges/corners",
+  ],
+  "Kitchens / Break Rooms": [
+    "Wipe counters",
+    "Clean sink",
+    "Clean outside of appliances",
+    "Replace liners",
+    "Sweep + mop",
+  ],
+  "Offices / Cubicles": [
+    "Dust surfaces",
+    "Vacuum",
+    "Empty trash",
+    "Spot clean glass",
+  ],
+  Default: [
+    "Dust surfaces",
+    "Sweep + mop",
+    "Empty trash",
+    "Wipe high-touch points",
+  ],
+} as const;
+
+const SUPPLIES = [
   {
-    id: "explosion",
-    label: "Exploding",
-    description: "Shockwave + heat flash",
+    name: "Toilet Paper",
+    details: "Jumbo rolls · Case of 12",
+    price: "$64 / case",
   },
   {
-    id: "acid",
-    label: "Acid",
-    description: "Corrosive drip",
+    name: "Paper Towels",
+    details: "Multifold · Case of 16",
+    price: "$52 / case",
   },
   {
-    id: "bomb",
-    label: "Bomb",
-    description: "Impact pulse",
+    name: "Trash Liners",
+    details: "33 gal · Box of 100",
+    price: "$38 / box",
   },
   {
-    id: "pulling",
-    label: "Pulling",
-    description: "Violent yank",
+    name: "Hand Soap",
+    details: "1 gal refills · Case of 4",
+    price: "$44 / case",
+  },
+  {
+    name: "Disinfectant",
+    details: "Concentrate · 5L",
+    price: "$29 / unit",
+  },
+  {
+    name: "Gloves",
+    details: "Nitrile · Box of 100",
+    price: "$18 / box",
   },
 ];
 
-const alphabet = Array.from({ length: 26 }, (_, i) =>
-  String.fromCharCode(65 + i)
-);
+const SAMPLE_IMAGES = [
+  "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80",
+];
 
-const getRandomWord = () =>
-  WORDS[Math.floor(Math.random() * WORDS.length)];
+const initialAreas = [
+  {
+    id: "area-1",
+    name: "Bathroom #1 - Front Office",
+    type: "Bathrooms",
+    size: "Medium",
+    frequency: "Daily",
+    notes: "High traffic, focus on mirrors and counters.",
+    photo: SAMPLE_IMAGES[0],
+    tasks: TASK_LIBRARY.Bathrooms,
+  },
+  {
+    id: "area-2",
+    name: "Break Room",
+    type: "Kitchens / Break Rooms",
+    size: "Small",
+    frequency: "Weekly",
+    notes: "Wipe appliances and sanitize sink.",
+    photo: SAMPLE_IMAGES[1],
+    tasks: TASK_LIBRARY["Kitchens / Break Rooms"],
+  },
+  {
+    id: "area-3",
+    name: "Open Office",
+    type: "Offices / Cubicles",
+    size: "Large",
+    frequency: "Daily",
+    notes: "Vacuum carpets and empty trash.",
+    photo: SAMPLE_IMAGES[2],
+    tasks: TASK_LIBRARY["Offices / Cubicles"],
+  },
+];
 
 export default function Home() {
-  const [word, setWord] = useState(() => getRandomWord());
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [mistakes, setMistakes] = useState(0);
-  const [punishment, setPunishment] = useState("explosion");
-  const [status, setStatus] = useState("Choose a punishment and begin.");
-  const [effect, setEffect] = useState<string | null>(null);
-  const [started, setStarted] = useState(false);
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Home");
+  const [facilityType, setFacilityType] = useState(FACILITY_TYPES[0]);
+  const [sqft, setSqft] = useState(12000);
+  const [floors, setFloors] = useState("Multi-story");
+  const [traffic, setTraffic] = useState("Medium");
+  const [areas, setAreas] = useState(initialAreas);
+  const [selectedArea, setSelectedArea] = useState(initialAreas[0]);
+  const [supplies, setSupplies] = useState<string[]>([]);
 
-  const wrongGuesses = guesses.filter((letter) => !word.includes(letter));
-  const correctGuesses = guesses.filter((letter) => word.includes(letter));
-  const maxMistakes = LIMBS.length;
-  const isWin = word.split("").every((letter) => correctGuesses.includes(letter));
-  const isLose = mistakes >= maxMistakes;
+  const estimate = useMemo(() => {
+    const base = sqft * 0.08;
+    const trafficMultiplier = traffic === "High" ? 1.3 : traffic === "Low" ? 0.9 : 1;
+    const areaFactor = areas.length * 150;
+    const low = Math.round((base + areaFactor) * trafficMultiplier);
+    const high = Math.round(low * 1.25 + 250);
+    return { low, high };
+  }, [sqft, traffic, areas.length]);
 
-  const maskedWord = useMemo(
-    () =>
-      word
-        .split("")
-        .map((letter) => (correctGuesses.includes(letter) ? letter : "_"))
-        .join(" "),
-    [word, correctGuesses]
-  );
-
-  const handleGuess = (letter: string) => {
-    if (!started || isWin || isLose) return;
-    if (guesses.includes(letter)) return;
-
-    const nextGuesses = [...guesses, letter];
-    setGuesses(nextGuesses);
-
-    if (word.includes(letter)) {
-      setStatus("Correct. Keep going.");
-    } else {
-      setMistakes((prev) => prev + 1);
-      setStatus("Wrong. The punishment advances.");
-    }
+  const addArea = (type: string) => {
+    const tasks = TASK_LIBRARY[type as keyof typeof TASK_LIBRARY] ?? TASK_LIBRARY.Default;
+    const newArea = {
+      id: `area-${areas.length + 1}`,
+      name: `${type} #${areas.length + 1}`,
+      type,
+      size: "Medium",
+      frequency: "Weekly",
+      notes: "",
+      photo: SAMPLE_IMAGES[areas.length % SAMPLE_IMAGES.length],
+      tasks,
+    };
+    setAreas((prev) => [...prev, newArea]);
+    setSelectedArea(newArea);
   };
 
-  const startGame = () => {
-    setStarted(true);
-    setStatus("Guess the word before the final limb drops.");
+  const toggleSupply = (item: string) => {
+    setSupplies((prev) =>
+      prev.includes(item) ? prev.filter((s) => s !== item) : [...prev, item]
+    );
   };
-
-  const resetGame = () => {
-    setWord(getRandomWord());
-    setGuesses([]);
-    setMistakes(0);
-    setStatus("New target locked.");
-    setStarted(true);
-  };
-
-  useEffect(() => {
-    if (!started) return;
-    if (mistakes === 0) return;
-    setEffect(punishment);
-    const timer = window.setTimeout(() => setEffect(null), 700);
-    return () => window.clearTimeout(timer);
-  }, [mistakes, punishment, started]);
-
-  useEffect(() => {
-    if (isWin) {
-      setStatus("Victory. You cracked the code.");
-    }
-  }, [isWin]);
-
-  useEffect(() => {
-    if (isLose) {
-      setStatus(`Failure. The word was ${word}.`);
-    }
-  }, [isLose, word]);
 
   return (
-    <main className="arena">
+    <main className="page">
       <header className="hero">
-        <p className="eyebrow">Hangman Execution Lab</p>
-        <h1>Choose the punishment. Save the word.</h1>
-        <p className="lead">
-          Intensive mode: every mistake removes a limb and triggers your selected
-          effect. One wrong move too many and it’s over.
-        </p>
+        <div>
+          <p className="eyebrow">Janitorial Facility Builder</p>
+          <h1>Instant estimates + supplies, all in one request.</h1>
+          <p className="lead">
+            Build a digital twin of your facility, attach photos per area, select
+            tasks, and request a quote in minutes.
+          </p>
+        </div>
+        <div className="hero-card">
+          <h2>Say Yes Travel Agency</h2>
+          <p>Customer-facing MVP · Janitorial Services</p>
+          <button>Request a Quote</button>
+        </div>
       </header>
 
-      <section className="layout">
-        <div className="left-panel">
-          <div className="stage">
-            <div className={`effect ${effect ?? ""}`}></div>
-            <div className={`shock ${effect ? "active" : ""}`}></div>
-            <div className="gallows">
-              <div className="beam"></div>
-              <div className="post"></div>
-              <div className="base"></div>
-              <div className="rope"></div>
-              <div className="figure">
-                <div className={`head ${mistakes > 0 ? "on" : ""}`}></div>
-                <div className={`torso ${mistakes > 1 ? "on" : ""}`}></div>
-                <div className={`arm left ${mistakes > 2 ? "on" : ""}`}></div>
-                <div className={`arm right ${mistakes > 3 ? "on" : ""}`}></div>
-                <div className={`leg left ${mistakes > 4 ? "on" : ""}`}></div>
-                <div className={`leg right ${mistakes > 5 ? "on" : ""}`}></div>
-              </div>
-            </div>
+      <nav className="tabs">
+        {TABS.map((item) => (
+          <button
+            key={item}
+            className={tab === item ? "active" : ""}
+            onClick={() => setTab(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "Home" && (
+        <section className="grid">
+          <div className="panel">
+            <h3>Getting started</h3>
+            <ol>
+              <li>Choose facility type + size.</li>
+              <li>Add rooms/areas and attach photos.</li>
+              <li>Select tasks and frequency.</li>
+              <li>Receive instant estimate range.</li>
+            </ol>
+          </div>
+          <div className="panel">
+            <h3>Supplies included</h3>
+            <p>
+              Bundle recurring consumables like toilet paper, paper towels, trash
+              liners, soaps and disinfectants directly into your plan.
+            </p>
+          </div>
+          <div className="panel">
+            <h3>Admin-ready pipeline</h3>
+            <p>
+              Structured data: facility summary, area breakdown, photos, checklists
+              and supply needs.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {tab === "My Facility" && (
+        <section className="facility">
+          <div className="panel">
+            <h3>Facility Details</h3>
+            <label>
+              Facility type
+              <select value={facilityType} onChange={(e) => setFacilityType(e.target.value)}>
+                {FACILITY_TYPES.map((type) => (
+                  <option key={type}>{type}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Square footage
+              <input
+                type="range"
+                min={1000}
+                max={50000}
+                step={500}
+                value={sqft}
+                onChange={(e) => setSqft(Number(e.target.value))}
+              />
+              <span>{sqft.toLocaleString()} sq ft</span>
+            </label>
+            <label>
+              Floors
+              <select value={floors} onChange={(e) => setFloors(e.target.value)}>
+                <option>Single story</option>
+                <option>Multi-story</option>
+              </select>
+            </label>
+            <label>
+              Foot traffic
+              <select value={traffic} onChange={(e) => setTraffic(e.target.value)}>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </label>
           </div>
 
-          <div className="status-card">
-            <div className="status-row">
-              <span>Wrong</span>
-              <strong>
-                {wrongGuesses.length} / {maxMistakes}
-              </strong>
-            </div>
-            <div className="status-row">
-              <span>Effect</span>
-              <strong>{punishment.toUpperCase()}</strong>
-            </div>
-            <p className="status">{status}</p>
-          </div>
-        </div>
-
-        <div className="right-panel">
-          <div className="punishments">
-            <h2>Pick your punishment</h2>
-            <div className="punish-grid">
-              {PUNISHMENTS.map((item) => (
-                <button
-                  key={item.id}
-                  className={`punish-card ${
-                    punishment === item.id ? "active" : ""
-                  }`}
-                  onClick={() => setPunishment(item.id)}
-                  disabled={started}
-                >
-                  <h3>{item.label}</h3>
-                  <p>{item.description}</p>
+          <div className="panel">
+            <h3>Areas & Zones</h3>
+            <div className="template-grid">
+              {AREA_TEMPLATES.map((template) => (
+                <button key={template} onClick={() => addArea(template)}>
+                  + {template}
                 </button>
               ))}
             </div>
-            {!started ? (
-              <button className="primary" onClick={startGame}>
-                Start
-              </button>
-            ) : (
-              <button className="primary" onClick={resetGame}>
-                New Word
-              </button>
-            )}
-          </div>
-
-          <div className="word-card">
-            <h2>Target</h2>
-            <div className={`word ${isLose ? "failed" : ""}`}>{maskedWord}</div>
-            <div className="guesses">
-              {guesses.length === 0
-                ? "No guesses yet."
-                : `Guessed: ${guesses.join(", ")}`}
+            <div className="area-list">
+              {areas.map((area) => (
+                <button
+                  key={area.id}
+                  className={selectedArea.id === area.id ? "active" : ""}
+                  onClick={() => setSelectedArea(area)}
+                >
+                  <span>{area.name}</span>
+                  <small>{area.frequency}</small>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="keyboard">
-            {alphabet.map((letter) => (
-              <button
-                key={letter}
-                onClick={() => handleGuess(letter)}
-                disabled={!started || guesses.includes(letter) || isWin || isLose}
-                className={guesses.includes(letter) ? "used" : ""}
-              >
-                {letter}
-              </button>
-            ))}
+          <div className="panel detail">
+            <h3>{selectedArea.name}</h3>
+            <p className="meta">
+              {selectedArea.type} · {selectedArea.size} · {selectedArea.frequency}
+            </p>
+            <img src={selectedArea.photo} alt={selectedArea.name} />
+            <h4>What needs to be done here?</h4>
+            <ul>
+              {selectedArea.tasks.map((task) => (
+                <li key={task}>{task}</li>
+              ))}
+            </ul>
+            <label>
+              Notes / problem areas
+              <textarea value={selectedArea.notes} readOnly rows={3}></textarea>
+            </label>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {tab === "Estimate" && (
+        <section className="estimate">
+          <div className="panel">
+            <h3>Instant Estimate</h3>
+            <p>
+              Facility: {facilityType} · {sqft.toLocaleString()} sq ft · {floors}
+            </p>
+            <p>Areas: {areas.length}</p>
+            <p>Traffic: {traffic}</p>
+            <div className="price-range">
+              ${estimate.low.toLocaleString()} – ${estimate.high.toLocaleString()}
+            </div>
+            <button>Request Final Quote</button>
+          </div>
+          <div className="panel">
+            <h3>What we receive</h3>
+            <ul>
+              <li>Facility summary + operating hours</li>
+              <li>Area breakdown with photos + checklists</li>
+              <li>Supplies request + recurring schedule</li>
+              <li>Preferred start date + access notes</li>
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {tab === "Supplies" && (
+        <section className="supplies">
+          <div className="panel">
+            <h3>Consumables Catalog</h3>
+            <p>Toggle items to include in your recurring restock plan.</p>
+            <div className="supply-grid">
+              {SUPPLIES.map((item) => (
+                <button
+                  key={item.name}
+                  className={supplies.includes(item.name) ? "active" : ""}
+                  onClick={() => toggleSupply(item.name)}
+                >
+                  <strong>{item.name}</strong>
+                  <span>{item.details}</span>
+                  <em>{item.price}</em>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="panel">
+            <h3>Supply Needs Calculator</h3>
+            <p>
+              Example: 25 employees · 2 bathrooms · High traffic → Suggested 4
+              cases of paper towels per month.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {tab === "Account" && (
+        <section className="grid">
+          <div className="panel">
+            <h3>Contact</h3>
+            <p>Phone: 510-329-8786</p>
+            <p>Email: sayyes@gmail.com</p>
+          </div>
+          <div className="panel">
+            <h3>Service Schedule</h3>
+            <p>Coming soon: manage recurring visits and staff assignments.</p>
+          </div>
+        </section>
+      )}
 
       <style jsx>{`
         :global(body) {
           margin: 0;
-          font-family: "Bebas Neue", "Oswald", sans-serif;
-          background: #0b0f1a;
-          color: #f8fafc;
+          font-family: "Inter", system-ui, sans-serif;
+          background: #f8fafc;
+          color: #0f172a;
         }
-        .arena {
-          min-height: 100vh;
-          padding: 48px clamp(24px, 6vw, 90px) 64px;
+        .page {
+          padding: 48px clamp(24px, 6vw, 80px) 72px;
           display: grid;
           gap: 32px;
         }
         .hero {
           display: grid;
-          gap: 12px;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 24px;
+          align-items: center;
         }
         .eyebrow {
           text-transform: uppercase;
-          letter-spacing: 0.4em;
+          letter-spacing: 0.3em;
           font-size: 12px;
-          color: #f97316;
-          margin: 0;
+          color: #0ea5e9;
+          margin: 0 0 12px;
         }
         h1 {
-          font-size: clamp(2.4rem, 4vw, 3.6rem);
-          margin: 0;
+          font-size: clamp(2rem, 3vw, 3rem);
+          margin: 0 0 12px;
         }
         .lead {
-          margin: 0;
           font-size: 18px;
-          color: #cbd5f5;
-          max-width: 700px;
+          color: #475569;
           line-height: 1.7;
+          margin: 0;
         }
-        .layout {
-          display: grid;
-          grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
-          gap: 32px;
-          align-items: start;
-        }
-        .left-panel {
-          display: grid;
-          gap: 24px;
-        }
-        .stage {
-          position: relative;
-          border-radius: 28px;
-          background: radial-gradient(circle at 20% 20%, #2b3345, #0b0f1a 65%);
-          height: 420px;
-          overflow: hidden;
-          border: 1px solid rgba(148, 163, 184, 0.25);
-          perspective: 1000px;
-          box-shadow: inset 0 0 120px rgba(15, 23, 42, 0.6),
-            0 24px 60px rgba(15, 23, 42, 0.4);
-        }
-        .gallows {
-          position: absolute;
-          inset: 0;
-          transform-style: preserve-3d;
-        }
-        .beam {
-          position: absolute;
-          width: 240px;
-          height: 12px;
-          background: linear-gradient(90deg, #7c4a1f, #a16207, #6b3f1f);
-          top: 80px;
-          left: 120px;
-          border-radius: 6px;
-          box-shadow: 0 10px 16px rgba(15, 23, 42, 0.4);
-          transform: translateZ(18px);
-        }
-        .beam::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent);
-          border-radius: 6px;
-        }
-        .post {
-          position: absolute;
-          width: 14px;
-          height: 240px;
-          background: linear-gradient(180deg, #8b5a2b, #5b3a1c);
-          top: 80px;
-          left: 120px;
-          border-radius: 6px;
-          box-shadow: 0 12px 20px rgba(15, 23, 42, 0.45);
-          transform: translateZ(18px);
-        }
-        .base {
-          position: absolute;
-          width: 200px;
-          height: 16px;
-          background: linear-gradient(90deg, #3f2a1a, #1f2937);
-          bottom: 90px;
-          left: 80px;
-          border-radius: 8px;
-          box-shadow: 0 18px 24px rgba(15, 23, 42, 0.5);
-          transform: translateZ(6px);
-        }
-        .rope {
-          position: absolute;
-          width: 4px;
-          height: 80px;
-          background: linear-gradient(180deg, #f8fafc, #94a3b8);
-          top: 92px;
-          left: 350px;
-          box-shadow: 0 6px 12px rgba(15, 23, 42, 0.4);
-          transform: translateZ(18px);
-        }
-        .figure {
-          position: absolute;
-          top: 160px;
-          left: 320px;
-          width: 140px;
-          height: 220px;
-          transform: translateZ(16px);
-        }
-        .head {
-          position: absolute;
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          border: 4px solid #f97316;
-          background: radial-gradient(circle at 30% 30%, #fbbf24, #f97316);
-          top: 0;
-          left: 40px;
-          opacity: 0.1;
-          transform: scale(0.8);
-          transition: all 0.3s ease;
-          box-shadow: 0 12px 18px rgba(15, 23, 42, 0.5);
-        }
-        .head.on {
-          opacity: 1;
-          transform: scale(1);
-        }
-        .torso {
-          position: absolute;
-          width: 8px;
-          height: 90px;
-          background: linear-gradient(180deg, #fb923c, #f97316);
-          top: 64px;
-          left: 66px;
-          opacity: 0.1;
-          transition: opacity 0.3s ease;
-          box-shadow: 0 8px 14px rgba(15, 23, 42, 0.45);
-        }
-        .torso.on {
-          opacity: 1;
-        }
-        .arm,
-        .leg {
-          position: absolute;
-          width: 70px;
-          height: 8px;
-          background: linear-gradient(90deg, #fb923c, #f97316);
-          opacity: 0.1;
-          transition: opacity 0.3s ease, transform 0.3s ease;
-          box-shadow: 0 8px 12px rgba(15, 23, 42, 0.45);
-        }
-        .arm.left {
-          top: 90px;
-          left: 0;
-          transform: rotate(-25deg);
-        }
-        .arm.right {
-          top: 90px;
-          left: 66px;
-          transform: rotate(25deg);
-        }
-        .leg.left {
-          top: 150px;
-          left: 6px;
-          transform: rotate(25deg);
-        }
-        .leg.right {
-          top: 150px;
-          left: 66px;
-          transform: rotate(-25deg);
-        }
-        .arm.on,
-        .leg.on {
-          opacity: 1;
-        }
-        .effect {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-        }
-        .effect.explosion {
-          background: radial-gradient(circle at center, #f97316, transparent 70%);
-          animation: blast 0.6s ease;
-          opacity: 1;
-        }
-        .effect.acid {
-          background: linear-gradient(180deg, rgba(34, 197, 94, 0.8), transparent);
-          animation: drip 0.6s ease;
-          opacity: 1;
-        }
-        .effect.bomb {
-          background: radial-gradient(circle at center, #facc15, transparent 70%);
-          animation: shock 0.6s ease;
-          opacity: 1;
-        }
-        .effect.pulling {
-          background: linear-gradient(90deg, rgba(244, 63, 94, 0.8), transparent);
-          animation: yank 0.6s ease;
-          opacity: 1;
-        }
-        .shock {
-          position: absolute;
-          inset: 0;
-          border: 2px solid rgba(248, 250, 252, 0.4);
-          opacity: 0;
-        }
-        .shock.active {
-          animation: pulse 0.6s ease;
-          opacity: 1;
-        }
-        .status-card {
+        .hero-card {
+          background: #0f172a;
+          color: #f8fafc;
+          padding: 24px;
           border-radius: 20px;
-          padding: 18px 20px;
-          background: #111827;
-          border: 1px solid rgba(148, 163, 184, 0.2);
           display: grid;
+          gap: 12px;
+        }
+        .hero-card button {
+          background: #38bdf8;
+          color: #0f172a;
+          border: none;
+          padding: 10px 16px;
+          border-radius: 999px;
+          cursor: pointer;
+        }
+        .tabs {
+          display: flex;
+          flex-wrap: wrap;
           gap: 10px;
         }
-        .status-row {
-          display: flex;
-          justify-content: space-between;
-          font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: #94a3b8;
-        }
-        .status {
-          margin: 0;
-          color: #f8fafc;
-          font-size: 16px;
-          letter-spacing: 0.05em;
-        }
-        .right-panel {
-          display: grid;
-          gap: 24px;
-        }
-        .punishments {
-          background: #111827;
-          border-radius: 20px;
-          padding: 20px;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          display: grid;
-          gap: 16px;
-        }
-        .punish-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 12px;
-        }
-        .punish-card {
-          background: #0b0f1a;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          border-radius: 14px;
-          padding: 12px;
-          text-align: left;
-          color: inherit;
-          cursor: pointer;
-        }
-        .punish-card.active {
-          border-color: #f97316;
-          box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
-        }
-        .punish-card h3 {
-          margin: 0 0 6px;
-          font-size: 16px;
-        }
-        .punish-card p {
-          margin: 0;
-          font-size: 12px;
-          color: #94a3b8;
-        }
-        .primary {
-          background: #f97316;
-          border: none;
-          color: #0b0f1a;
-          padding: 12px 18px;
+        .tabs button {
+          border: 1px solid #e2e8f0;
+          background: #fff;
+          padding: 10px 16px;
           border-radius: 999px;
-          font-weight: 700;
           cursor: pointer;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
         }
-        .word-card {
-          background: #111827;
-          border-radius: 20px;
+        .tabs button.active {
+          background: #0ea5e9;
+          color: #fff;
+          border-color: transparent;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 20px;
+        }
+        .panel {
+          background: #fff;
           padding: 20px;
-          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 18px;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
           display: grid;
           gap: 12px;
         }
-        .word {
-          font-size: clamp(1.8rem, 3vw, 2.6rem);
-          letter-spacing: 0.3em;
-          color: #f8fafc;
+        .panel h3 {
+          margin: 0;
         }
-        .word.failed {
-          color: #f43f5e;
+        .panel label {
+          display: grid;
+          gap: 6px;
+          font-size: 14px;
+          color: #475569;
         }
-        .guesses {
-          color: #94a3b8;
+        .panel input,
+        .panel select,
+        .panel textarea {
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 8px 10px;
           font-size: 14px;
         }
-        .keyboard {
+        .facility {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-          gap: 8px;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 20px;
         }
-        .keyboard button {
-          background: #111827;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          color: #f8fafc;
-          padding: 10px 0;
+        .template-grid {
+          display: grid;
+          gap: 8px;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+        .template-grid button {
+          background: #e0f2fe;
+          border: none;
+          padding: 8px 10px;
           border-radius: 10px;
           cursor: pointer;
         }
-        .keyboard button.used {
-          opacity: 0.4;
-          cursor: not-allowed;
+        .area-list {
+          display: grid;
+          gap: 8px;
         }
-        @keyframes blast {
-          0% {
-            transform: scale(0.3);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(1.2);
-            opacity: 0;
-          }
+        .area-list button {
+          display: flex;
+          justify-content: space-between;
+          border: 1px solid #e2e8f0;
+          padding: 10px;
+          border-radius: 12px;
+          background: #fff;
+          cursor: pointer;
         }
-        @keyframes drip {
-          0% {
-            transform: translateY(-40px);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateY(40px);
-            opacity: 0;
-          }
+        .area-list button.active {
+          border-color: #0ea5e9;
+          box-shadow: 0 8px 18px rgba(14, 165, 233, 0.2);
         }
-        @keyframes shock {
-          0% {
-            transform: scale(0.6);
-            opacity: 0.9;
-          }
-          100% {
-            transform: scale(1.2);
-            opacity: 0;
-          }
+        .detail img {
+          width: 100%;
+          border-radius: 14px;
+          height: 180px;
+          object-fit: cover;
         }
-        @keyframes yank {
-          0% {
-            transform: translateX(-20px);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateX(40px);
-            opacity: 0;
-          }
+        .detail h4 {
+          margin: 0;
         }
-        @keyframes pulse {
-          0% {
-            transform: scale(0.9);
-            opacity: 0.6;
-          }
-          100% {
-            transform: scale(1.2);
-            opacity: 0;
-          }
+        .detail ul {
+          margin: 0;
+          padding-left: 18px;
+          color: #475569;
         }
-        @media (max-width: 900px) {
-          .layout {
-            grid-template-columns: 1fr;
-          }
-          .stage {
-            height: 360px;
+        .estimate {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 20px;
+        }
+        .price-range {
+          font-size: 28px;
+          font-weight: 700;
+          color: #0ea5e9;
+        }
+        .estimate button {
+          border: none;
+          background: #0ea5e9;
+          color: #fff;
+          padding: 10px 16px;
+          border-radius: 999px;
+          cursor: pointer;
+        }
+        .supplies {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 20px;
+        }
+        .supply-grid {
+          display: grid;
+          gap: 10px;
+        }
+        .supply-grid button {
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 12px;
+          text-align: left;
+          background: #fff;
+          display: grid;
+          gap: 6px;
+          cursor: pointer;
+        }
+        .supply-grid button.active {
+          border-color: #22c55e;
+          background: #f0fdf4;
+        }
+        @media (max-width: 640px) {
+          .hero-card {
+            order: -1;
           }
         }
       `}</style>
