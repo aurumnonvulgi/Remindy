@@ -67,6 +67,17 @@ const TASK_LIBRARY = {
   ],
 } as const;
 
+type Area = {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  frequency: string;
+  notes: string;
+  photo: string;
+  tasks: readonly string[];
+};
+
 const SUPPLIES = [
   {
     name: "Toilet Paper",
@@ -106,7 +117,7 @@ const SAMPLE_IMAGES = [
   "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80",
 ];
 
-const initialAreas = [
+const initialAreas: Area[] = [
   {
     id: "area-1",
     name: "Bathroom #1 - Front Office",
@@ -145,7 +156,7 @@ export default function Home() {
   const [sqft, setSqft] = useState(12000);
   const [floors, setFloors] = useState("Multi-story");
   const [traffic, setTraffic] = useState("Medium");
-  const [areas, setAreas] = useState(initialAreas);
+  const [areas, setAreas] = useState<Area[]>(initialAreas);
   const [selectedArea, setSelectedArea] = useState(initialAreas[0]);
   const [supplies, setSupplies] = useState<string[]>([]);
 
